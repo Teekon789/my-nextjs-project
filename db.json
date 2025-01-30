@@ -1,0 +1,18 @@
+{
+  "travel_requests": [
+    {
+      "id": 1,
+      "contract_number": "T001",
+      "fullname": "สมชาย ใจดี",
+      "destination": "เชียงใหม่",
+      "status": "pending"
+    },
+    {
+      "id": 2,
+      "contract_number": "T002",
+      "fullname": "สมหญิง ใจเย็น",
+      "destination": "กรุงเทพฯ",
+      "status": "approved"
+    }
+  ]
+}

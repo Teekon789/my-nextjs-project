@@ -1,0 +1,139 @@
+/*globals.css*/
+
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* สีที่ใช้งาน */
+@layer base {
+  :root {
+    --background: 0 0% 98%;    /* สีพื้นหลังอ่อนสุด */
+    --foreground: 0 0% 20%;    /* ตัวอักษรสีเข้ม */
+    --card: 0 0% 100%;         /* สีพื้นการ์ดขาว */
+    --card-foreground: 0 0% 20%; /* ตัวอักษรในการ์ด */
+    --popover: 0 0% 100%;      /* พื้นป๊อปอัพ */
+    --popover-foreground: 0 0% 20%; /* ตัวอักษรในป๊อปอัพ */
+    --primary: 210 100% 45%;    /* สีหลัก: สีน้ำเงิน */
+    --primary-foreground: 0 0% 100%; /* สีตัวอักษรในพื้นน้ำเงิน */
+    --secondary: 45 100% 60%;   /* สีรอง: สีเหลืองอ่อน */
+    --secondary-foreground: 0 0% 100%; /* สีตัวอักษรในพื้นสีรอง */
+    --accent: 160 60% 50%;      /* สีเน้น: เขียวมิ้นต์ */
+    --accent-foreground: 0 0% 100%; /* ตัวอักษรสีเข้มในพื้นเน้น */
+    --destructive: 0 84% 60%;    /* สีแจ้งเตือนอันตราย */
+    --destructive-foreground: 0 0% 100%; /* ตัวอักษรในสีแจ้งเตือน */
+    --border: 0 0% 80%;          /* สีขอบอ่อน */
+    --input: 210 20% 90%;        /* สีขอบอินพุตอ่อน */
+    --ring: 210 100% 40%;        /* สีวงแหวนโฟกัส */
+    --radius: 0.5rem;            /* รัศมีขอบมน */
+    
+  }
+}
+
+@layer base {
+  * {
+    @apply border-[#000000];
+    
+  }
+  body {
+    @apply bg-background text-foreground font-prompt;
+   
+  }
+}
+
+
+
+/* สไตล์ปุ่มพื้นฐาน */
+.btn-base {
+  @apply font-prompt font-medium rounded-lg cursor-pointer px-4 py-2 transition-all duration-300;
+}
+
+.btn-approve {
+  @apply btn-base text-white bg-green-500 hover:bg-green-600; /* ปรับให้ปุ่มอนุมัติสีเขียวสด */
+}
+
+.btn-reject {
+  @apply btn-base text-white bg-red-500 hover:bg-red-600;  /* ปรับให้ปุ่มปฏิเสธสีแดงสด */
+}
+
+.btn-view {
+  @apply btn-base text-primary bg-blue-100 hover:bg-blue-200;  /* ปรับปุ่มดูรายละเอียดเป็นน้ำเงินอ่อน */
+}
+
+.btn-delete {
+  @apply btn-base text-white bg-red-500 hover:bg-red-600;  /* ปรับปุ่มลบให้สีแดงสด */
+}
+
+/* สไตล์การ์ด */
+.card {
+  @apply bg-white rounded-xl p-6 border border-[#b1b1b1] shadow-md hover:shadow-lg transition-shadow duration-300; /* การ์ดขาวและเงา */
+}
+
+/* ปรับการ์ดสถิติให้มีสีที่นุ่มนวลขึ้น */
+.card-totalPosts {
+  @apply bg-gradient-to-br from-orange-400/90 via-orange-500/80 to-orange-600/90
+  hover:from-orange-500/90 hover:via-orange-600/80 hover:to-orange-700/90
+  text-white shadow-lg hover:shadow-xl
+  transition-all duration-300
+  transform hover:scale-105
+  rounded-xl;
+}
+
+.card-pendingApproval {
+  @apply bg-gradient-to-r from-amber-400/90 via-amber-500/80 to-amber-500/90  
+  hover:from-amber-500/90 hover:via-amber-600/80 hover:to-amber-600/90
+  text-slate-50
+  transition-all
+  transform 
+  hover:scale-105;
+}
+
+.card-approved {
+  @apply bg-gradient-to-r from-emerald-400/90 via-emerald-500/80 to-emerald-500/90
+  hover:from-emerald-500/90 hover:via-emerald-600/80 hover:to-emerald-600/90
+  text-slate-50
+  transition-all
+  transform 
+  hover:scale-105;
+}
+
+.card-rejected {
+  @apply bg-gradient-to-r from-red-400/90 via-red-500/80 to-red-500/90
+  hover:from-red-500/90 hover:via-red-600/80 hover:to-red-600/90
+  text-slate-50
+  transition-all
+  transform 
+  hover:scale-105;
+}
+
+/* สไตล์โลโก้ */
+.logo {
+  @apply border-none inline-block p-2 rounded-lg transition-all duration-300;
+  background: rgba(107, 68, 35, 0.05); /* โลโก้พื้นหลังสีน้ำตาลอ่อน */
+}
+
+.logo:hover {
+  @apply transform -rotate-3 scale-105;
+  background: rgba(107, 68, 35, 0.1); /* เอฟเฟกต์เมื่อโฮเวอร์ */
+}
+
+/* สไตล์สถานะ */
+.status-badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.status-approved {
+  @apply bg-green-500 text-white; /* สถานะอนุมัติ */
+}
+
+.status-pending {
+  @apply bg-yellow-500 text-white; /* สถานะรอดำเนินการ */
+}
+
+.status-rejected {
+  @apply bg-red-500 text-white; /* สถานะปฏิเสธ */
+}
+
