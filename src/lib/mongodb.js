@@ -27,9 +27,7 @@ async function connectWithRetry(retryCount = 1) {
 
     if (retryCount < 5) {
       const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
-      setTimeout(() => {
-        connectWithRetry(retryCount + 1);
-      }, delay);
+      setTimeout(() => connectWithRetry(retryCount + 1), delay);
     } else {
       console.error('Failed to connect to MongoDB after multiple attempts');
     }
@@ -49,9 +47,14 @@ mongoose.connection.on('error', (error) => {
 });
 
 process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log('MongoDB connection closed due to app termination');
-  process.exit(0);
+  try {
+    await mongoose.connection.close();
+    console.log('MongoDB connection closed due to app termination');
+  } catch (error) {
+    console.error('Error closing MongoDB connection:', error);
+  } finally {
+    process.exit(0);
+  }
 });
 
 export async function connectMongoDB() {

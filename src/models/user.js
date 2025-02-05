@@ -26,13 +26,25 @@ const userSchema = new mongoose.Schema({
       return this.role === 'user';
     }
   },
+
+  
+
   fullname: String,
   department: String,
   email: String,
   employeeId: String, // รหัสพนักงาน/รหัสนักศึกษา
   position: String,   // ตำแหน่ง
   faculty: String,    // คณะ
-  tel: String        // เบอร์โทรศัพท์
+  tel: String  ,      // เบอร์โทรศัพท์ 
+
+  globalInvalidationToken: {
+    type: String,
+    default: null
+  },
+  globalInvalidationTimestamp: {
+    type: Date,
+    default: null
+  },
 });
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

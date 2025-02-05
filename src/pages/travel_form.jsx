@@ -1,9 +1,11 @@
-"use client";
 
-import { useState } from 'react';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/router";
+
 import axios from 'axios';
+
+
 
 const provinces = [ "เลือกจังหวัด ",
   "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", 
@@ -54,33 +56,100 @@ const TravelForm = () => {
     trip_date: '',
     travelers: []
   });
-
+  
+//
   const router = useRouter();
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function validateUser() {
+      const storedToken = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+
+      if (!storedToken || !storedUser) {
+        router.push('/');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/auth/validateToken', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${storedToken}`
+          }
+        });
+
+        if (res.status === 401) {
+          // Token หมดอายุ → ให้ Logout
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          router.push('/');
+          return;
+        }
+
+        const data = await res.json();
+        setToken(storedToken);
+        setUser(storedUser);
+      } catch (error) {
+        console.error('Error validating token:', error);
+        router.push('/');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    validateUser();
+  }, []);
+
+  if (isLoading) return <p>กำลังโหลด...</p>;
+
+
+
 
   const handleTravelerChange = (index, e) => {
     const { name, value } = e.target;
-    const newTravelers = [...formData.travelers];
-    newTravelers[index][name] = value;
     setFormData((prevData) => ({
       ...prevData,
-      travelers: newTravelers
+      travelers: prevData.travelers.map((traveler, i) =>
+        i === index ? { ...traveler, [name]: value } : traveler
+      ),
     }));
   };
-
+  
   const handleAddTraveler = () => {
     setFormData((prevData) => ({
       ...prevData,
-      travelers: [...prevData.travelers, { }]
+      travelers: [
+        ...prevData.travelers,
+        {
+          traveler_name: "",
+          personnel_type: "",
+          traveler_relation: "",
+          email: "",
+          phone: "",
+        },
+      ],
     }));
   };
-
+  
   const handleRemoveTraveler = (index) => {
-    const newTravelers = formData.travelers.filter((_, i) => i !== index);
     setFormData((prevData) => ({
       ...prevData,
-      travelers: newTravelers
+      travelers: prevData.travelers.filter((_, i) => i !== index),
     }));
   };
+  
 
   const parseAmount = (amount) => {
     return amount === "" || amount === null || amount === undefined || isNaN(amount) ? 0 : parseFloat(amount);
@@ -113,7 +182,7 @@ const TravelForm = () => {
     });
   };
 
-  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -151,7 +220,9 @@ const TravelForm = () => {
       setIsLoading(false);
     }
   };
+
   
+
   return (
 
     <div className="container mx-auto max-w-screen-md p-3 bg-gray-100 rounded-lg shadow-md">
@@ -490,76 +561,71 @@ const TravelForm = () => {
           </div>
 
           <div className="col-span-2">
-            
-            {formData.travelers.map((traveler, index) => (
-              <div key={index} className="traveler-form mb-4 p-4 border rounded-lg">
-                <label className="block mb-2 text-sm font-medium text-gray-700">ผู้ร่วมเดินทาง:</label>
-                <input
-                  type="text"
-                  name="traveler_name"
-                  placeholder="ชื่อผู้เดินทาง"
-                  value={traveler.traveler_name}
-                  onChange={(e) => handleTravelerChange(index, e)}
-                  class="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
-                  focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto" 
-                />
-                <input
-                  type="text"
-                  name="personnel_type"
-                  placeholder="ประเภทบุคลากร"
-                  value={traveler.personnel_type}
-                  onChange={(e) => handleTravelerChange(index, e)}
-                 class="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
-                  focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
-                />
-                <input
-                  type="text"
-                  name="traveler_relation"
-                  placeholder="หน่วยงาน"
-                  value={traveler.traveler_relation}
-                  onChange={(e) => handleTravelerChange(index, e)}
-                  class="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
-                  focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
-                />
-               
-               <input
-                  type="email"
-                  name="email"
-                  placeholder="อีเมล"
-                  value={traveler.email}
-                  onChange={(e) => handleTravelerChange(index, e)}
-                  class="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
-                  focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
-                />
-
-
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="เบอร์โทร"
-                  value={traveler.phone}
-                  onChange={(e) => handleTravelerChange(index, e)}
-                  class="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
-                  focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
-                />
-                
-                <button
-  type="button"
-  onClick={() => handleRemoveTraveler(index)}
-  className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95 transition duration-200"
->
-  ลบ
-</button>
-              </div>
-            ))}
-            <button
-  type="button"
-  onClick={handleAddTraveler}
-  className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95 transition duration-200"
->
-  เพิ่มผู้เดินทาง
-</button>
-          </div>
+          {formData.travelers.map((traveler, index) => (
+            <div key={index} className="traveler-form mb-4 p-4 border rounded-lg">
+              <label className="block mb-2 text-sm font-medium text-gray-700">ผู้ร่วมเดินทาง:</label>
+              <input
+                type="text"
+                name="traveler_name"
+                placeholder="ชื่อผู้เดินทาง"
+                value={traveler.traveler_name || ""}
+                onChange={(e) => handleTravelerChange(index, e)}
+                className="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
+                focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
+              />
+              <input
+                type="text"
+                name="personnel_type"
+                placeholder="ประเภทบุคลากร"
+                value={traveler.personnel_type || ""}
+                onChange={(e) => handleTravelerChange(index, e)}
+                className="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
+                focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
+              />
+              <input
+                type="text"
+                name="traveler_relation"
+                placeholder="หน่วยงาน"
+                value={traveler.traveler_relation || ""}
+                onChange={(e) => handleTravelerChange(index, e)}
+                className="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
+                focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="อีเมล"
+                value={traveler.email || ""}
+                onChange={(e) => handleTravelerChange(index, e)}
+                className="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
+                focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
+              />
+              <input
+                type="tel"
+                name="phone"
+                placeholder="เบอร์โทร"
+                value={traveler.phone || ""}
+                onChange={(e) => handleTravelerChange(index, e)}
+                className="form-input mt-1 block w-3/4 mb-4 p-3 border-2 border-gray-300 rounded-lg shadow-sm focus:ring-2
+                focus:ring-blue-500 focus:border-blue-500 transition duration-300 ease-in-out mx-auto"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveTraveler(index)}
+                className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95 transition duration-200"
+              >
+                ลบ
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddTraveler}
+            className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 active:scale-95 transition duration-200"
+          >
+            เพิ่มผู้เดินทาง
+          </button>
+        </div>
 
           <div className="col-span-2">
             <label className="block mb-2 text-sm font-medium text-gray-700">รวมงบประมาณ :</label>

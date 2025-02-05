@@ -1,8 +1,10 @@
 //approval.jsx
+
+
 import { useState, useEffect, useCallback } from 'react';
-import { AiOutlineEye } from "react-icons/ai";
+
 import { FaSignOutAlt, FaFilter, FaPlus, FaUserCircle } from "react-icons/fa";
-import { IoIosDocument } from "react-icons/io";
+
 import { BsSearch } from "react-icons/bs";
 import Link from "next/link";
 import { useRouter } from 'next/router';
@@ -12,15 +14,21 @@ import PostGraph from "../components/PostGraph";
 import Pagination from "../components/Pagination";
 import ExpenseForm from "../components/ExpenseForm";
 import { ToastContainer, toast } from "react-toastify";
-import Image from "next/image"; 
-import mn_1 from "@/logo/mn_1.png";
+
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
+//รูป 
+import Image from 'next/image';
+import mn_1 from '@/logo/mn_1.png'; // เปลี่ยน path ตามจริง
 
+import axios from 'axios';
+
+//
 import { Check, X, Eye,Trash2, FileText } from "lucide-react";
-import { Button } from '@heroui/react';
 
+
+import Button from "@/components/ui/Button"
 
 const Approval = () => {
   const router = useRouter();
@@ -37,6 +45,10 @@ const Approval = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
+  
+
+ 
+
   useEffect(() => {
     if (isLoading) {
       console.log('Loading data...');
@@ -48,7 +60,7 @@ const Approval = () => {
     if (user) {
       setCurrentUser(JSON.parse(user));
     } else {
-      router.push('/login-page');
+      router.push('/');
     }
   }, []);
 
@@ -91,6 +103,16 @@ const Approval = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+
+  if (token && !user) {
+    localStorage.removeItem('token');
+    router.push('/');
+  }
+}, [router]);
   
 
   useEffect(() => {
@@ -109,11 +131,49 @@ const Approval = () => {
     setCurrentPosts(filtered.reverse().slice(indexOfFirstPost, indexOfLastPost));
   }, [posts, statusFilter, searchQuery, currentPage, postsPerPage]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setCurrentUser(null);
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+  
+      // ส่ง Request Logout ไปยัง Backend เพื่อยกเลิก Session
+      await axios.post('/api/auth/logout', {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      // ลบ Token และ User ออกจาก localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('ally-supports-cache');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+
+      
+  
+      // รีเซ็ต State ของ User
+      setCurrentUser(null);
+  
+      // นำทางกลับไปยังหน้า Login
+      router.push('/');
+  
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
   };
+  
+  // เพิ่มการตรวจสอบ Token ก่อนเข้าหน้าต่างๆ
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+  
+    // ถ้ามี Token แต่ไม่มี User ให้ล้างทั้งหมด
+    if (token && !user) {
+      localStorage.removeItem('token');
+      router.push('/');
+    }
+  }, []);
 
   const handleDocument = (post) => {
     setSelectedPost(post);
@@ -258,7 +318,30 @@ const Approval = () => {
     }
   };
 
-  
+ 
+ 
+
+ 
+
+// ประกาศ linkHref และตรวจสอบว่า token กับ user ถูกกำหนดแล้ว
+const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+ 
+
+  useEffect(() => {
+    // ดึงค่าจาก localStorage
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken) setToken(storedToken);
+    if (storedUser) setUser(storedUser);
+  }, []);
+
+  // ตรวจสอบว่าค่ามีหรือไม่
+  const linkHref =
+    token && user
+      ? `/travel_form?token=${encodeURIComponent(token)}&user=${encodeURIComponent(user)}`
+      : "/travel_form";
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
@@ -269,10 +352,11 @@ const Approval = () => {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* โลโก้และชื่อมหาวิทยาลัย (Logo and University Name) */}
             <div className="flex items-center space-x-4">
-              <Image 
-                src={mn_1} 
-                alt="Logo MN_1" 
-                className="w-16 h-16 text-3xl text-blue-600"
+            <Image
+              src={mn_1}
+              alt="Logo"
+              className="w-16 h-16 text-3xl text-blue-600"
+              priority
               />
               <h1 className="text-2xl font-bold text-gray-800 relative">
               มหาวิทยาลัยนเรศวร
@@ -367,9 +451,8 @@ const Approval = () => {
                 </select>
               </div>
               {/* ปุ่มเพิ่มโพสต์ใหม่ (Add New Post Button) */}
-              <Link href="/travel_form">
-                <Button className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600
-                 text-white px-6 py-2 rounded-full transition-all shadow-md">
+              <Link href={linkHref}>
+                <Button className="px-6 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white transition-all shadow-md flex items-center space-x-2">
                   <FaPlus />
                   <span>เพิ่มโพสต์ใหม่</span>
                 </Button>

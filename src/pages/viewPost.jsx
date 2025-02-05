@@ -114,19 +114,23 @@ const ViewPost = () => {
         </p>
   
         <p className={styles.paragraph}>
-        <strong>จํานวนเงินรวม: </strong>
-        <l className={styles.total_budget123}>
-            {post.total_budget} <t className={styles.total_budget456}> บาท</t>
-            
-            <button onClick={handleToggleDetails}
-        className={styles.toggleButton} style={{
-          transform: showDetails ? 'rotate(180deg)' : 'rotate(0deg)', // หมุนสามเหลี่ยม
-        }}
-      >
-        ▼
-            </button>
-        </l>
-        </p>
+      <strong>จํานวนเงินรวม: </strong>
+      <span className={styles.total_budget123}>
+        {post.total_budget} <span className={styles.total_budget456}> บาท 
+        <spa className="relative  left-3">
+        <button 
+          onClick={handleToggleDetails}
+          className={styles.toggleButton} 
+          style={{
+            transform: showDetails ? 'rotate(180deg)' : 'rotate(0deg)', // หมุนสามเหลี่ยม
+          }}
+        >
+          ▼
+        </button>
+        </spa>
+        </span>
+      </span>
+    </p>
         {showDetails && (
           <div className={styles.details}>
             <p className={styles.paragraph}>
