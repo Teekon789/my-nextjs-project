@@ -16,11 +16,17 @@ module.exports = {
     extend: {
       colors: {
         background: 'var(--background)',
-        primary: 'var(--primary)',
-        accent: 'var(--accent)',
-        secondary: 'var(--secondary)',
         foreground: 'var(--foreground)',
         card: 'var(--card)',
+        cardForeground: 'var(--card-foreground)',
+        primary: 'var(--primary)',
+        primaryForeground: 'var(--primary-foreground)',
+        secondary: 'var(--secondary)',
+        secondaryForeground: 'var(--secondary-foreground)',
+        accent: 'var(--accent)',
+        accentForeground: 'var(--accent-foreground)',
+        destructive: 'var(--destructive)',
+        destructiveForeground: 'var(--destructive-foreground)',
         border: 'var(--border)',
         input: 'var(--input)',
         ring: 'var(--ring)',
@@ -31,6 +37,11 @@ module.exports = {
         sarabun: ['TH Sarabun New', 'sans-serif'],
       },
       screens: {
+        'xs': '480px', // เพิ่มขนาดสำหรับมือถือขนาดเล็ก
+        'sm': '640px', // ขนาดมือถือปกติ
+        'md': '768px', // ขนาดแท็บเล็ต
+        'lg': '1024px', // ขนาดคอมพิวเตอร์ขนาดปานกลาง
+        'xl': '1280px', // ขนาดหน้าจอใหญ่
         'xxl': '1920px', // ขนาดหน้าจอที่กว้างที่สุด
       },
       spacing: {

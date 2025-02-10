@@ -1,52 +1,63 @@
-
-import React, { useEffect, useState } from 'react';
+// PostPopup.js
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import Link from 'next/link';
+import { FiX, FiPrinter } from 'react-icons/fi';
+import DetailRow from '../DetailRow';
 import clsx from 'clsx';
-import DetailRow from '@/components/DetailRow';
 import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
 
-const ViewPost = () => {
-    const router = useRouter();
-    const [post, setPost] = useState(null);
-    const [showDetails, setShowDetails] = useState(false);
-    const [showTravelers, setShowTravelers] = useState(false);
+const PostPopup = ({ post: initialPost, onClose }) => {
+  const router = useRouter();
+  const [post, setPost] = useState(initialPost);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showTravelers, setShowTravelers] = useState(false);
 
-
-    
-    useEffect(() => {
-      // ตรวจสอบว่า id มีอยู่ใน query string หรือไม่
-      if (router.query.id) {
-        const fetchPost = async () => {
-          try {
-            const { data } = await axios.get(`/api/createPost/${router.query.id}`);
-            setPost(data);  // เก็บข้อมูลโพสต์ใน state
-  
-          } catch (error) {
-            console.error('Error fetching post:', error);
-          }
-        };
-        fetchPost(); // เรียกฟังก์ชันเพื่อดึงข้อมูลโพสต์
-      }
-    }, [router.query.id]);  // ทำงานใหม่เมื่อค่า id เปลี่ยน
-  
-    const handleToggleDetails = () => setShowDetails((prev) => !prev);
-    const handleToggleTravelers = () => setShowTravelers((prev) => !prev);
-  
-    // หากยังไม่มีข้อมูลโพสต์จะแสดงข้อความ "กำลังโหลด..."
-    if (!post) {
-      return <div>กำลังโหลดข้อมูล...</div>;
+  // ดึงข้อมูลการเดินทางเมื่อมี ID
+  useEffect(() => {
+    if (router.query.id) {
+      const fetchPost = async () => {
+        try {
+          const { data } = await axios.get(`/api/createPost/${router.query.id}`);
+          setPost(data);
+        } catch (error) {
+          console.error('Error fetching post:', error);
+        }
+      };
+      fetchPost();
     }
-  
-     
-     //viewPost
-     return (
-      
-      <div className="max-w-[1200px] mx-auto my-12 p-12 bg-gradient-to-br from-white to-gray-100 
-                rounded-xl shadow-lg shadow-black/10 text-center font-sarabun
-                transition-all duration-300">
-       <h1 className="text-xl sm:text-2xl text-black font-bold mb-4 sm:mb-6">
+  }, [router.query.id]);
+
+  // Toggle แสดง/ซ่อนรายละเอียด
+  const handleToggleDetails = () => setShowDetails(prev => !prev);
+  const handleToggleTravelers = () => setShowTravelers(prev => !prev);
+
+  if (!post) return <div>กำลังโหลดข้อมูล...</div>;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-2 sm:p-4 overflow-hidden">
+      <div className="relative w-[95%] sm:w-[90%] max-w-[600px] max-h-[90vh] bg-white p-3 sm:p-5 rounded-lg shadow-lg overflow-y-auto mx-auto z-[1000] transition-all duration-300 ease-in-out text-center font-sarabun">
+        
+        {/* ปุ่มด้านบน */}
+        <div className="sticky top-2 right-2 flex justify-end gap-4 z-10">
+          <button 
+            onClick={onClose} 
+            title="ปิดหน้าต่าง"
+            className="flex items-center justify-center text-red-500 hover:text-red-600 transition-all duration-300 p-1"
+          >
+            <FiX size={20} />
+          </button>
+          <button 
+            title="พิมพ์เอกสาร"
+            className="flex items-center justify-center text-blue-500 hover:text-blue-600 transition-all duration-300 p-1"
+          >
+            <FiPrinter size={20} />
+          </button>
+        </div>
+
+        {/* เนื้อหาหลัก */}
+        <div className="mt-4">
+          <h1 className="text-xl sm:text-2xl text-black font-bold mb-4 sm:mb-6">
             บันทึกรายละเอียดการเดินทาง
           </h1>
 
@@ -64,8 +75,8 @@ const ViewPost = () => {
             <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.departure_date)} />
             <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.return_date)} />
 
-             {/* ส่วนแสดงงบประมาณ */}
-             <DetailRow
+            {/* ส่วนแสดงงบประมาณ */}
+            <DetailRow
               label="จำนวนเงินรวม:"
               value={`${post.total_budget} บาท`}
               action={
@@ -123,29 +134,10 @@ const ViewPost = () => {
               <p className="text-center font-sarabun my-5">ไม่มีข้อมูลผู้ร่วมเดินทาง</p>
             )
           )}
-
-
-<div>
-      <label>
-      <Link href="/approval" passHref>
-        <button className="button">
-            กลับ
-            
-        </button>
-    </Link>
-      </label>
-    </div>
-    
         </div>
+      </div>
+    </div>
+  );
+};
 
-    
-    
-
-  
-         
-      
-    );
-    
-  };
-
-export default ViewPost;
+export default PostPopup;

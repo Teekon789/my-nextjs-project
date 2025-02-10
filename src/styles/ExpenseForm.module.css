@@ -78,3 +78,20 @@
   color: #096dd9;
 }
 
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  .container {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .iconButton {
+    font-size: 16px;
+    padding: 5px;
+  }
+
+  .after {
+    margin: 20px auto;
+  }
+}
+

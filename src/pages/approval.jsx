@@ -1,34 +1,23 @@
-//approval.jsx
-
 
 import { useState, useEffect, useCallback } from 'react';
-
-import { FaSignOutAlt, FaFilter, FaPlus, FaUserCircle } from "react-icons/fa";
-
-import { BsSearch } from "react-icons/bs";
-import Link from "next/link";
 import { useRouter } from 'next/router';
-import PostPopup from "../components/PostPopup";
-import DeletePermanentlyPopup from "../components/dletepre";
-import PostGraph from "../components/PostGraph";
-import Pagination from "../components/Pagination";
-import ExpenseForm from "../components/ExpenseForm";
 import { ToastContainer, toast } from "react-toastify";
-
+import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
-//รูป 
-import Image from 'next/image';
-import mn_1 from '@/logo/mn_1.png'; // เปลี่ยน path ตามจริง
 
-import axios from 'axios';
+import dynamic from "next/dynamic";
+// โหลดแบบ Dynamic Imports 
+const ApprovalHeader = dynamic(() => import("../components/approval/ApprovalHeader"));
+const DashboardStats = dynamic(() => import("../components/approval/DashboardStats"));
+const SearchFilter = dynamic(() => import("../components/approval/SearchFilter"));
+const PostsTable = dynamic(() => import("../components/approval/PostsTable"));
 
-//
-import { Check, X, Eye,Trash2, FileText } from "lucide-react";
-
-
-import Button from "@/components/ui/Button"
+const PostPopup = dynamic(() => import("../components/approval/PostPopup"), { ssr: false });
+const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dletepre"), { ssr: false });
+const ExpenseForm = dynamic(() => import("../components/approval/ExpenseForm"));
+const Pagination = dynamic(() => import("../components/approval/Pagination"));
 
 const Approval = () => {
   const router = useRouter();
@@ -45,16 +34,11 @@ const Approval = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  
-
- 
-
   useEffect(() => {
     if (isLoading) {
       console.log('Loading data...');
     }
   }, [isLoading]);
-
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (user) {
@@ -63,7 +47,6 @@ const Approval = () => {
       router.push('/');
     }
   }, []);
-
   const fetchPosts = useCallback(async () => {
     try {
       const response = await fetch("/api/createPost");
@@ -103,18 +86,15 @@ const Approval = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
-
   useEffect(() => {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
-
-  if (token && !user) {
-    localStorage.removeItem('token');
-    router.push('/');
-  }
-}, [router]);
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && !user) {
+      localStorage.removeItem('token');
+      router.push('/');
+    }
+  }, [router]);
   
-
   useEffect(() => {
     const filtered = posts.filter((post) => {
       const matchesStatus = statusFilter ? post.status === statusFilter : true;
@@ -123,14 +103,12 @@ const Approval = () => {
         post.personnel_type?.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesStatus && matchesQuery;
     });
-
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     
     // พลิกลำดับรายการโพสให้ล่าสุดมาก่อน
     setCurrentPosts(filtered.reverse().slice(indexOfFirstPost, indexOfLastPost));
   }, [posts, statusFilter, searchQuery, currentPage, postsPerPage]);
-
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -148,9 +126,6 @@ const Approval = () => {
       localStorage.removeItem('ally-supports-cache');
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
-
-      
-  
       // รีเซ็ต State ของ User
       setCurrentUser(null);
   
@@ -167,19 +142,16 @@ const Approval = () => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
-  
     // ถ้ามี Token แต่ไม่มี User ให้ล้างทั้งหมด
     if (token && !user) {
       localStorage.removeItem('token');
       router.push('/');
     }
   }, []);
-
   const handleDocument = (post) => {
     setSelectedPost(post);
     setShowDocument(true);
   };
-
   const handleApprove = async (post) => {
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
@@ -202,7 +174,6 @@ const Approval = () => {
       toast.error(`เกิดข้อผิดพลาดในการอนุมัติ: ${error.message}`);
     }
   };
-
   const handleReject = async (post) => {
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
@@ -225,17 +196,14 @@ const Approval = () => {
       toast.error(`เกิดข้อผิดพลาดในการปฏิเสธ: ${error.message}`);
     }
   };
-
   const handleViewPost = (post) => {
     setSelectedPost(post);
     setShowPopup(true);
   };
-
   const handleDelete = (post) => {
     setSelectedPost(post);
     setShowDeletePopup(true);
   };
-
   const handleDeletePermanently = async () => {
     if (!selectedPost) return;
   
@@ -283,9 +251,7 @@ const Approval = () => {
       toast.error(error.message || "เกิดข้อผิดพลาดในการลบโพสต์");
     }
   };
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   const filteredPosts = posts
   .filter((post) => {
     return (
@@ -294,9 +260,6 @@ const Approval = () => {
     );
   })
   .sort((a, b) => new Date(b.date) - new Date(a.date)); // เรียงใหม่ก่อนเก่า
-
-  
-
   const getDashboardStats = useCallback(() => {
     return {
       totalPosts: posts.length,
@@ -305,7 +268,6 @@ const Approval = () => {
       rejected: posts.filter(p => p.status === "Rejected").length
     };
   }, [posts]);
-
   const handleCardClick = (key) => {
     if (key === "totalPosts") {
       setStatusFilter(null); // แสดงโพสต์ทั้งหมด
@@ -317,252 +279,48 @@ const Approval = () => {
       setStatusFilter("Rejected"); // กรองโพสต์สถานะไม่อนุมัติ
     }
   };
-
- 
- 
-
- 
-
-// ประกาศ linkHref และตรวจสอบว่า token กับ user ถูกกำหนดแล้ว
-const [token, setToken] = useState(null);
+  // ประกาศ linkHref และตรวจสอบว่า token กับ user ถูกกำหนดแล้ว
+  const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
  
-
   useEffect(() => {
     // ดึงค่าจาก localStorage
     const storedToken = localStorage.getItem("token");
     const storedUser = localStorage.getItem("user");
-
     if (storedToken) setToken(storedToken);
     if (storedUser) setUser(storedUser);
   }, []);
-
   // ตรวจสอบว่าค่ามีหรือไม่
   const linkHref =
     token && user
       ? `/travel_form?token=${encodeURIComponent(token)}&user=${encodeURIComponent(user)}`
       : "/travel_form";
-
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
-    
-      {/* ส่วนหัว (Header Section) */}
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50  shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            {/* โลโก้และชื่อมหาวิทยาลัย (Logo and University Name) */}
-            <div className="flex items-center space-x-4">
-            <Image
-              src={mn_1}
-              alt="Logo"
-              className="w-16 h-16 text-3xl text-blue-600"
-              priority
-              />
-              <h1 className="text-2xl font-bold text-gray-800 relative">
-              มหาวิทยาลัยนเรศวร
-              <span className="absolute bottom-0 right-0 w-1/2 border-b-4 border-orange-500/85"></span>
-            </h1>
-
-            </div>
-  
-            {/* ส่วนผู้ใช้ (User Section) - แสดงเมื่อมีผู้ใช้ล็อกอิน (Displayed when user is logged in) */}
-            {currentUser && (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <FaUserCircle className="text-gray-600 text-xl" />
-                  <span className="text-gray-700">{currentUser.fullname}</span>
-                </div>
-                {/* ปุ่มล็อกเอาท์ (Logout Button) */}
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
-                >
-                  <FaSignOutAlt />
-                  <span>Logout</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-  
-      {/* ส่วนเนื้อหาหลัก (Main Content Section) */}
+      <ApprovalHeader currentUser={currentUser} handleLogout={handleLogout} />
+      
       <div className="container mx-auto px-4 py-8">
-        {/* การ์ดแสดงสถิติ (Dashboard Stats Cards) */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {Object.entries(getDashboardStats()).map(([key, value]) => (
-            <div
-              key={key}
-              className={`card hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer ${
-                key === "totalPosts"
-                  ? "card-totalPosts"
-                  : key === "pendingApproval"
-                  ? "card-pendingApproval"
-                  : key === "approved"
-                  ? "card-approved"
-                  : key === "rejected"
-                  ? "card-rejected"
-                  : ""
-              }`}
-              onClick={() => handleCardClick(key)}
-            >
-              <h3 className="text-muted-foreground text-xs font-medium mb-2">
-                {key === "totalPosts" && "จำนวนโพสต์ทั้งหมด"}
-                {key === "pendingApproval" && "รอการอนุมัติ"}
-                {key === "approved" && "อนุมัติแล้ว"}
-                {key === "rejected" && "ไม่อนุมัติ"}
-              </h3>
-              <p className="text-3xl font-bold">{value}</p>
-            </div>
-          ))}
-        </div>
-  
-        {/* ส่วนค้นหาและกรองข้อมูล (Search and Filter Section) */}
-        <div className="bg-slate-50    rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4 ">
-            {/* ช่องค้นหา (Search Input) */}
-            <div className="flex-1 w-full md:w-auto  ">
-              <div className="relative ">
-                <BsSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 " />
-                <input
-                  type="text"
-                  className="w-full pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 bg-slate-50/35  
-                   focus:ring-slate-600 focus:border-transparent"
-                  placeholder="ค้นหาด้วยชื่อเต็มหรือประเภทบุคลากร..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </div>
-  
-            {/* Dropdown กรองสถานะและปุ่มเพิ่มโพสต์ (Status Filter Dropdown and Add Post Button) */}
-            <div className="flex space-x-4 w-full md:w-auto">
-              <div className="relative flex-1 md:flex-initial">
-                <FaFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer " />
-                <select
-                  className="w-full md:w-48 pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 bg-slate-50/35 cursor-pointer
-                   focus:ring-slate-600 focus:border-transparent appearance-none"
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="">สถานะทั้งหมด</option>
-                  <option value="pending">รอการอนุมัติ</option>
-                  <option value="Approved">อนุมัติแล้ว</option>
-                  <option value="Rejected">ไม่อนุมัติ</option>
-                </select>
-              </div>
-              {/* ปุ่มเพิ่มโพสต์ใหม่ (Add New Post Button) */}
-              <Link href={linkHref}>
-                <Button className="px-6 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white transition-all shadow-md flex items-center space-x-2">
-                  <FaPlus />
-                  <span>เพิ่มโพสต์ใหม่</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-  
-        {/* ตารางแสดงรายการโพสต์ (Posts Table Section) */}
-        <div className="bg-slate-50  rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">รายการ
-          
-          </h2>
-          <div className="overflow-x-auto">
-          <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-300/80">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">ชื่อเต็ม</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">ประเภทบุคลากร</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">รวม</th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">เอกสาร</th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">สถานะ</th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">การกระทำ</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/50">
-                {currentPosts.map((post) => (
-                  <tr key={post._id} className="hover:bg-white/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <Link href={`/viewPost?id=${post._id}`}>
-                        <div className="cursor-pointer">
-                          <div className="font-medium text-slate-800">{post.fullname}</div>
-                          <div className="text-xs text-slate-500">
-                            {new Date(post.updatedAt).toLocaleString('th-TH')}
-                          </div>
-                        </div>
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600">{post.personnel_type}</td>
-                    <td className="px-6 py-4 text-slate-600">{post.total_budget}</td>
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => handleDocument(post)}
-                        className="mx-auto flex items-center justify-center w-8 h-8 rounded-full 
-                        bg-slate-100 hover:bg-slate-200 transition-colors"
-                      >
-                        <FileText className="w-4 h-4 text-slate-600" />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                        post.status === "pending" ? "bg-yellow-100 text-yellow-700" :
-                        post.status === "Approved" ? "bg-emerald-100 text-emerald-700" :
-                        "bg-red-100 text-red-700"
-                      }`}>
-                        {post.status === "pending" ? "รอการอนุมัติ" :
-                         post.status === "Approved" ? "อนุมัติแล้ว" :
-                         "ไม่อนุมัติ"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex justify-center space-x-2">
-                        {currentUser && currentUser.role === "dean" && (
-                          <>
-                            <button
-                              onClick={() => handleApprove(post)}
-                              className="p-1.5 rounded-full bg-emerald-100 hover:bg-emerald-200 
-                              text-emerald-700 transition-colors"
-                              title="อนุมัติ"
-                            >
-                              <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => handleReject(post)}
-                              className="p-1.5 rounded-full bg-red-100 hover:bg-red-200 
-                              text-red-700 transition-colors"
-                              title="ปฏิเสธ"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </>
-                        )}
-                        <button
-                          onClick={() => handleViewPost(post)}
-                          className="p-1.5 rounded-full bg-blue-100 hover:bg-blue-200 
-                          text-blue-700 transition-colors"
-                          title="ดูรายละเอียด"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        {post.status !== "pending" && (
-                          <button
-                            onClick={() => handleDelete(post)}
-                            className="p-1.5 rounded-full bg-pink-100 hover:bg-pink-200 
-                            text-pink-700 transition-colors"
-                            title="ลบ"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-  
-        {/* Popup สำหรับดูรายละเอียดโพสต์ (Post Details Popup) */}
+        <DashboardStats 
+          stats={getDashboardStats()} 
+          onCardClick={handleCardClick} 
+        />
+        
+        <SearchFilter 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onStatusChange={setStatusFilter}
+          linkHref={linkHref}
+        />
+        
+        <PostsTable 
+          currentPosts={currentPosts}
+          currentUser={currentUser}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onView={handleViewPost}
+          onDelete={handleDelete}
+          onDocument={handleDocument}
+        />
         {showPopup && selectedPost && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
@@ -570,8 +328,6 @@ const [token, setToken] = useState(null);
             </div>
           </div>
         )}
-  
-        {/* Popup สำหรับดูเอกสาร (Document Popup) */}
         {showDocument && selectedPost && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
@@ -579,8 +335,6 @@ const [token, setToken] = useState(null);
             </div>
           </div>
         )}
-  
-        {/* Popup สำหรับลบโพสต์ (Delete Post Popup) */}
         {showDeletePopup && selectedPost && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -593,8 +347,6 @@ const [token, setToken] = useState(null);
             </div>
           </div>
         )}
-  
-        {/* Pagination Section */}
         <div className="mt-6">
           <Pagination
             postsPerPage={postsPerPage}
@@ -603,12 +355,9 @@ const [token, setToken] = useState(null);
             paginate={paginate}
           />
         </div>
-  
-        {/* Toast Notifications */}
         <ToastContainer position="bottom-right" />
       </div>
     </div>
   );
 }
-
 export default Approval;

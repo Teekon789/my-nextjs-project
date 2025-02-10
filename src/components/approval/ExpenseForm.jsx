@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { FiX, FiPrinter } from 'react-icons/fi';
-import styles from '../styles/ExpenseForm.module.css';
+import styles from '@/styles/ExpenseForm.module.css';
 
 const ExpenseForm = ({ post, onClose }) => {
   const printAreaRef = useRef(null);

@@ -22,15 +22,19 @@ const postSchema = new mongoose.Schema({
   accommodation_type: String,
   accommodation_days: Number,
   transportation_type: String,
+  //วันที่
   date123: Date,
+  trip_date: Date,
   departure_date: Date,
   return_date: Date,
+  //วันที่
   trip_details: String,
   province: String,
   traveler_name: String,
   traveler_name1: String,
   traveler_name2: String,
   traveler_relation: String,
+  
 
   status: {
     type: String,
