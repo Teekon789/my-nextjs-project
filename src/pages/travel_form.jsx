@@ -212,7 +212,8 @@ const TravelForm = () => {
         <div className="backdrop-blur-sm bg-white/90 rounded-3xl shadow-2xl overflow-hidden border border-orange-100 transition-all duration-300 hover:shadow-orange-200/40">
           {/* Header Section */}
           <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500 px-8 py-12 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)]"></div>
+            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)]">
+            </div>
             <h1 className="text-3xl md:text-4xl font-bold text-white text-center tracking-wide relative z-10">
               รายละเอียดการเดินทาง
             </h1>

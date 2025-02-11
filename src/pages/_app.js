@@ -1,13 +1,17 @@
 // _app.js
-import "@/styles/globals.css"; // ถ้ามีไฟล์ CSS ที่ต้องใช้ทุกหน้า ควรคงไว้
+import "@/styles/globals.css";
 import 'tailwindcss/tailwind.css';
 import Head from "next/head";
+
 
 export default function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Approval & Gov Service</title>
+        {/* โลโก้ในแท็บเบราว์เซอร์ */}
+        <link rel="icon" href="/logo/mn_2.png" type="image/png" />
       </Head>
       <Component {...pageProps} />
     </>
