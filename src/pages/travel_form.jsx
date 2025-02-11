@@ -18,9 +18,15 @@ const TravelersSection = dynamic(() => import("../components/travel-form/Travele
 // ฟังก์ชันแปลงวันที่และเวลาเป็นไทย
 const formatThaiDateTime = (dateString) => {
   if (!dateString) return "";
-  const date = new Date(dateString);
-  return format(date, "d MMMM yyyy HH:mm", { locale: th }) + " น.";
-  
+  try {
+    // แปลงวันที่เป็น ISO string format
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return ""; // ถ้าวันที่ไม่ถูกต้องให้ return ค่าว่าง
+    return format(date, "d MMMM yyyy HH:mm", { locale: th }) + " น.";
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return "";
+  }
 };
 
 const TravelForm = () => {
