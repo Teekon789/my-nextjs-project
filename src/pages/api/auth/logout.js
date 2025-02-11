@@ -1,6 +1,5 @@
 //logout.js
 
-import dbConnect from '../../../utils/dbConnect';
 import Session from '../../../models/session';
 import jwt from 'jsonwebtoken';
 
