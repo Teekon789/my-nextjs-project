@@ -46,9 +46,15 @@ const TravelForm = () => {
     trip_type: '',
     accommodation_type: '',
     accommodation_days: 0,
+
+    accommodation_quantity: 0, //จำนวนวันที่พัก
+    allowance_days: 0, //จำนวนวันเบี้ยเลี้ยง
+    allowance_quantity: 0, //จำนวนเบี้ยเลี้ยง
+    allowance_type:'', //ประเภทเบี้ยเลี้ยง
+    Vehicle_quantity: 0, //จำนวนพาหนะ
     transportation_type: '',
     date123: '',
-   
+    sendTo:'', 
     trip_details: '',
     province: '',
     traveler_name: '',
@@ -61,6 +67,7 @@ const TravelForm = () => {
     departure_date: '',
     return_date: '', 
     travelers: []
+    
   });
 
   const router = useRouter();
@@ -110,7 +117,19 @@ const TravelForm = () => {
     validateUser();
   }, []);
 
-  if (isLoading) return <p>กำลังโหลด...</p>;
+  // โหลดหน้า
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 3000); // โหลดข้อมูล 3 วินาที
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center min-h-screen justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mb-4"></div>
+        <p className="text-gray-500">กำลังโหลด...</p>
+      </div>
+    );
+  }
 
   const handleTravelerChange = (index, e) => {
     const { name, value } = e.target;

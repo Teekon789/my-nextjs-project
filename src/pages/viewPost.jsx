@@ -7,12 +7,14 @@ import clsx from 'clsx';
 import DetailRow from '@/components/DetailRow';
 import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
 
+
+
 const ViewPost = () => {
     const router = useRouter();
     const [post, setPost] = useState(null);
     const [showDetails, setShowDetails] = useState(false);
     const [showTravelers, setShowTravelers] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
 
     
     useEffect(() => {
@@ -33,14 +35,23 @@ const ViewPost = () => {
   
     const handleToggleDetails = () => setShowDetails((prev) => !prev);
     const handleToggleTravelers = () => setShowTravelers((prev) => !prev);
-  
-    // หากยังไม่มีข้อมูลโพสต์จะแสดงข้อความ "กำลังโหลด..."
-    if (!post) {
-      return <div>กำลังโหลดข้อมูล...</div>;
-    }
+
+  //โหลดหน้า
+    useEffect(() => {
+        setTimeout(() => setIsLoading(false), 1000); // หน่วงเวลา 1 วินาที
+      }, []);
+    
+      if (isLoading || !post) {
+        return (
+          <div className="flex flex-col items-center justify-center min-h-[100px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mb-4"></div>
+            <p className="text-gray-500">กำลังโหลดข้อมูล...</p>
+          </div>
+        );
+      }
   
      
-     //viewPost
+     
      return (
       
       <div className="max-w-[1200px] mx-auto my-12 p-12 bg-gradient-to-br from-white to-gray-100 
@@ -66,27 +77,38 @@ const ViewPost = () => {
 
              {/* ส่วนแสดงงบประมาณ */}
              <DetailRow
-              label="จำนวนเงินรวม:"
-              value={`${post.total_budget} บาท`}
-              action={
-                <button onClick={handleToggleDetails} className="text-sm">
-                  <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
-                    ▼
-                  </span>
-                </button>
-              }
-            />
+            label="จำนวนเงินรวม:"
+            value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
+            action={
+              <button onClick={handleToggleDetails} className="text-sm">
+                <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
+                  ▼
+                </span>
+              </button>
+            }
+          />
 
-
-            {/* รายละเอียดค่าใช้จ่าย */}
-            {showDetails && (
-              <div className="space-y-3 mb-4">
-                <DetailRow label="ค่าเบี้ยเลี้ยง:" value={`${post.allowance} บาท`} />
-                <DetailRow label="ค่าที่พัก:" value={`${post.accommodation} บาท`} />
-                <DetailRow label="ค่าพาหนะ:" value={`${post.transportation} บาท`} />
-                <DetailRow label="ค่าใช้จ่ายอื่นๆ:" value={`${post.expenses} บาท`} />
-              </div>
-            )}
+          {/* รายละเอียดค่าใช้จ่าย */}
+          {showDetails && (
+            <div className="space-y-3 mb-4">
+              <DetailRow
+                label="ค่าเบี้ยเลี้ยง:"
+                value={`${post.allowance.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าที่พัก:"
+                value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าพาหนะ:"
+                value={`${post.transportation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าใช้จ่ายอื่นๆ:"
+                value={`${post.expenses.toLocaleString('th-TH')} บาท`}
+              />
+            </div>
+          )}
 
             <DetailRow label="เดินทางไปปฏิบัติงานเกี่ยวกับ:" value={post.traveler_name1} />
             <DetailRow label="รายละเอียดการเดินทาง:" value={post.trip_details} />
@@ -126,14 +148,15 @@ const ViewPost = () => {
 
 
 <div>
-      <label>
-      <Link href="/approval" passHref>
-        <button className="button">
-            กลับ
-            
-        </button>
-    </Link>
-      </label>
+<label>
+  <Link href="/approval" passHref>
+    <button className="mt-8 mb-2 px-6 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md 
+    hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75 transition-all duration-200 underline">
+      กลับ
+    </button>
+  </Link>
+</label>
+
     </div>
     
         </div>

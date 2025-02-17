@@ -9,6 +9,8 @@ import DetailRow from '@/components/DetailRow';
 import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
 
 
+
+
 const Result = () => {
   const router = useRouter();
   const [post, setPost] = useState(null);
@@ -17,6 +19,7 @@ const Result = () => {
   const { id } = router.query; // ดึง id จาก query
   const [success, setSuccess] = useState(false); // สถานะการบันทึก
   const [error, setError] = useState(null); // สถานะข้อผิดพลาก
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     // ตรวจสอบว่า id มีอยู่ใน query string หรือไม่
@@ -38,8 +41,17 @@ const Result = () => {
   const handleToggleTravelers = () => setShowTravelers((prev) => !prev);
 
   // หากยังไม่มีข้อมูลโพสต์จะแสดงข้อความ "กำลังโหลด..."
-  if (!post) {
-    return <div>กำลังโหลดข้อมูล...</div>;
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 1000); // หน่วงเวลา 1 วินาที
+  }, []);
+
+  if (isLoading || !post) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[100px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mb-4"></div>
+        <p className="text-gray-500">กำลังโหลดข้อมูล...</p>
+      </div>
+    );
   }
 
    // ฟังก์ชันบันทึกข้อมูล
@@ -93,7 +105,7 @@ const Result = () => {
            {/* ส่วนแสดงงบประมาณ */}
            <DetailRow
             label="จำนวนเงินรวม:"
-            value={`${post.total_budget} บาท`}
+            value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
             action={
               <button onClick={handleToggleDetails} className="text-sm">
                 <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
@@ -103,17 +115,29 @@ const Result = () => {
             }
           />
 
-
           {/* รายละเอียดค่าใช้จ่าย */}
           {showDetails && (
             <div className="space-y-3 mb-4">
-              <DetailRow label="ค่าเบี้ยเลี้ยง:" value={`${post.allowance} บาท`} />
-              <DetailRow label="ค่าที่พัก:" value={`${post.accommodation} บาท`} />
-              <DetailRow label="ค่าพาหนะ:" value={`${post.transportation} บาท`} />
-              <DetailRow label="ค่าใช้จ่ายอื่นๆ:" value={`${post.expenses} บาท`} />
+              <DetailRow
+                label="ค่าเบี้ยเลี้ยง:"
+                value={`${post.allowance.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าที่พัก:"
+                value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าพาหนะ:"
+                value={`${post.transportation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าใช้จ่ายอื่นๆ:"
+                value={`${post.expenses.toLocaleString('th-TH')} บาท`}
+              />
             </div>
           )}
-
+          
+          {/* รายละเอียดเดินทาง*/}
           <DetailRow label="เดินทางไปปฏิบัติงานเกี่ยวกับ:" value={post.traveler_name1} />
           <DetailRow label="รายละเอียดการเดินทาง:" value={post.trip_details} />
           <DetailRow label="สถานที่เดินทางไปปฏิบัติงาน:" value={post.traveler_name2} />
@@ -150,13 +174,30 @@ const Result = () => {
           )
         )}
 
-        <div>
-          <button onClick={handleSave}>บันทึก
-            
-          </button>
-          {success && <div>บันทึกข้อมูลสำเร็จ!</div>} {/* แสดงข้อความสำเร็จ */}
-      {error && <div>{error}</div>} {/* แสดงข้อผิดพลาด */}
-      </div>
+<div>
+  {/* ปุ่ม "บันทึก" */}
+  <button
+    onClick={handleSave}
+    className="mt-6 mb-2 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 underline"
+  >
+    บันทึก
+  </button>
+
+  {/* แสดงข้อความสำเร็จ */}
+  {success && (
+    <div className="mt-2 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg">
+      <span className="font-semibold">สำเร็จ!</span> บันทึกข้อมูลสำเร็จ!
+    </div>
+  )}
+
+  {/* แสดงข้อผิดพลาด */}
+  {error && (
+    <div className="mt-2 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg">
+      <span className="font-semibold">ผิดพลาด!</span> {error}
+    </div>
+  )}
+</div>
+
     </div>   
     
   );

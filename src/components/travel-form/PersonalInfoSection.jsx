@@ -54,7 +54,7 @@ export const PersonalInfoSection = ({ formData, handleInputChange }) => {
             required={field.required}
             placeholder={field.placeholder}
             className="w-full rounded-xl border p-4 border-orange-200 shadow-sm focus:ring-2 focus:ring-orange-400 
-          focus:border-orange-400 transition-all duration-200 bg-white/70 hover:bordeclassName="mt-4
+            focus:border-orange-400 transition-all duration-200 bg-white/70 hover:border-orange-300"
           />
         </div>
       ))}

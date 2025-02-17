@@ -303,10 +303,22 @@ const handleSubmit = async (e) => {
                   ลืมรหัสผ่าน?
                 </button>
               </motion.div>
-            )}
+            )}           
           </form>
+          <div className="flex flex-col gap-2 text-center mt-4">
+            <div className="text-sm text-gray-600">
+              ยังไม่มีบัญชี?{' '}
+              <button
+                onClick={() => router.push('/Register')}
+                className="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-200"
+              >
+                สมัครสมาชิก
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
+
 
          {/* Alert Dialog for Reset Session Confirmation */}
 <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>

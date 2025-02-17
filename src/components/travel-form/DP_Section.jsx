@@ -116,13 +116,13 @@ const DP_Section = ({ formData, handleInputChange, provinces, formatThaiDateTime
                 onChange={handleInputChange}
                 className="w-full h-[46px] px-4 border border-orange-200 rounded-xl shadow-sm focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all duration-200 bg-white/70 hover:border-orange-300"
               >
-                <option value="">กรุณาเลือกจังหวัด</option>
-                {field.options.map((option, i) => (
-                  <option key={i} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+                 <option value="" className="text-gray-500">กรุณาเลือกจังหวัด</option>
+                  {field.options.map((option, i) => (
+                    <option key={i} value={option} className="text-gray-700">
+                      {option}
+                    </option>
+                  ))}
+                </select>
             </>
           )}
         </div>

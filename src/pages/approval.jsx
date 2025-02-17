@@ -35,6 +35,13 @@ const Approval = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // จำลองโหลดข้อมูล
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
     if (isLoading) {
       console.log('Loading data...');
     }
@@ -295,69 +302,88 @@ const Approval = () => {
     token && user
       ? `/travel_form?token=${encodeURIComponent(token)}&user=${encodeURIComponent(user)}`
       : "/travel_form";
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
-      <ApprovalHeader currentUser={currentUser} handleLogout={handleLogout} />
+
+      return (
+        <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
+          <ApprovalHeader currentUser={currentUser} handleLogout={handleLogout} />
+          
+          <div className="container mx-auto px-4 py-8">
+            {isLoading ? (
+              //  แสดง Skeleton UI ระหว่างโหลด
+              <div className="space-y-6 animate-pulse">
+                <div className="h-10 bg-gray-300 rounded w-1/3"></div>
+                <div className="h-40 bg-gray-300 rounded"></div>
+                <div className="h-8 bg-gray-300 rounded w-2/3"></div>
+                <div className="h-20 bg-gray-300 rounded"></div>
+              </div>
+            ) : (
+              //  แสดงเนื้อหาหลักเมื่อโหลดเสร็จ
+              <>
+                <DashboardStats 
+                  stats={getDashboardStats()} 
+                  onCardClick={handleCardClick} 
+                />
+                
+                <SearchFilter 
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onStatusChange={setStatusFilter}
+                  linkHref={linkHref}
+                />
+                
+                <PostsTable 
+                  currentPosts={currentPosts}
+                  currentUser={currentUser}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                  onView={handleViewPost}
+                  onDelete={handleDelete}
+                  onDocument={handleDocument}
+                />
       
-      <div className="container mx-auto px-4 py-8">
-        <DashboardStats 
-          stats={getDashboardStats()} 
-          onCardClick={handleCardClick} 
-        />
-        
-        <SearchFilter 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onStatusChange={setStatusFilter}
-          linkHref={linkHref}
-        />
-        
-        <PostsTable 
-          currentPosts={currentPosts}
-          currentUser={currentUser}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onView={handleViewPost}
-          onDelete={handleDelete}
-          onDocument={handleDocument}
-        />
-        {showPopup && selectedPost && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
-              <PostPopup post={selectedPost} onClose={() => setShowPopup(false)} />
-            </div>
+                {showPopup && selectedPost && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+                      <PostPopup post={selectedPost} onClose={() => setShowPopup(false)} />
+                    </div>
+                  </div>
+                )}
+      
+                {showDocument && selectedPost && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
+                      <ExpenseForm post={selectedPost} onClose={() => setShowDocument(false)} />
+                    </div>
+                  </div>
+                )}
+      
+                {showDeletePopup && selectedPost && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+                      <DeletePermanentlyPopup
+                        post={selectedPost}
+                        onDelete={handleDeletePermanently}
+                        onClose={() => setShowDeletePopup(false)}
+                        successMessage="ลบโพสต์สำเร็จแล้ว!"
+                      />
+                    </div>
+                  </div>
+                )}
+      
+                <div className="mt-6">
+                  <Pagination
+                    postsPerPage={postsPerPage}
+                    totalPosts={filteredPosts.length}
+                    currentPage={currentPage}
+                    paginate={paginate}
+                  />
+                </div>
+              </>
+            )}
+      
+            <ToastContainer position="bottom-right" />
           </div>
-        )}
-        {showDocument && selectedPost && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4">
-              <ExpenseForm post={selectedPost} onClose={() => setShowDocument(false)} />
-            </div>
-          </div>
-        )}
-        {showDeletePopup && selectedPost && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-              <DeletePermanentlyPopup
-                post={selectedPost}
-                onDelete={handleDeletePermanently}
-                onClose={() => setShowDeletePopup(false)}
-                successMessage="ลบโพสต์สำเร็จแล้ว!"
-              />
-            </div>
-          </div>
-        )}
-        <div className="mt-6">
-          <Pagination
-            postsPerPage={postsPerPage}
-            totalPosts={filteredPosts.length}
-            currentPage={currentPage}
-            paginate={paginate}
-          />
         </div>
-        <ToastContainer position="bottom-right" />
-      </div>
-    </div>
-  );
+      );
 }
 export default Approval;

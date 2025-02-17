@@ -21,6 +21,13 @@ const PostsTable = ({
     }));
   };
 
+  //เปลี่ยนชื่อไทย
+  const sendToMapping = {
+    dean: "คณบดี",
+    head: "หัวหน้าภาควิชา",
+    director: "ผู้อำนวยการ"
+  };
+
   // คอมโพเนนต์แสดงปุ่มการกระทำต่างๆ
   const TableActions = ({ post }) => (
     <div className="flex justify-start space-x-2">
@@ -66,8 +73,8 @@ const PostsTable = ({
           <thead>
             <tr className="border-b border-slate-300/80">
               <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">ชื่อเต็ม</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">ประเภทบุคลากร</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">รวม</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-slate-600">เรียนถึง</th>
+              <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">จํานวนเงินที่ขอเบิก</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">เอกสาร</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">สถานะ</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">การกระทำ</th>
@@ -84,8 +91,8 @@ const PostsTable = ({
                     </div>
                   </a>
                 </td>
-                <td className="px-6 py-4 text-slate-600">{post.personnel_type}</td>
-                <td className="px-6 py-4 text-slate-600">{post.total_budget}</td>
+                <td className="px-6 py-4 text-slate-600">{sendToMapping[post.sendTo]}</td>
+                <td className="px-6 py-4 text-slate-600 text-center">{`${post.total_budget.toLocaleString('th-TH')} บาท`}</td>
                 <td className="px-6 py-4 text-center">
                   <button
                     onClick={() => onDocument(post)}
@@ -106,7 +113,7 @@ const PostsTable = ({
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center">  
-                <span className="flex justify-start space-x-2">
+                <span className="flex justify-center space-x-2">
                   <TableActions post={post} />
                   {post.status !== "pending" && (
                     <button
@@ -149,12 +156,12 @@ const PostsTable = ({
             
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-slate-500">ประเภทบุคลากร</span>
-                <span className="text-sm text-slate-700">{post.personnel_type}</span>
+                <span className="text-sm text-slate-500">เรียนถึง</span>
+                <span className="text-sm text-slate-700">{sendToMapping[post.sendTo]}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-slate-500">รวม</span>
-                <span className="text-sm text-slate-700">{post.total_budget}</span>
+                <span className="text-sm text-slate-500">จํานวนเงินที่ขอเบิก</span>
+                <span className="text-sm text-slate-700">{`${post.total_budget.toLocaleString('th-TH')} บาท`}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-500">สถานะ</span>

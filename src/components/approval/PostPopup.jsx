@@ -77,27 +77,38 @@ const PostPopup = ({ post: initialPost, onClose }) => {
 
             {/* ส่วนแสดงงบประมาณ */}
             <DetailRow
-              label="จำนวนเงินรวม:"
-              value={`${post.total_budget} บาท`}
-              action={
-                <button onClick={handleToggleDetails} className="text-sm">
-                  <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
-                    ▼
-                  </span>
-                </button>
-              }
-            />
+            label="จำนวนเงินรวม:"
+            value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
+            action={
+              <button onClick={handleToggleDetails} className="text-sm">
+                <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
+                  ▼
+                </span>
+              </button>
+            }
+          />
 
-
-            {/* รายละเอียดค่าใช้จ่าย */}
-            {showDetails && (
-              <div className="space-y-3 mb-4">
-                <DetailRow label="ค่าเบี้ยเลี้ยง:" value={`${post.allowance} บาท`} />
-                <DetailRow label="ค่าที่พัก:" value={`${post.accommodation} บาท`} />
-                <DetailRow label="ค่าพาหนะ:" value={`${post.transportation} บาท`} />
-                <DetailRow label="ค่าใช้จ่ายอื่นๆ:" value={`${post.expenses} บาท`} />
-              </div>
-            )}
+          {/* รายละเอียดค่าใช้จ่าย */}
+          {showDetails && (
+            <div className="space-y-3 mb-4">
+              <DetailRow
+                label="ค่าเบี้ยเลี้ยง:"
+                value={`${post.allowance.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าที่พัก:"
+                value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าพาหนะ:"
+                value={`${post.transportation.toLocaleString('th-TH')} บาท`}
+              />
+              <DetailRow
+                label="ค่าใช้จ่ายอื่นๆ:"
+                value={`${post.expenses.toLocaleString('th-TH')} บาท`}
+              />
+            </div>
+          )}
 
             <DetailRow label="เดินทางไปปฏิบัติงานเกี่ยวกับ:" value={post.traveler_name1} />
             <DetailRow label="รายละเอียดการเดินทาง:" value={post.trip_details} />

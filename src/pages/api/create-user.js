@@ -58,6 +58,7 @@ export default async function handler(req, res) {
         tel
       });
 
+
       // บันทึกผู้ใช้ใหม่
       await newUser.save();
 
