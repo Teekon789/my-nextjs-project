@@ -1,94 +1,89 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 import { FiX, FiPrinter } from 'react-icons/fi';
-import { formatThaiDateTime, formatThaiDate } from '@/utils/dateUtils'; 
+import { formatThaiDateTime, formatThaiDate } from '@/utils/dateUtils';
 import Garuda from '@/logo/Garuda.png';
 import Image from 'next/image';
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
+import { generateExpensePDF } from '@/components/generateExpensePDF';  // ถูก
 
-const ExpenseForm = ({ post, onClose }) => {
+
+
+import PDFDocument from '@/components/PDFDocument';  // ถูก
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
+
+// แมปสำหรับแปลงชื่อตำแหน่งเป็นภาษาไทย
+const sendToMapping = {
+  dean: "คณบดี",
+  head: "หัวหน้าภาควิชา",
+  director: "ผู้อำนวยการ"
+};
+
+const ExpenseForm = ({ post, onClose, }) => {
   const printAreaRef = useRef(null);
+  const downloadLinkRef = useRef();
+
 
   if (!post) {
     return <div className="font-sarabun">กำลังโหลดข้อมูล...</div>;
   }
 
-  // ฟังก์ชันสร้าง PDF
-  const generatePDF = async () => {
-    const input = document.getElementById("printArea");
-    
-    // กำหนดค่าคงที่สำหรับกระดาษ A4 (มิลลิเมตร)
-    const a4Width = 210;
-    const a4Height = 297;
-    const margin = 0; // ลดขอบลงเพื่อให้เนื้อหาเต็มหน้า
-    
-    // ปรับ scale เพื่อความคมชัด แต่ไม่ส่งผลต่อขนาดสุดท้าย
-    const scale = 3;
-    
-    const canvas = await html2canvas(input, {
-      scale: scale,
-      useCORS: true,
-      logging: true,
-      allowTaint: true,
-      letterRendering: true,
-      width: input.offsetWidth,
-      height: input.offsetHeight
-    });
-    
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4",
-      compress: true
-    });
-    
-    // คำนวณขนาดเพื่อให้พอดีกับกระดาษ A4 โดยไม่บีบเนื้อหา
-    pdf.addImage(imgData, "PNG", margin, margin, a4Width - 2*margin, a4Height - 2*margin, '', 'FAST');
-    
-    pdf.save("Expense_Report.pdf");
+  const handlePrint = () => {
+    downloadLinkRef.current?.click();
   };
-  
-  
 
-  //เปลี่ยนชื่อไทย
-  const sendToMapping = {
-    dean: "คณบดี",
-    head: "หัวหน้าภาควิชา",
-    director: "ผู้อำนวยการ"
-  };
+  const fileName = `บันทึกการเดินทาง-${post.fullname}-${post.date123}.pdf`;
+  
 
   return (
-   // คอนเทนเนอร์หลัก - ปรับแต่งสำหรับการพิมพ์
-   <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 font-sarabun print:static print:bg-white print:p-0 ">
-   {/* กล่องเนื้อหาหลัก - ปรับขนาดและสไตล์สำหรับการพิมพ์ */}
-   <div className="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible print:shadow-none print:rounded-none">
-     {/* ส่วนหัว - ซ่อนปุ่มควบคุมเมื่อพิมพ์ */}
-     <div className="sticky top-0 bg-gray-50 px-6 py-3 border-b flex justify-between items-center print:hidden">
-       <h2 className="text-gray-700 font-medium">เอกสารเดินทางไปราชการ</h2>
-       <div className="flex gap-2">
-         <button onClick={generatePDF} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-           <FiPrinter className="w-5 h-5 text-gray-600" />
-         </button>
-         <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-           <FiX className="w-5 h-5 text-gray-600" />
-         </button>
-       </div>
-     </div>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 font-sarabun print:static print:bg-white print:p-0">
+      <div className="bg-white rounded-lg w-full max-w-5xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible">
+        {/* ส่วนหัวของฟอร์ม */}
+        <div className="sticky top-0 bg-gray-50 px-6 py-3 border-b flex justify-between items-center print:hidden">
+          <h2 className="text-gray-700 font-medium">เอกสารเดินทางไปราชการ</h2>
+          <div className="flex gap-2">
+          <div>
+      <PDFDownloadLink
+        ref={downloadLinkRef}
+        document={<PDFDocument post={post} sendToMapping={sendToMapping} formatThaiDate={formatThaiDate} formatThaiDateTime={formatThaiDateTime} />}
+        fileName={fileName}
+      >
+        {({ loading }) => (loading ? 'กำลังโหลด PDF...' : 'ดาวน์โหลด PDF')}
+      </PDFDownloadLink>
 
-        {/* พื้นที่เนื้อหาสำหรับพิมพ์ - ปรับระยะขอบและการจัดวาง */}
+      <button
+        onClick={handlePrint}  // เรียกใช้งานการดาวน์โหลดผ่าน ref
+        className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+        aria-label="พิมพ์เอกสาร"
+      >
+        <FiPrinter className="w-5 h-5 text-gray-600" />
+      </button>
+    </div>
+
+          
+            <button 
+              onClick={onClose} 
+              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              aria-label="ปิด"
+            >
+              <FiX className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+        </div>
+
+        {/* พื้นที่สำหรับพิมพ์ */}
         <div id="printArea" className="p-8 md:p-12 print:p-10">
-          {/* เพิ่ม padding สำหรับการพิมพ์เพื่อไม่ให้เนื้อหาทับกับเส้นขอบ */}
           <div className="max-w-4xl mx-auto space-y-8 text-gray-800 print:max-w-none">
-            {/* ส่วนหัวเอกสาร */}
+            {/* ตราครุฑและหัวเรื่อง */}
             <div className="text-center space-y-4">
               <div className="mx-auto w-24 h-24 mb-4 print:w-20 print:h-20">
                 <Image
                   src={Garuda}
-                  alt="Logo"
+                  alt="ตราครุฑ"
                   width={96}
                   height={96}
-                  className="w-full h-full object-contain print:w-20 print:h-20"
+                  className="w-full h-full object-contain"
+                  priority
                 />
               </div>
               <h1 className="text-2xl font-bold print:text-xl">บันทึกการเดินทางไปราชการ</h1>
