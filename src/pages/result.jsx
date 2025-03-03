@@ -174,29 +174,29 @@ const Result = () => {
           )
         )}
 
-<div>
-  {/* ปุ่ม "บันทึก" */}
-  <button
-    onClick={handleSave}
-    className="mt-6 mb-2 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 underline"
-  >
-    บันทึก
-  </button>
+      <div>
+        {/* ปุ่ม "บันทึก" */}
+        <button
+          onClick={handleSave}
+          className="mt-6 mb-2 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-200 underline"
+        >
+          บันทึก
+        </button>
 
-  {/* แสดงข้อความสำเร็จ */}
-  {success && (
-    <div className="mt-2 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg">
-      <span className="font-semibold">สำเร็จ!</span> บันทึกข้อมูลสำเร็จ!
-    </div>
-  )}
+        {/* แสดงข้อความสำเร็จ */}
+        {success && (
+          <div className="mt-2 p-3 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg">
+            <span className="font-semibold">สำเร็จ!</span> บันทึกข้อมูลสำเร็จ!
+          </div>
+        )}
 
-  {/* แสดงข้อผิดพลาด */}
-  {error && (
-    <div className="mt-2 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg">
-      <span className="font-semibold">ผิดพลาด!</span> {error}
-    </div>
-  )}
-</div>
+        {/* แสดงข้อผิดพลาด */}
+        {error && (
+          <div className="mt-2 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg">
+            <span className="font-semibold">ผิดพลาด!</span> {error}
+          </div>
+        )}
+      </div>
 
     </div>   
     

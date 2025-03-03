@@ -3,12 +3,8 @@ import { FiX, FiPrinter } from 'react-icons/fi';
 import { formatThaiDateTime, formatThaiDate } from '@/utils/dateUtils';
 import Garuda from '@/logo/Garuda.png';
 import Image from 'next/image';
-import { jsPDF } from "jspdf";
-import { generateExpensePDF } from '@/components/generateExpensePDF';  // ถูก
 
-
-
-import PDFDocument from '@/components/PDFDocument';  // ถูก
+import PDFDocument from '@/components/PDF/PDFDocument'; // นำเข้า PDFDocument ที่เราสร้างไว้
 import { PDFDownloadLink } from '@react-pdf/renderer';
 
 

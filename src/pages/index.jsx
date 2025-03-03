@@ -321,37 +321,37 @@ const handleSubmit = async (e) => {
 
 
          {/* Alert Dialog for Reset Session Confirmation */}
-<AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>ยืนยันการรีเซ็ต Session</AlertDialogTitle>
-      <AlertDialogDescription>
-        คุณต้องการรีเซ็ตการล็อกอินที่ค้างอยู่ของผู้ใช้ "{formData.username}" ใช่หรือไม่?
-        การกระทำนี้จะทำให้ผู้ใช้ที่กำลังใช้งานอยู่ต้องล็อกอินใหม่
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel 
-        onClick={() => {
-          setShowResetDialog(false);
-          setError("");
-        }}
-      >
-        ยกเลิก
-      </AlertDialogCancel>
-      <AlertDialogAction 
-        onClick={resetSession}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
-        ) : (
-          'ยืนยัน'
-        )}
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-</AlertDialog>
+        <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>ยืนยันการรีเซ็ต Session</AlertDialogTitle>
+              <AlertDialogDescription>
+                คุณต้องการรีเซ็ตการล็อกอินที่ค้างอยู่ของผู้ใช้ "{formData.username}" ใช่หรือไม่?
+                การกระทำนี้จะทำให้ผู้ใช้ที่กำลังใช้งานอยู่ต้องล็อกอินใหม่
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel 
+                onClick={() => {
+                  setShowResetDialog(false);
+                  setError("");
+                }}
+              >
+                ยกเลิก
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={resetSession}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  'ยืนยัน'
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       
     </div>
