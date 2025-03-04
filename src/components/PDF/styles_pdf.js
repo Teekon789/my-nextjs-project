@@ -112,13 +112,11 @@ const styles = StyleSheet.create({
     },
     
     // ส่วนชื่อรายการค่าใช้จ่าย - ปรับความกว้างให้เหมาะสม
-    expenseAllowanceLabel: {
-      width: '17%', 
+    expenseAllowanceLabel: { 
       marginRight: 2,
       marginLeft: 5,
     },
     expenseAccommodationLabel: {
-      width: '10%', 
       marginRight: 2,
       marginLeft: 5,
     },
@@ -127,8 +125,7 @@ const styles = StyleSheet.create({
       marginRight: 2,
       marginLeft: 5,
     },
-    expenseOtherLabel: {
-      width: '9%', 
+    expenseOtherLabel: { 
       marginRight: 2,
       marginLeft: 5,
     },
