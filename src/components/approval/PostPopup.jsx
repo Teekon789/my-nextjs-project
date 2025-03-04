@@ -2,7 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+
 import { FiX, FiPrinter } from 'react-icons/fi';
+import { MdFileDownload } from "react-icons/md";
+
 import DetailRow from '../DetailRow';
 import clsx from 'clsx';
 import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
@@ -49,9 +52,9 @@ const PostPopup = ({ post: initialPost, onClose }) => {
           </button>
           <button 
             title="พิมพ์เอกสาร"
-            className="flex items-center justify-center text-blue-500 hover:text-blue-600 transition-all duration-300 p-1"
+            className="flex items-center justify-center text-gray-500 hover:text-gray-600 transition-all duration-300 p-1"
           >
-            <FiPrinter size={20} />
+            <MdFileDownload size={20} />
           </button>
         </div>
 

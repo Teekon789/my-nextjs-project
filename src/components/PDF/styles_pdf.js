@@ -88,6 +88,15 @@ const styles = StyleSheet.create({
       marginRight: 5, 
       paddingBottom: 2,
     },
+
+    // เส้นคั้นแถวข้อมูล
+    underlineOnly: {
+      borderBottomWidth: 1,       // ความหนาของเส้นล่าง
+      borderBottomColor: '#ccc',  // สีของเส้น (สีเทาอ่อน)
+      width: '100%',                 // ความยาวของเส้น 
+      marginTop: 15,              // ระยะห่างด้านบน
+      marginBottom: 5,            // ระยะห่างด้านล่าง 
+    },  
   
      // ส่วนรายการค่าใช้จ่าย
     section: { 
@@ -106,6 +115,7 @@ const styles = StyleSheet.create({
     expenseAllowanceLabel: {
       width: '17%', 
       marginRight: 2,
+      marginLeft: 5,
     },
     expenseAccommodationLabel: {
       width: '10%', 
@@ -113,7 +123,7 @@ const styles = StyleSheet.create({
       marginLeft: 5,
     },
     expenseTransportLabel: {
-      width: '12%', 
+       
       marginRight: 2,
       marginLeft: 5,
     },
@@ -145,7 +155,7 @@ const styles = StyleSheet.create({
      transportQuantityUnderline: {
       borderBottomWidth: 1,
       borderBottomColor: '#000',
-      width: '17%', // กำหนดความกว้างเท่ากับช่องวันและช่องกรอกวัน
+      width: '14%', // กำหนดความกว้างเท่ากับช่องวันและช่องกรอกวัน
       alignItems: 'center',
       marginRight: 0,
       
@@ -162,15 +172,17 @@ const styles = StyleSheet.create({
     otherExpenseTypeUnderline: {
       borderBottomWidth: 1,
       borderBottomColor: '#000',
-      textAlign: 'center', // จัดกลางข้อความในช่อง
+      textAlign: 'center',
       marginRight: 0,
       flexGrow: 1,
+      paddingBottom: 17, // เพิ่มพื้นที่ใต้ข้อความ
     },
     
     //  "จำนวน"
     amountLabel: {
-      width: 50,
+      width: 30,
       textAlign: 'right',
+      marginLeft: -5,
       marginRight: 5,
     },
     
@@ -187,6 +199,7 @@ const styles = StyleSheet.create({
     dayLabel: {
       width: 30,
       textAlign: 'center',
+      marginLeft: -10,
     },
     
     // ช่องกรอกวัน
@@ -195,11 +208,13 @@ const styles = StyleSheet.create({
       borderBottomColor: '#000',
       width: '5%',
       textAlign: 'center', // จัดกลางข้อความในช่อง
+      marginLeft: -5,
     },
+
     
     // ส่วนยอดรวม
     totalLabel: {
-      width: 40,
+      width: 20,
       textAlign: 'right',
       marginRight: 5,
     },
@@ -222,8 +237,8 @@ const styles = StyleSheet.create({
     // สำหรับยอดรวมทั้งสิ้น
     finalTotalRow: {
       flexDirection: 'row',
-      marginTop: 15,
-      marginBottom: 15,
+      marginTop: 10,
+      marginBottom: 10,
       justifyContent: 'flex-end',
     },
     finalTotalLabel: {
@@ -234,9 +249,9 @@ const styles = StyleSheet.create({
     finalTotalUnderline: {
       borderBottomWidth: 1, // เส้นใต้
       borderBottomColor: '#000', // สีของเส้นใต้ (ดำ)
-      width: 60, // ความกว้างของช่อง
+      width: 56, // ความกว้างของช่อง
       textAlign: 'center', // จัดกลางข้อความ
-      marginRight: 5, // ระยะห่างด้านขวา
+      marginRight: 2, // ระยะห่างด้านขวา
       fontWeight: 'bold', // ทำให้ตัวอักษรเป็นตัวหนา
       fontFamily: 'THSarabunNew_Bold', // ใช้ฟอนต์ THSarabunNew_Bold
     },

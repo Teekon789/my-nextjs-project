@@ -91,115 +91,121 @@ const PDFDocument = ({ post }) => {
           <Text style={styles.value}>{formatThaiDateTime(safePost.return_date ||  '')}</Text>
         </View>
 
+       
+        <View style={styles.underlineOnly}>
+        </View>
+
         {/* ข้อความขอเบิกค่าใช้จ่าย */}
         <View style={styles.section}>
           <Text>ข้าพเจ้าได้ขอเบิกค่าใช้จ่ายสำหรับการเดินทางไปราชการ ดังนี้</Text>
         </View>
 
              {/* ค่าเบี้ยเลี้ยงเดินทาง */}
-      <View style={styles.expenseRow}>
-        <Text style={styles.expenseAllowanceLabel}>ค่าเบี้ยเลี้ยงเดินทางประเภท</Text>
-        <View style={styles.expenseTypeUnderline}>
-          <Text>{safePost.allowance_type || ''}</Text>
-        </View>
-        <Text style={styles.amountLabel}>จำนวน</Text>
-        <View style={styles.amountUnderline}>
-          <Text>{Number(safePost.allowance_quantity ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.dayLabel}>วัน</Text>
-        <View style={styles.dayUnderline}>
-          <Text>{Number(safePost.allowance_days ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.totalLabel}>รวม</Text>
-        <View style={styles.totalUnderline}>
-          <Text>{Number(safePost.allowance ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.currencyLabel}>บาท</Text>
-      </View>
-
-      {/* ค่าที่พัก */}
-      <View style={styles.expenseRow}>
-        <Text style={styles.expenseAccommodationLabel}>ค่าที่พักประเภท</Text>
-        <View style={styles.expenseTypeUnderline}>
-          <Text>{safePost.accommodation_type || ''}</Text>
-        </View>
-        <Text style={styles.amountLabel}>จำนวน</Text>
-        <View style={styles.amountUnderline}>
-          <Text>{Number(safePost.accommodation_quantity ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.dayLabel}>วัน</Text>
-        <View style={styles.dayUnderline}>
-          <Text>{Number(safePost.accommodation_days ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.totalLabel}>รวม</Text>
-        <View style={styles.totalUnderline}>
-          <Text>{Number(safePost.accommodation ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.currencyLabel}>บาท</Text>
-      </View>
-
-      {/* ค่าพาหนะ */}
-      <View style={styles.expenseRow}>
-        <Text style={styles.expenseTransportLabel}>ค่าพาหนะประเภท</Text>
-        <View style={styles.expenseTypeUnderline}>
-          <Text>{safePost.transportation_type || ''}</Text>
-        </View>
-        <Text style={styles.amountLabel}>จำนวน</Text>
-        <View style={styles.transportQuantityUnderline}>
-          <Text>{Number(safePost.transportation_quantity ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.totalLabel}>รวม</Text>
-        <View style={styles.totalUnderline}>
-          <Text>{Number(safePost.transportation ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.currencyLabel}>บาท</Text>
-      </View>
-
-      {/* ค่าใช้จ่ายอื่นๆ */}
-      <View style={styles.expenseRow}>
-        <Text style={styles.expenseOtherLabel}>ค่าใช้จ่ายอื่นๆ</Text>
-        <View style={styles.otherExpenseTypeUnderline}>
-          <Text>{safePost.other_expenses_type || ''}</Text>
-        </View>
-        <Text style={styles.totalLabel}>รวม</Text>
-        <View style={styles.totalUnderline}>
-          <Text>{Number(safePost.expenses ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.currencyLabel}>บาท</Text>
-      </View>
-
-      {/* รวมทั้งสิ้น */}
-      <View style={styles.finalTotalRow}>
-        <Text style={styles.finalTotalLabel}>รวมทั้งสิ้น</Text>
-        <View style={styles.finalTotalUnderline}>
-          <Text>{Number(safePost.total_budget ?? 0).toLocaleString()}</Text>
-        </View>
-        <Text style={styles.finalTotalCurrencyLabel}>บาท</Text>
-      </View>
-
-
-        {/* รายละเอียดการเดินทาง */}
-        <View style={styles.tripDetails}>
-          <Text>รายละเอียดการเดินทาง</Text>
-          
-          <View style={[styles.row, {marginTop: 10}]}>
-            <Text style={styles.label}>เรื่อง:</Text>
-            <Text style={styles.value_2}>{safePost.trip_details || ''}</Text>
+        <View style={styles.expenseRow}>
+          <Text style={styles.expenseAllowanceLabel}>ค่าเบี้ยเลี้ยงเดินทางประเภท</Text>
+          <View style={styles.expenseTypeUnderline}>
+            <Text>{safePost.allowance_type || ''}</Text>
           </View>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>สถานที่ปฏิบัติงาน:</Text>
-            <Text style={styles.value_2}>{safePost.traveler_name2 || ''}</Text>
+          <Text style={styles.amountLabel}>จำนวน</Text>
+          <View style={styles.amountUnderline}>
+            <Text>{Number(safePost.allowance_quantity ?? 0).toLocaleString()}</Text>
           </View>
+          <Text style={styles.dayLabel}>วัน</Text>
+          <View style={styles.dayUnderline}>
+            <Text>{Number(safePost.allowance_days ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.totalLabel}>รวม</Text>
+          <View style={styles.totalUnderline}>
+            <Text>{Number(safePost.allowance ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.currencyLabel}>บาท</Text>
         </View>
 
-        {/* ลายเซ็น */}
-        <View style={styles.signature}>
-          <Text style={styles.signatureLine}>ลงชื่อ...........................................................</Text>
-          <Text style={styles.signatureText}>({safePost.fullname || 'วาคิม สุทธิ'})</Text>
-          <Text style={styles.signatureText}>ตำแหน่ง {safePost.personnel_type || 'เจ้าฝ่ายกิจกรรม'}</Text>
-          <Text style={styles.signatureText}>วันที่ {formatThaiDate(safePost.date123 || '')}</Text>
+        {/* ค่าที่พัก */}
+        <View style={styles.expenseRow}>
+          <Text style={styles.expenseAccommodationLabel}>ค่าที่พักประเภท</Text>
+          <View style={styles.expenseTypeUnderline}>
+            <Text>{safePost.accommodation_type || ''}</Text>
+          </View>
+          <Text style={styles.amountLabel}>จำนวน</Text>
+          <View style={styles.amountUnderline}>
+            <Text>{Number(safePost.accommodation_quantity ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.dayLabel}>วัน</Text>
+          <View style={styles.dayUnderline}>
+            <Text>{Number(safePost.accommodation_days ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.totalLabel}>รวม</Text>
+          <View style={styles.totalUnderline}>
+            <Text>{Number(safePost.accommodation ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.currencyLabel}>บาท</Text>
         </View>
+
+        {/* ค่าพาหนะ */}
+        <View style={styles.expenseRow}>
+          <Text style={styles.expenseTransportLabel}>ค่าพาหนะประเภท</Text>
+          <View style={styles.expenseTypeUnderline}>
+            <Text>{safePost.transportation_type || ''}</Text>
+          </View>
+          <Text style={styles.amountLabel}>จำนวน</Text>
+          <View style={styles.transportQuantityUnderline}>
+            <Text>{Number(safePost.transportation_quantity ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.totalLabel}>รวม</Text>
+          <View style={styles.totalUnderline}>
+            <Text>{Number(safePost.transportation ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.currencyLabel}>บาท</Text>
+        </View>
+
+        {/* ค่าใช้จ่ายอื่นๆ */}
+        <View style={styles.expenseRow}>
+          <Text style={styles.expenseOtherLabel}>ค่าใช้จ่ายอื่นๆ</Text>
+          <View style={styles.otherExpenseTypeUnderline}>
+            <Text>{safePost.other_expenses_type || ''}</Text>
+          </View>
+          <Text style={styles.totalLabel}>รวม</Text>
+          <View style={styles.totalUnderline}>
+            <Text>{Number(safePost.expenses ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.currencyLabel}>บาท</Text>
+        </View>
+
+        {/* รวมทั้งสิ้น */}
+        <View style={styles.finalTotalRow}>
+          <Text style={styles.finalTotalLabel}>รวมทั้งสิ้น</Text>
+          <View style={styles.finalTotalUnderline}>
+            <Text>{Number(safePost.total_budget ?? 0).toLocaleString()}</Text>
+          </View>
+          <Text style={styles.finalTotalCurrencyLabel}>บาท</Text>
+        </View>
+
+        <View style={styles.underlineOnly}>
+        </View>
+
+          {/* รายละเอียดการเดินทาง */}
+          <View style={styles.tripDetails}>
+            <Text>รายละเอียดการเดินทาง</Text>
+            
+            <View style={[styles.row, {marginTop: 10}]}>
+              <Text style={styles.label}>เรื่อง:</Text>
+              <Text style={styles.value_2}>{safePost.trip_details || ''}</Text>
+            </View>
+            
+            <View style={styles.row}>
+              <Text style={styles.label}>สถานที่ปฏิบัติงาน:</Text>
+              <Text style={styles.value_2}>{safePost.traveler_name2 || ''}</Text>
+            </View>
+          </View>
+
+          {/* ลายเซ็น */}
+          <View style={styles.signature}>
+            <Text style={styles.signatureLine}>ลงชื่อ...........................................................</Text>
+            <Text style={styles.signatureText}>({safePost.fullname || 'วาคิม สุทธิ'})</Text>
+            <Text style={styles.signatureText}>ตำแหน่ง {safePost.personnel_type || 'เจ้าฝ่ายกิจกรรม'}</Text>
+            <Text style={styles.signatureText}>วันที่ {formatThaiDate(safePost.date123 || '')}</Text>
+          </View>
       </Page>
     </Document>
   );

@@ -1,5 +1,6 @@
 import React, { useRef,useState } from 'react';
 import { FiX, FiPrinter } from 'react-icons/fi';
+import { MdFileDownload } from "react-icons/md";
 import { formatThaiDateTime, formatThaiDate } from '@/utils/dateUtils';
 import Garuda from '@/logo/Garuda.png';
 import Image from 'next/image';
@@ -37,12 +38,13 @@ const ExpenseForm = ({ post, onClose, }) => {
         {/* ส่วนหัวของฟอร์ม */}
         <div className="sticky top-0 bg-gray-50 px-6 py-3 border-b flex justify-between items-center print:hidden">
           <h2 className="text-gray-700 font-medium">เอกสารเดินทางไปราชการ</h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
           <div>
       <PDFDownloadLink
         ref={downloadLinkRef}
         document={<PDFDocument post={post} sendToMapping={sendToMapping} formatThaiDate={formatThaiDate} formatThaiDateTime={formatThaiDateTime} />}
         fileName={fileName}
+        className="w-5 h-5  text-gray-600"
       >
         {({ loading }) => (loading ? 'กำลังโหลด PDF...' : 'ดาวน์โหลด PDF')}
       </PDFDownloadLink>
@@ -52,7 +54,7 @@ const ExpenseForm = ({ post, onClose, }) => {
         className="p-2 hover:bg-gray-200 rounded-full transition-colors"
         aria-label="พิมพ์เอกสาร"
       >
-        <FiPrinter className="w-5 h-5 text-gray-600" />
+        <MdFileDownload  className="w-5 h-5 text-gray-600 relative top-1" />
       </button>
     </div>
 
@@ -62,7 +64,7 @@ const ExpenseForm = ({ post, onClose, }) => {
               className="p-2 hover:bg-gray-200 rounded-full transition-colors"
               aria-label="ปิด"
             >
-              <FiX className="w-5 h-5 text-gray-600" />
+              <FiX className="w-5 h-5 text-gray-600 relative top-1" />
             </button>
           </div>
         </div>

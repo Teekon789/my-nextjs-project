@@ -49,9 +49,7 @@ const ViewPost = () => {
           </div>
         );
       }
-  
-     
-     
+
      return (
       
       <div className="max-w-[1200px] mx-auto my-12 p-12 bg-gradient-to-br from-white to-gray-100 
