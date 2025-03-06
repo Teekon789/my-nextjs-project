@@ -1,7 +1,7 @@
 import { BsSearch } from "react-icons/bs";
 import { FaFilter, FaPlus } from "react-icons/fa";
 import Link from "next/link";
-import Button from '@/components/ui/Button';
+import Button from '@/components/ui/button';
 
 const SearchFilter = ({ searchQuery, onSearchChange, onStatusChange, linkHref }) => {
   return (
