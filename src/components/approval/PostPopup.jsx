@@ -2,19 +2,28 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-
-import { FiX, FiPrinter } from 'react-icons/fi';
+import { FiX } from 'react-icons/fi';
 import { MdFileDownload } from "react-icons/md";
-
 import DetailRow from '../DetailRow';
 import clsx from 'clsx';
 import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
+
+// import react-pdf/renderer
+import { PDFDownloadLink } from '@react-pdf/renderer';
+// import TravelPDF component
+import TravelPDF from '@/components/PDF/TravelPDF';
 
 const PostPopup = ({ post: initialPost, onClose }) => {
   const router = useRouter();
   const [post, setPost] = useState(initialPost);
   const [showDetails, setShowDetails] = useState(false);
   const [showTravelers, setShowTravelers] = useState(false);
+  const [isClient, setIsClient] = useState(false); // เพิ่ม state สำหรับตรวจสอบว่าอยู่ใน client-side หรือไม่
+
+  // ใช้ useEffect เพื่อตรวจสอบว่าอยู่ใน client-side แล้ว (เพราะ react-pdf ต้องทำงานใน client-side เท่านั้น)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // ดึงข้อมูลการเดินทางเมื่อมี ID
   useEffect(() => {
@@ -37,6 +46,9 @@ const PostPopup = ({ post: initialPost, onClose }) => {
 
   if (!post) return <div>กำลังโหลดข้อมูล...</div>;
 
+  // สร้างชื่อไฟล์ PDF
+  const pdfFileName = `บันทึกการเดินทาง_${post.fullname || 'ไม่ระบุชื่อ'}.pdf`;
+
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-2 sm:p-4 overflow-hidden">
       <div className="relative w-[95%] sm:w-[90%] max-w-[600px] max-h-[90vh] bg-white p-3 sm:p-5 rounded-lg shadow-lg overflow-y-auto mx-auto z-[1000] transition-all duration-300 ease-in-out text-center font-sarabun">
@@ -50,12 +62,24 @@ const PostPopup = ({ post: initialPost, onClose }) => {
           >
             <FiX size={20} />
           </button>
-          <button 
-            title="พิมพ์เอกสาร"
-            className="flex items-center justify-center text-gray-500 hover:text-gray-600 transition-all duration-300 p-1"
-          >
-            <MdFileDownload size={20} />
-          </button>
+          
+          {/* ปุ่มดาวน์โหลด PDF - ใช้ PDFDownloadLink ของ react-pdf/renderer */}
+          {isClient && (
+            <PDFDownloadLink 
+              document={<TravelPDF post={post} />} 
+              fileName={pdfFileName}
+              className="flex items-center justify-center text-gray-500 hover:text-gray-600 transition-all duration-300 p-1"
+            >
+              {({ loading }) => (
+                <button 
+                  title={loading ? "กำลังเตรียมข้อมูล PDF..." : "ดาวน์โหลด PDF"}
+                  disabled={loading}
+                >
+                  <MdFileDownload size={20} />
+                </button>
+              )}
+            </PDFDownloadLink>
+          )}
         </div>
 
         {/* เนื้อหาหลัก */}
@@ -76,42 +100,42 @@ const PostPopup = ({ post: initialPost, onClose }) => {
             <DetailRow label="จังหวัด:" value={post.province} />
             <DetailRow label="วันที่ไปราชการ:" value={formatThaiDateTime(post.trip_date)} />
             <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.departure_date)} />
-            <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.return_date)} />
+            <DetailRow label="วันที่กลับ:" value={formatThaiDateTime(post.return_date)} />
 
             {/* ส่วนแสดงงบประมาณ */}
             <DetailRow
-            label="จำนวนเงินรวม:"
-            value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
-            action={
-              <button onClick={handleToggleDetails} className="text-sm">
-                <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
-                  ▼
-                </span>
-              </button>
-            }
-          />
+              label="จำนวนเงินรวม:"
+              value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
+              action={
+                <button onClick={handleToggleDetails} className="text-sm">
+                  <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
+                    ▼
+                  </span>
+                </button>
+              }
+            />
 
-          {/* รายละเอียดค่าใช้จ่าย */}
-          {showDetails && (
-            <div className="space-y-3 mb-4">
-              <DetailRow
-                label="ค่าเบี้ยเลี้ยง:"
-                value={`${post.allowance.toLocaleString('th-TH')} บาท`}
-              />
-              <DetailRow
-                label="ค่าที่พัก:"
-                value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
-              />
-              <DetailRow
-                label="ค่าพาหนะ:"
-                value={`${post.transportation.toLocaleString('th-TH')} บาท`}
-              />
-              <DetailRow
-                label="ค่าใช้จ่ายอื่นๆ:"
-                value={`${post.expenses.toLocaleString('th-TH')} บาท`}
-              />
-            </div>
-          )}
+            {/* รายละเอียดค่าใช้จ่าย */}
+            {showDetails && (
+              <div className="space-y-3 mb-4">
+                <DetailRow
+                  label="ค่าเบี้ยเลี้ยง:"
+                  value={`${post.allowance.toLocaleString('th-TH')} บาท`}
+                />
+                <DetailRow
+                  label="ค่าที่พัก:"
+                  value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
+                />
+                <DetailRow
+                  label="ค่าพาหนะ:"
+                  value={`${post.transportation.toLocaleString('th-TH')} บาท`}
+                />
+                <DetailRow
+                  label="ค่าใช้จ่ายอื่นๆ:"
+                  value={`${post.expenses.toLocaleString('th-TH')} บาท`}
+                />
+              </div>
+            )}
 
             <DetailRow label="เดินทางไปปฏิบัติงานเกี่ยวกับ:" value={post.traveler_name1} />
             <DetailRow label="รายละเอียดการเดินทาง:" value={post.trip_details} />

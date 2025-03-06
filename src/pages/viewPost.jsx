@@ -158,13 +158,7 @@ const ViewPost = () => {
     </div>
     
         </div>
-
-    
-    
-
-  
-         
-      
+     
     );
     
   };

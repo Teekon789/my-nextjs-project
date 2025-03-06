@@ -45,40 +45,43 @@ const ExpenseForm = ({ post, onClose }) => {
             เอกสารเดินทางไปราชการ
           </h2>
 
-          <div className="flex flex-wrap md:flex-nowrap gap-4 items-center">
-            <div className="flex gap-2">
-              {/* ปุ่มสลับโหมดการแสดงผล */}
-              <button
-                onClick={togglePDFView}
-                className="flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-              >
-                <MdPreview className="w-5 h-5 text-gray-600 relative top-1" />
-                {viewPDF ? 'ดูเอกสาร HTML' : 'ดูเอกสาร PDF'}
-              </button>
+          <div className="relative p-2">
+  {/* ปุ่มปิด - ตรึงอยู่มุมขวาบนเสมอ */}
+  <button 
+    onClick={onClose} 
+    className="absolute top-2 right-2 p-2 hover:bg-gray-200 rounded-lg transition-colors z-10"
+    aria-label="ปิด"
+  >
+    <FiX className="w-5 h-5 text-gray-600" />
+  </button>
 
-              <PDFDownloadLink
-                ref={downloadLinkRef}
-                document={<PDFDocument post={post} sendToMapping={sendToMapping} formatThaiDate={formatThaiDate} formatThaiDateTime={formatThaiDateTime} />}
-                fileName={fileName}
-                className="flex items-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-              >
-                {({ loading }) => (
-                  <>
-                    <MdFileDownload className="w-5 h-5 text-gray-600 relative top-1" />
-                    {loading ? 'กำลังโหลด PDF...' : 'ดาวน์โหลด PDF'}
-                  </>
-                )}
-              </PDFDownloadLink>
-            </div>
+  {/* กลุ่มปุ่มหลัก - เลื่อนไปทางซ้ายเพื่อเว้นที่ให้ปุ่มปิด */}
+  <div className="pr-12 flex flex-wrap gap-2">
+    {/* ปุ่มสลับโหมดการแสดงผล */}
+    <button
+      onClick={togglePDFView}
+      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+    >
+      <MdPreview className="w-5 h-5 text-gray-600" />
+      <span>{viewPDF ? 'ดูเอกสาร HTML' : 'ดูเอกสาร PDF'}</span>
+    </button>
 
-            <button 
-              onClick={onClose} 
-              className="p-2 hover:bg-gray-200 rounded-lg transition-colors "
-              aria-label="ปิด"
-            >
-              <FiX className="w-5 h-5 text-gray-600 relative top-1" />
-            </button>
-          </div>
+    {/* ปุ่มดาวน์โหลด PDF */}
+    <PDFDownloadLink
+      ref={downloadLinkRef}
+      document={<PDFDocument post={post} sendToMapping={sendToMapping} formatThaiDate={formatThaiDate} formatThaiDateTime={formatThaiDateTime} />}
+      fileName={fileName}
+      className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 bg-white border rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+    >
+      {({ loading }) => (
+        <>
+          <MdFileDownload className="w-5 h-5 text-gray-600" />
+          <span>{loading ? 'กำลังโหลด PDF...' : 'ดาวน์โหลด PDF'}</span>
+        </>
+      )}
+    </PDFDownloadLink>
+  </div>
+</div>
         </div>
 
         {/* แสดงตัว PDF viewer หรือแบบฟอร์ม HTML ตามสถานะ viewPDF */}
