@@ -1,7 +1,8 @@
 import { BsSearch } from "react-icons/bs";
 import { FaFilter, FaPlus } from "react-icons/fa";
 import Link from "next/link";
-import Button from "@/components/ui/Button";
+import Button from '../ui/Button';
+
 const SearchFilter = ({ searchQuery, onSearchChange, onStatusChange, linkHref }) => {
   return (
     <div className="bg-slate-50 rounded-lg shadow-sm p-4 mb-6">
