@@ -281,6 +281,4 @@ const ExpenseForm = ({ post, onClose }) => {
   );
 };
 
-
-
 export default ExpenseForm;
