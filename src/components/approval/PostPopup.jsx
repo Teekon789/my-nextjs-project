@@ -51,7 +51,8 @@ const PostPopup = ({ post: initialPost, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-2 sm:p-4 overflow-hidden">
-      <div className="relative w-[95%] sm:w-[90%] max-w-[600px] max-h-[90vh] bg-white p-3 sm:p-5 rounded-lg shadow-lg overflow-y-auto mx-auto z-[1000] transition-all duration-300 ease-in-out text-center font-sarabun">
+      <div className="relative w-[95%] sm:w-[90%] max-w-[600px] max-h-[90vh] bg-white p-3 sm:p-5 rounded-lg shadow-lg overflow-y-auto mx-auto z-[1000] 
+      transition-all duration-300 ease-in-out text-center font-sarabun">
         
         {/* ปุ่มด้านบน */}
         <div className="sticky top-2 right-2 flex justify-end gap-4 z-10">
