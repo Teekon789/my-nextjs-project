@@ -1,4 +1,6 @@
-// next.config.mjs
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -7,8 +9,13 @@ const nextConfig = {
     autoPrerender: false,
     middleware: true,
   },
+
+  images: {
+    unoptimized: true,  
+    disableStaticImages: true, 
+    domains: ['example.com', 'fonts.gstatic.com'], 
+  },
   
-  // เพิ่ม headers สำหรับการเข้าถึงฟอนต์
   async headers() {
     return [
       {
@@ -24,62 +31,77 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
-    // คงการตั้งค่า cache เดิม
     config.cache = {
       type: 'filesystem',
     };
 
-    // เพิ่ม rules สำหรับ .mjs
-    config.module.rules.push({
-      test: /\.mjs$/,
-      include: /node_modules/,
-      type: 'javascript/auto',
-    });
-
-    // เพิ่ม rules สำหรับไฟล์ฟอนต์
-    config.module.rules.push({
-      test: /\.(woff|woff2|eot|ttf|otf)$/,
-      use: {
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]',
-          publicPath: '/_next/static/fonts/',
-          outputPath: 'static/fonts/'
-        }
+    config.module.rules.push(
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        use: {
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            publicPath: '/_next/static/fonts/',
+            outputPath: 'static/fonts/',
+          },
+        },
       }
-    });
+    );
 
-    // ตั้งค่า fallback สำหรับ client-side
     if (!isServer) {
       config.resolve.fallback = {
-        ...config.resolve.fallback,
-        crypto: false,
-        stream: false,
+        crypto: require.resolve('crypto-browserify'),
+        stream: require.resolve('stream-browserify'),
+        zlib: require.resolve('browserify-zlib'),
         fs: false,
         path: false,
         canvas: false,
         encoding: false,
         bufferutil: false,
         'utf-8-validate': false,
+
+        process: require.resolve('process/browser'),
+        util: require.resolve('util/'),
+        buffer: require.resolve('buffer/'),
+        assert: require.resolve('assert/'),
+        http: require.resolve('stream-http'),
+        https: require.resolve('https-browserify'),
+        os: require.resolve('os-browserify/browser'),
+        url: require.resolve('url/'),
       };
+
+      const webpack = require('webpack');
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+          Buffer: ['buffer', 'Buffer'],
+        }),
+        new webpack.DefinePlugin({
+          'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+          'process.env.REACT_PDF_CONTAINER': JSON.stringify('div'),
+        })
+      );
     }
 
-    // เพิ่ม extensions
     config.resolve.extensions.push('.ts', '.tsx');
 
-    // เพิ่ม alias สำหรับ react-pdf
     config.resolve.alias = {
       ...config.resolve.alias,
-      'fs': false,
-      'path': false,
+      fs: false,
+      path: false,
     };
 
     return config;
   },
 
-  // อนุญาตให้โหลดฟอนต์จากโดเมนภายนอก
   images: {
-    domains: ['example.com', 'fonts.gstatic.com'], // เพิ่ม fonts.gstatic.com สำหรับ Google Fonts
+    domains: ['example.com', 'fonts.gstatic.com'], 
   },
 
   env: {

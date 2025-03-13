@@ -1,61 +1,77 @@
-// PostPopup.js
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import axios from 'axios';
+//PostPopup.tsx
+
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { FiX } from 'react-icons/fi';
-import { MdFileDownload } from "react-icons/md";
-import DetailRow from '../DetailRow';
+import DetailRow from '@/components/DetailRow';
+import { formatThaiDateTime } from '@/utils/dateUtils';
 import clsx from 'clsx';
-import { formatThaiDateTime } from '@/utils/dateUtils'; //แปลงเวลาเป็นไทย
 
-// import react-pdf/renderer
-import { PDFDownloadLink } from '@react-pdf/renderer';
-// import TravelPDF component
-import TravelPDF from '@/components/PDF/TravelPDF';
+// ใช้ dynamic import แบบ client-side only สำหรับ PDFDownloadButton
+const PDFDownloadButton = dynamic(
+  () => import('@/components/PDFDownloadButton'),
+  { 
+    ssr: false,
+    loading: () => <div className="text-gray-400">กำลังโหลด...</div>
+  }
+);
+interface Traveler {
+  traveler_name?: string;
+  personnel_type?: string;
+  traveler_relation?: string;
+  email?: string;
+  phone?: string;
+}
 
-const PostPopup = ({ post: initialPost, onClose }) => {
-  const router = useRouter();
-  const [post, setPost] = useState(initialPost);
+interface PostProps {
+  post: {
+    contract_number?: string;
+    fullname?: string;
+    personnel_type?: string;
+    department?: string;
+    email?: string;
+    phone?: string;
+    fund_source?: string;
+    province?: string;
+    trip_date?: string;
+    departure_date?: string;
+    return_date?: string;
+    total_budget?: number;
+    allowance?: number;
+    accommodation?: number;
+    transportation?: number;
+    expenses?: number;
+    traveler_name1?: string;
+    trip_details?: string;
+    traveler_name2?: string;
+    travelers?: Traveler[];
+  };
+  onClose: () => void;
+}
+
+
+
+const PostPopup: React.FC<PostProps> = ({ post, onClose }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [showTravelers, setShowTravelers] = useState(false);
-  const [isClient, setIsClient] = useState(false); // เพิ่ม state สำหรับตรวจสอบว่าอยู่ใน client-side หรือไม่
-
-  // ใช้ useEffect เพื่อตรวจสอบว่าอยู่ใน client-side แล้ว (เพราะ react-pdf ต้องทำงานใน client-side เท่านั้น)
+  const [isClient, setIsClient] = useState(false);
+  
+  // ตรวจสอบว่าอยู่ใน client-side
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  // ดึงข้อมูลการเดินทางเมื่อมี ID
-  useEffect(() => {
-    if (router.query.id) {
-      const fetchPost = async () => {
-        try {
-          const { data } = await axios.get(`/api/createPost/${router.query.id}`);
-          setPost(data);
-        } catch (error) {
-          console.error('Error fetching post:', error);
-        }
-      };
-      fetchPost();
-    }
-  }, [router.query.id]);
 
   // Toggle แสดง/ซ่อนรายละเอียด
   const handleToggleDetails = () => setShowDetails(prev => !prev);
   const handleToggleTravelers = () => setShowTravelers(prev => !prev);
 
-  if (!post) return <div>กำลังโหลดข้อมูล...</div>;
-
-  // สร้างชื่อไฟล์ PDF
-  const pdfFileName = `บันทึกการเดินทาง_${post.fullname || 'ไม่ระบุชื่อ'}.pdf`;
-
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-[1000] p-2 sm:p-4 overflow-hidden">
       <div className="relative w-[95%] sm:w-[90%] max-w-[600px] max-h-[90vh] bg-white p-3 sm:p-5 rounded-lg shadow-lg overflow-y-auto mx-auto z-[1000] 
-      transition-all duration-300 ease-in-out text-center font-sarabun">
+      transition-all duration-300 ease-in-out text-center">
         
-        {/* ปุ่มด้านบน */}
-        <div className="sticky top-2 right-2 flex justify-end gap-4 z-10">
+          {/* ปุ่มด้านบน */}
+          <div className="sticky top-2 right-2 flex justify-end gap-4 z-10">
           <button 
             onClick={onClose} 
             title="ปิดหน้าต่าง"
@@ -64,23 +80,8 @@ const PostPopup = ({ post: initialPost, onClose }) => {
             <FiX size={20} />
           </button>
           
-          {/* ปุ่มดาวน์โหลด PDF - ใช้ PDFDownloadLink ของ react-pdf/renderer */}
-          {isClient && (
-            <PDFDownloadLink 
-              document={<TravelPDF post={post} />} 
-              fileName={pdfFileName}
-              className="flex items-center justify-center text-gray-500 hover:text-gray-600 transition-all duration-300 p-1"
-            >
-              {({ loading }) => (
-                <button 
-                  title={loading ? "กำลังเตรียมข้อมูล PDF..." : "ดาวน์โหลด PDF"}
-                  disabled={loading}
-                >
-                  <MdFileDownload size={20} />
-                </button>
-              )}
-            </PDFDownloadLink>
-          )}
+          {/* ปุ่มดาวน์โหลด PDF - ใช้ dynamic import แทน */}
+          {isClient && <PDFDownloadButton post={post} />}
         </div>
 
         {/* เนื้อหาหลัก */}
@@ -106,7 +107,7 @@ const PostPopup = ({ post: initialPost, onClose }) => {
             {/* ส่วนแสดงงบประมาณ */}
             <DetailRow
               label="จำนวนเงินรวม:"
-              value={`${post.total_budget.toLocaleString('th-TH')} บาท`}
+              value={`${post.total_budget?.toLocaleString('th-TH') || '0'} บาท`}
               action={
                 <button onClick={handleToggleDetails} className="text-sm">
                   <span className={clsx("transition-transform duration-200 block", { "rotate-180": showDetails })}>
@@ -121,19 +122,19 @@ const PostPopup = ({ post: initialPost, onClose }) => {
               <div className="space-y-3 mb-4">
                 <DetailRow
                   label="ค่าเบี้ยเลี้ยง:"
-                  value={`${post.allowance.toLocaleString('th-TH')} บาท`}
+                  value={`${post.allowance?.toLocaleString('th-TH') || '0'} บาท`}
                 />
                 <DetailRow
                   label="ค่าที่พัก:"
-                  value={`${post.accommodation.toLocaleString('th-TH')} บาท`}
+                  value={`${post.accommodation?.toLocaleString('th-TH') || '0'} บาท`}
                 />
                 <DetailRow
                   label="ค่าพาหนะ:"
-                  value={`${post.transportation.toLocaleString('th-TH')} บาท`}
+                  value={`${post.transportation?.toLocaleString('th-TH') || '0'} บาท`}
                 />
                 <DetailRow
                   label="ค่าใช้จ่ายอื่นๆ:"
-                  value={`${post.expenses.toLocaleString('th-TH')} บาท`}
+                  value={`${post.expenses?.toLocaleString('th-TH') || '0'} บาท`}
                 />
               </div>
             )}
@@ -144,14 +145,16 @@ const PostPopup = ({ post: initialPost, onClose }) => {
           </div>
 
           {/* ส่วนผู้ร่วมเดินทาง */}
-          <button 
-            onClick={handleToggleTravelers}
-            className="font-sarabun text-gray-600 cursor-pointer underline mx-auto my-6"
-          >
-            {showTravelers ? 'ซ่อนผู้ร่วมเดินทาง' : 'แสดงผู้ร่วมเดินทาง'}
-          </button>
+          {post.travelers && post.travelers.length > 0 && (
+            <button 
+              onClick={handleToggleTravelers}
+              className="text-gray-600 cursor-pointer underline mx-auto my-6"
+            >
+              {showTravelers ? 'ซ่อนผู้ร่วมเดินทาง' : 'แสดงผู้ร่วมเดินทาง'}
+            </button>
+          )}
 
-          {showTravelers && post.travelers && (
+          {showTravelers && post.travelers && post.travelers.length > 0 && (
             <div className="border-t border-black/50 w-full my-6" />
           )}
 
@@ -170,7 +173,7 @@ const PostPopup = ({ post: initialPost, onClose }) => {
             ))
           ) : (
             showTravelers && (
-              <p className="text-center font-sarabun my-5">ไม่มีข้อมูลผู้ร่วมเดินทาง</p>
+              <p className="text-center my-5">ไม่มีข้อมูลผู้ร่วมเดินทาง</p>
             )
           )}
         </div>

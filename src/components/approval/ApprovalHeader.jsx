@@ -11,7 +11,7 @@ const ApprovalHeader = ({ currentUser, handleLogout }) => {
               src={mn_1}
               alt="Logo"
               className="w-16 h-16 text-3xl text-blue-600"
-              priority
+              priority={true}  // ให้โหลดภาพทันที
             />
             <h1 className="text-2xl font-bold text-gray-800 relative">
               มหาวิทยาลัยนเรศวร

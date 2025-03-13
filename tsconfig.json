@@ -22,16 +22,18 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
-    }
+      "@/*": ["src/*"],
+      "crypto": ["node_modules/crypto-browserify"],
+      "stream": ["node_modules/stream-browserify"],
+      "buffer": ["node_modules/buffer"]
+    },
+    "types": ["node"]
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "src/components/ui/alert-dialog.jtsx", "src/components/approval/PostPopup.jsx"  ],
+  ],
   "exclude": [
     "node_modules"
   ]

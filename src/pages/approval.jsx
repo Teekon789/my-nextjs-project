@@ -14,7 +14,7 @@ const DashboardStats = dynamic(() => import("../components/approval/DashboardSta
 const SearchFilter = dynamic(() => import("../components/approval/SearchFilter"));
 const PostsTable = dynamic(() => import("../components/approval/PostsTable"));
 
-const PostPopup = dynamic(() => import("../components/approval/PostPopup"), { ssr: false });
+const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
 const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dletepre"), { ssr: false });
 const ExpenseForm = dynamic(() => import("../components/approval/ExpenseForm"));
 const Pagination = dynamic(() => import("../components/approval/Pagination"));
