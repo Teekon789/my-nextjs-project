@@ -1,61 +1,51 @@
-
-import React, { useState, useEffect } from 'react';
-import { pdf } from '@react-pdf/renderer';
+import React from 'react';
+import { PDFViewer } from '@react-pdf/renderer';
+import PDFDocument from './PDFDocument';
 
 const MobileFriendlyPDFViewer = ({ post }) => {
-  const [url, setUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  // ตรวจสอบว่าเป็นอุปกรณ์มือถือหรือไม่
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  
+  // ตรวจสอบว่ามี PDF URL หรือไม่
+  const hasPdfUrl = post && (post.pdfUrl || post.document || post.documentUrl);
 
-  useEffect(() => {
-    // ทำงานเฉพาะที่ฝั่ง client
-    if (typeof window === 'undefined') return;
-    
-    const generatePdf = async () => {
-      try {
-        // นำเข้า PDFDocument แบบ dynamic
-        const PDFDocument = (await import('./PDFDocument')).default;
-        
-        // สร้าง PDF blob
-        const blob = await pdf(<PDFDocument post={post} />).toBlob();
-        
-        // สร้าง URL สำหรับ blob
-        const url = URL.createObjectURL(blob);
-        setUrl(url);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการสร้าง PDF:', error);
-        setIsLoading(false);
-      }
-    };
-
-    generatePdf();
-    
-    // ล้าง URL เมื่อคอมโพเนนต์ถูกนำออก
-    return () => {
-      if (url) URL.revokeObjectURL(url);
-    };
-  }, [post]);
-
-  if (isLoading) {
+  // สำหรับการดูเอกสารบนมือถือ
+  if (isMobile) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-gray-600">กำลังโหลดเอกสาร...</p>
+      <div className="flex flex-col items-center justify-center h-full p-4 bg-white">
+        <div className="text-center mb-4">
+          <p className="text-lg font-medium text-gray-800">ไม่สามารถดูเอกสาร PDF ในมือถือได้</p>
+          <p className="text-sm text-gray-600">กรุณาใช้ปุ่มดาวน์โหลดด้านบนเพื่อดูเอกสาร</p>
         </div>
+        
+        {/* รูปแสดงไอคอน PDF */}
+        <div className="my-4 bg-gray-100 rounded-lg p-6 w-full max-w-xs flex items-center justify-center">
+          <svg className="w-20 h-20 text-red-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+          </svg>
+        </div>
+        
+        <p className="text-sm text-gray-500 mb-4 text-center">เอกสารนี้สามารถดาวน์โหลดได้จากปุ่ม "ดาวน์โหลด PDF" ด้านบน</p>
+        
+       
+        
       </div>
     );
   }
 
+  // สำหรับอุปกรณ์ที่ไม่ใช่มือถือ แสดง PDF Viewer ตามปกติ
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-hidden">
-        <iframe 
-          src={url} 
-          title="PDF Document" 
-          className="w-full h-full border-0"
-        />
-      </div>
+    <div className="w-full h-full">
+      {hasPdfUrl ? (
+        <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+          <PDFDocument post={post} />
+        </PDFViewer>
+      ) : (
+        // กรณีไม่มี URL แต่มี PDFDocument ก็ให้แสดง PDFViewer ไปก่อน
+        <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
+          <PDFDocument post={post} />
+        </PDFViewer>
+      )}
     </div>
   );
 };
