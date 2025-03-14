@@ -5,8 +5,22 @@ import { formatThaiDateTime, formatThaiDate } from '@/utils/dateUtils';
 import Garuda from '@/logo/Garuda.png';
 import Image from 'next/image';
 
+
 import PDFDocument from '@/components/PDF/PDFDocument';
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
+
+import dynamic from 'next/dynamic';
+
+// โหลด PDFDownloadLink และ PDFViewer แบบ Dynamic
+const PDFDownloadLink = dynamic(
+  () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
+  { ssr: false }
+);
+
+const PDFViewer = dynamic(
+  () => import('@react-pdf/renderer').then(mod => mod.PDFViewer),
+  { ssr: false }
+);
+
 
 // แมปสำหรับแปลงชื่อตำแหน่งเป็นภาษาไทย
 const sendToMapping = {
