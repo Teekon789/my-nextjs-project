@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // นำเข้า React
 import { useRouter } from 'next/router';
 import { ToastContainer, toast } from "react-toastify";
 import axios from 'axios';
@@ -28,17 +28,7 @@ const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
 });
 
 
-const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFriendlyPDFViewer'), { 
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center">
-        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        <p className="text-gray-600">กำลังโหลดเอกสาร...</p>
-      </div>
-    </div>
-  )
-});
+import MobileFriendlyPDFViewer from '@/components/PDF/MobileFriendlyPDFViewer';
 
 
 const Approval = () => {
@@ -49,13 +39,24 @@ const Approval = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPosts, setCurrentPosts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null); // ใช้ useState แทน React.useState
   const [showDocument, setShowDocument] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [postsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false); // เพิ่มตัวแปร state เพื่อตรวจสอบว่าเป็น client-side
+
+
+
+   // ตัวอย่างการตั้งค่า selectedPost
+   useEffect(() => {
+    setSelectedPost({
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      document: null,
+      documentUrl: null,
+    });
+  }, []);
 
   useEffect(() => {
     // ตรวจสอบว่าโค้ดทำงานใน client-side
@@ -403,7 +404,7 @@ const Approval = () => {
                 </div>
                 
                 <div className="flex-1 p-2 sm:p-4 overflow-hidden">
-                  <MobileFriendlyPDFViewer post={selectedPost} />
+                 <MobileFriendlyPDFViewer post={selectedPost} />
                 </div>
                 
                 <div className="sm:hidden p-2 border-t flex justify-center space-x-3">
