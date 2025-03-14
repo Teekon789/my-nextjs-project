@@ -1,6 +1,5 @@
 import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { FiDownload } from 'react-icons/fi';
 
 // Dynamic import สำหรับ PDFDownloadLink และ PDFDocument
 const PDFDownloadLink = dynamic(
@@ -15,9 +14,9 @@ const PDFDocument = dynamic(
 
 // Loading component
 const LoadingButton = () => (
-  <button className="px-4 py-2 flex items-center text-gray-400 cursor-not-allowed">
-    <span className="animate-pulse">กำลังโหลด...</span>
-  </button>
+  <div className="px-4 py-2 flex items-center">
+    <span className="animate-pulse text-gray-400">กำลังโหลด...</span>
+  </div>
 );
 
 const PDB_Document = ({ post }) => {
@@ -33,7 +32,9 @@ const PDB_Document = ({ post }) => {
             <span className="text-gray-500">กำลังโหลด...</span>
           ) : (
             <div className="flex items-center">
-              <FiDownload className="mr-1" size={18} />
+              <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+              </svg>
               <span>ดาวน์โหลด PDF</span>
             </div>
           )

@@ -28,6 +28,18 @@ const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
 });
 
 
+const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFriendlyPDFViewer'), { 
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full">
+      <div className="text-center">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <p className="text-gray-600">กำลังโหลดเอกสาร...</p>
+      </div>
+    </div>
+  )
+});
+
 
 const Approval = () => {
   const router = useRouter();
@@ -373,21 +385,14 @@ const Approval = () => {
           {/* PDFViewer ที่แสดง PDFDocument - รองรับทั้งหน้าจอคอมพิวเตอร์และมือถือด้วย Tailwind CSS */}
           {showDocument && selectedPost && isClient && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-              {/* คอนเทนเนอร์หลัก - ปรับขนาดตามอุปกรณ์ */}
               <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] mx-auto flex flex-col">
-                {/* ส่วนหัวเอกสาร - แนวตั้งบนมือถือ แนวนอนบนเดสก์ท็อป */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 border-b">
-                  {/* หัวข้อเอกสาร */}
                   <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-0 truncate w-full sm:w-auto">
                     PDF เอกสาร
                   </h2>
                   
-                  {/* กลุ่มปุ่มควบคุม - แนวตั้งบนมือถือ แนวนอนบนเดสก์ท็อป */}
                   <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                    {/* ปุ่มดาวน์โหลดเอกสาร */}
                     <PDB_Document post={selectedPost} className="w-full sm:w-auto" />         
-
-                    {/* ปุ่มปิดเอกสาร */}
                     <button 
                       onClick={() => setShowDocument(false)}
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center justify-center w-full sm:w-auto"
@@ -397,19 +402,10 @@ const Approval = () => {
                   </div>
                 </div>
                 
-                {/* ส่วนแสดงเอกสาร PDF */}
                 <div className="flex-1 p-2 sm:p-4 overflow-hidden">
-                  {/* คอมโพเนนต์แสดง PDF */}
-                  <PDFViewerComponent 
-                    width="100%" 
-                    height="100%" 
-                    className="border rounded"
-                  >
-                    <PDFDocument post={selectedPost} />
-                  </PDFViewerComponent>
+                  <MobileFriendlyPDFViewer post={selectedPost} />
                 </div>
                 
-                {/* ส่วนควบคุมเพิ่มเติมสำหรับมือถือ (แสดงเฉพาะบนหน้าจอเล็ก) */}
                 <div className="sm:hidden p-2 border-t flex justify-center space-x-3">
                   <button className="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
