@@ -265,7 +265,7 @@ const styles = StyleSheet.create({
   
      // ส่วนลายเซ็น
     signature: { 
-      marginTop: 30,
+      marginTop: 5,
       alignItems: 'flex-end' 
     },
     signatureText: { 

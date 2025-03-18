@@ -27,6 +27,7 @@ const postSchema = new mongoose.Schema({
   Vehicle_quantity: Number, //จำนวนพาหนะ
   date123: Date, // วันที่ (ตัวอย่างชื่อฟิลด์)
   trip_date: Date, // วันที่เดินทาง
+  trip_date_end : Date, // วันที่สิ้นสุดการเดินทาง
   departure_date: Date, // วันที่ออก
   return_date: Date, // วันที่กลับ
   trip_details: String, // รายละเอียดการเดินทาง

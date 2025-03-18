@@ -5,6 +5,8 @@ const DP_Section = ({ formData, handleInputChange, provinces, formatThaiDateTime
   const [dates, setDates] = useState({
     trip_date: formData.trip_date || '',
     trip_time: '00:00',
+    trip_date_end: formData.trip_date_end || '',
+    trip_time: '00:00',
     departure_date: formData.departure_date || '',
     departure_time: '00:00',
     return_date: formData.return_date || '',
@@ -47,6 +49,11 @@ const DP_Section = ({ formData, handleInputChange, provinces, formatThaiDateTime
     {
       name: 'trip_date',
       label: 'วันที่ไปราชการ',
+      type: 'datetime'
+    },
+    {
+      name: 'trip_date_end',
+      label: 'วันที่สิ้นสุดการไปราชการ',
       type: 'datetime'
     },
     {

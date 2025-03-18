@@ -83,6 +83,14 @@ const PDFDocument = ({ post }) => {
           <Text style={styles.value}>{safePost.province || ''}</Text>
         </View>
 
+        {/* วันที่เดินไปราชการทางและวันที่กลับ */}
+        <View style={styles.row}>
+          <Text style={styles.label}>วันที่ไปราชการ</Text>
+          <Text style={styles.value}>{formatThaiDateTime(safePost.trip_date ||  '')}</Text>
+          <Text style={styles.label}>และสิ้นสุดการไปราชการวันที่</Text>
+          <Text style={styles.value}>{formatThaiDateTime(safePost.trip_date_end ||  '')}</Text>
+        </View>
+
         {/* วันที่เดินทางและวันที่กลับ */}
         <View style={styles.row}>
           <Text style={styles.label}>โดยเดินทางวันที่</Text>

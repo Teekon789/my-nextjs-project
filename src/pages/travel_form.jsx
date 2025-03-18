@@ -64,6 +64,7 @@ const TravelForm = () => {
     sendTo: '',
     // วันที่
     trip_date: '',
+    trip_date_end: '',
     departure_date: '',
     return_date: '', 
     travelers: []

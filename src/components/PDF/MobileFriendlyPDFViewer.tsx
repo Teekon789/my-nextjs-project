@@ -13,6 +13,8 @@ interface PostType {
   department?: string;
   trip_details?: string;
   trip_type?: string;
+  trip_date?: string;
+  trip_date_end?: string;
   [key: string]: any; // รองรับข้อมูลอื่นๆ ที่อาจมีในอนาคต
 }
 
