@@ -13,7 +13,7 @@ interface PostType {
   department?: string;
   trip_details?: string;
   trip_type?: string;
-  [key: string]: any; // เพิ่มเพื่อรองรับข้อมูลอื่นๆ ที่อาจมีในอนาคต
+  [key: string]: any; // รองรับข้อมูลอื่นๆ ที่อาจมีในอนาคต
 }
 
 interface MobileFriendlyPDFViewerProps {
@@ -25,15 +25,15 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
   const isMobile = useIsMobile();
   const [generatedPdf, setGeneratedPdf] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
   
-  // ตรวจสอบหา URL ของ PDF ให้ละเอียดขึ้น
+  // ปรับปรุงฟังก์ชันค้นหา URL ของ PDF
   const findPdfUrl = () => {
     // ตรวจสอบทุกค่าที่เป็นไปได้
     const possibleUrls = [post?.pdfUrl, post?.document, post?.documentUrl];
     // กรองเอาเฉพาะค่าที่ไม่เป็น null, undefined หรือ string ว่าง
     const validUrls = possibleUrls.filter(url => url && url.trim() !== '');
     
-    // ดูในคอนโซลเพื่อการแก้ไขปัญหา
     console.log('PDF post data:', post);
     console.log('Valid URLs found:', validUrls);
     
@@ -42,6 +42,12 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
   
   const pdfUrl = findPdfUrl();
   const hasPdfUrl = pdfUrl !== '';
+
+  // เช็คว่า PDF URL อยู่บนโดเมนเดียวกันหรือไม่
+  const isSameOrigin = hasPdfUrl && (
+    pdfUrl.startsWith('/') || // เส้นทางภายในเว็บไซต์เดียวกัน 
+    pdfUrl.startsWith(window.location.origin) // URL เต็มแต่โดเมนเดียวกัน
+  );
 
   // ตรวจสอบว่ามีข้อมูลที่จะใช้สร้าง PDF
   const hasPdfContent = post && Object.keys(post).length > 0;
@@ -70,6 +76,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
           setGeneratedPdf(url);
         } catch (error) {
           console.error('Error generating PDF:', error);
+          setPdfError('เกิดข้อผิดพลาดในการสร้าง PDF');
         } finally {
           setIsGenerating(false);
         }
@@ -86,12 +93,13 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
     };
   }, [hasPdfUrl, hasPdfContent, post, generatedPdf, isGenerating]);
 
-  // เปิดด้วย PDF.js
+  // แก้ไขฟังก์ชัน openWithPdfJs
   const openWithPdfJs = () => {
     const urlToOpen = hasPdfUrl ? pdfUrl : generatedPdf;
     if (urlToOpen) {
-      const pdfJsUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(urlToOpen)}`;
-      window.open(pdfJsUrl, '_blank');
+      // ใช้ PDF.js ที่ติดตั้งในโปรเจค
+      const pdfJsPath = `/pdfjs/web/viewer.html?file=${encodeURIComponent(urlToOpen)}`;
+      window.open(pdfJsPath, '_blank');
     }
   };
 
@@ -99,7 +107,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
   const openWithDefaultApp = () => {
     const urlToOpen = hasPdfUrl ? pdfUrl : generatedPdf;
     if (urlToOpen) {
-      window.location.href = urlToOpen;
+      window.open(urlToOpen, '_blank');
     }
   };
 
@@ -115,16 +123,6 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
       document.body.removeChild(link);
     }
   };
-
-  // แสดงข้อมูลการดีบัก
-  useEffect(() => {
-    console.log('Device is mobile:', isMobile);
-    console.log('Has PDF URL:', hasPdfUrl);
-    console.log('Generated PDF:', generatedPdf);
-    console.log('Is generating PDF:', isGenerating);
-    console.log('PDF URL found:', pdfUrl);
-    console.log('Full post object:', post);
-  }, [isMobile, hasPdfUrl, generatedPdf, isGenerating, pdfUrl, post]);
 
   // ตรวจสอบว่ามี PDF ที่พร้อมใช้งาน
   const hasPdfReady = hasPdfUrl || generatedPdf !== null;
@@ -149,20 +147,34 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
             
             {showOptions && (
               <div className="w-full max-w-xs bg-white shadow-lg rounded-lg p-4 mt-2">
-                <div 
-                  onClick={openWithPdfJs} 
-                  className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
-                >
-                  <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
-                  <span>เปิดด้วย PDF.js (แนะนำ)</span>
-                </div>
+                {/* ปุ่ม PDF.js จะแสดงเฉพาะเมื่อ PDF เป็น URL สาธารณะเท่านั้น */}
+                {!isSameOrigin && (
+                  <div 
+                    onClick={openWithPdfJs} 
+                    className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+                  >
+                    <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
+                    <span>เปิดด้วย PDF.js (สำหรับ PDF สาธารณะ)</span>
+                  </div>
+                )}
+                
+                {/* ถ้าเป็น PDF ในเซิร์ฟเวอร์เดียวกัน แสดงข้อความต่างกัน */}
+                {isSameOrigin && (
+                  <div 
+                    onClick={openWithPdfJs} 
+                    className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+                  >
+                    <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
+                    <span>เปิดด้วย PDF Viewer ในแอพ</span>
+                  </div>
+                )}
                 
                 <div 
                   onClick={openWithDefaultApp} 
                   className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
                 >
                   <ExternalLink className="w-5 h-5 mr-3 text-green-500" />
-                  <span>เปิดด้วยแอพเริ่มต้น</span>
+                  <span>เปิดด้วยแอพเริ่มต้น (แนะนำ)</span>
                 </div>
                 
                 <div 
@@ -179,6 +191,16 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
           <div className="text-center">
             <p className="text-gray-700 mb-4">กำลังสร้างเอกสาร PDF...</p>
             <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+          </div>
+        ) : pdfError ? (
+          <div className="text-center bg-red-50 p-6 rounded-lg shadow-sm">
+            <p className="text-red-700 mb-2">เกิดข้อผิดพลาด: {pdfError}</p>
+            <button 
+              onClick={() => {setPdfError(null); setIsGenerating(true);}} 
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors mt-2"
+            >
+              ลองใหม่อีกครั้ง
+            </button>
           </div>
         ) : hasPdfContent ? (
           <div className="text-center">
@@ -199,7 +221,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
               <p className="text-gray-800 font-medium mb-2">วิธีแก้ปัญหา:</p>
               <ol className="text-left text-gray-700 pl-5 space-y-2">
                 <li>ลองโหลดหน้าเว็บใหม่</li>
-                <li>ใช้ปุ่มดาวน์โหลดด้านบนแทนการดูออนไลน์</li>
+                <li>ใช้ปุ่มดาวน์โหลดแทนการดูออนไลน์</li>
                 <li>ลองเปิดเว็บในแอพเบราว์เซอร์อื่น (Chrome, Safari)</li>
                 <li>ตรวจสอบว่าเชื่อมต่ออินเทอร์เน็ตอยู่</li>
               </ol>
@@ -224,6 +246,18 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
           <div className="text-center">
             <p className="text-gray-700 mb-4">กำลังสร้างเอกสาร PDF...</p>
             <div className="w-16 h-16 border-4 border-t-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+          </div>
+        </div>
+      ) : pdfError ? (
+        <div className="w-full h-full flex items-center justify-center bg-red-50 rounded-lg">
+          <div className="text-center">
+            <p className="text-red-700 mb-2">เกิดข้อผิดพลาด: {pdfError}</p>
+            <button 
+              onClick={() => {setPdfError(null); setIsGenerating(true);}} 
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors mt-2"
+            >
+              ลองใหม่อีกครั้ง
+            </button>
           </div>
         </div>
       ) : hasPdfContent ? (

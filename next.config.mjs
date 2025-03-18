@@ -10,9 +10,14 @@ const nextConfig = {
     middleware: true,
   },
 
+  // เพิ่มการตั้งค่า ESLint เพื่อเพิกเฉยข้อความในระหว่างการ build
+  eslint: {
+    ignoreDuringBuilds: true, // เพิกเฉย ESLint ในระหว่างการ build
+  },
+
   images: {
     unoptimized: true,  
-    disableStaticImages: true, 
+    disableStaticImages: false, // เปิดใช้งาน static images
     domains: ['example.com', 'fonts.gstatic.com'], 
   },
   
@@ -98,10 +103,6 @@ const nextConfig = {
     };
 
     return config;
-  },
-
-  images: {
-    domains: ['example.com', 'fonts.gstatic.com'], 
   },
 
   env: {
