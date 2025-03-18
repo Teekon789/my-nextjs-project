@@ -384,47 +384,31 @@ const Approval = () => {
             )}
   
           {/* PDFViewer ที่แสดง PDFDocument - รองรับทั้งหน้าจอคอมพิวเตอร์และมือถือด้วย Tailwind CSS */}
-          {showDocument && selectedPost && isClient && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-              <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] mx-auto flex flex-col">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 border-b">
-                  <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-0 truncate w-full sm:w-auto">
-                    PDF เอกสาร
-                  </h2>
+            {showDocument && selectedPost && isClient && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+                <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] mx-auto flex flex-col">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 sm:p-4 border-b">
+                    <h2 className="text-lg sm:text-xl font-bold mb-2 sm:mb-0 truncate w-full sm:w-auto">
+                      PDF เอกสาร
+                    </h2>
+                    
+                    <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
+                      <PDB_Document post={selectedPost} className="w-full sm:w-auto" />         
+                      <button 
+                        onClick={() => setShowDocument(false)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center justify-center w-full sm:w-auto"
+                      >
+                        <span className="text-sm sm:text-base">ปิดเอกสาร</span>
+                      </button>
+                    </div>
+                  </div>
                   
-                  <div className="flex gap-2 flex-col sm:flex-row w-full sm:w-auto">
-                    <PDB_Document post={selectedPost} className="w-full sm:w-auto" />         
-                    <button 
-                      onClick={() => setShowDocument(false)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center justify-center w-full sm:w-auto"
-                    >
-                      <span className="text-sm sm:text-base">ปิดเอกสาร</span>
-                    </button>
+                  <div className="flex-1 p-2 sm:p-4 overflow-auto">
+                    <MobileFriendlyPDFViewer post={selectedPost} />
                   </div>
-                </div>
-                
-                <div className="flex-1 p-2 sm:p-4 overflow-hidden">
-                 <MobileFriendlyPDFViewer post={selectedPost} />
-                </div>
-                
-                <div className="sm:hidden p-2 border-t flex justify-center space-x-3">
-                  <button className="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                  </button>
-                  <div className="text-sm bg-gray-100 px-3 py-2 rounded">
-                    หน้า <span className="font-medium">1</span> จาก <span className="font-medium">10</span>
-                  </div>
-                  <button className="bg-gray-200 hover:bg-gray-300 rounded-full p-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </button>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           
             

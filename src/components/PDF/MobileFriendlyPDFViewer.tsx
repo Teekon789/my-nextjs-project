@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PDFViewer, pdf } from '@react-pdf/renderer';
 import PDFDocument from './PDFDocument';
-import { FileIcon, Download, ExternalLink } from 'lucide-react';
+import { FileIcon, Download, ExternalLink, ChevronDown} from 'lucide-react';
 import useIsMobile from '../../hooks/useIsMobile';
 
 interface PostType {
@@ -26,6 +26,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
   const [generatedPdf, setGeneratedPdf] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pdfError, setPdfError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'iframe' | 'options'>('iframe'); // เพิ่มสถานะสำหรับโหมดการดู
   
   // ปรับปรุงฟังก์ชันค้นหา URL ของ PDF
   const findPdfUrl = () => {
@@ -101,6 +102,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
       const pdfJsPath = `/pdfjs/web/viewer.html?file=${encodeURIComponent(urlToOpen)}`;
       window.open(pdfJsPath, '_blank');
     }
+    setShowOptions(false);
   };
 
   // เปิด PDF ด้วยแอพเริ่มต้น
@@ -109,6 +111,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
     if (urlToOpen) {
       window.open(urlToOpen, '_blank');
     }
+    setShowOptions(false);
   };
 
   // ดาวน์โหลด PDF
@@ -122,19 +125,69 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
       link.click();
       document.body.removeChild(link);
     }
+    setShowOptions(false);
   };
 
   // ตรวจสอบว่ามี PDF ที่พร้อมใช้งาน
   const hasPdfReady = hasPdfUrl || generatedPdf !== null;
 
+  // สร้างคอมโพเนนต์ตัวเลือกสำหรับใช้ซ้ำ
+  const PdfOptions = () => (
+    <div className="bg-white shadow-lg rounded-lg p-4 mt-2">
+      {/* ปุ่ม PDF.js จะแสดงเฉพาะเมื่อ PDF เป็น URL สาธารณะเท่านั้น */}
+      {!isSameOrigin && (
+        <div 
+          onClick={openWithPdfJs} 
+          className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+        >
+          <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
+          <span>เปิดด้วย PDF.js (สำหรับ PDF สาธารณะ)</span>
+        </div>
+      )}
+      
+      {/* ถ้าเป็น PDF ในเซิร์ฟเวอร์เดียวกัน แสดงข้อความต่างกัน */}
+      {isSameOrigin && (
+        <div 
+          onClick={openWithPdfJs} 
+          className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+        >
+          <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
+          <span>เปิดด้วย PDF Viewer ในแอพ</span>
+        </div>
+      )}
+      
+      <div 
+        onClick={openWithDefaultApp} 
+        className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+      >
+        <ExternalLink className="w-5 h-5 mr-3 text-green-500" />
+        <span>เปิดด้วยแอพเริ่มต้น (แนะนำ)</span>
+      </div>
+      
+      <div 
+        onClick={downloadPdf} 
+        className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
+      >
+        <Download className="w-5 h-5 mr-3 text-gray-500" />
+        <span>ดาวน์โหลด PDF</span>
+      </div>
+    </div>
+  );
+
   // สำหรับการแสดงผลบนมือถือ
   if (isMobile) {
     return (
-      <div className="w-full flex flex-col items-center justify-center p-4">
+      <div className="w-full flex flex-col items-center justify-center p-4 overflow-y-auto max-h-[70vh]">
         {hasPdfReady ? (
           <>
-            <div className="text-center mb-4">
-              <p className="text-gray-700 mb-2">กรุณาเลือกวิธีเปิดเอกสาร PDF</p>
+            <div className="text-center mb-6 max-w-md mx-auto p-5 bg-blue-50 rounded-lg shadow-sm border border-blue-100">
+              <FileIcon className="h-8 w-8 text-red-500 mx-auto mb-3" />
+              <h3 className="text-blue-800 font-medium mb-2">เอกสาร PDF ไม่สามารถแสดงได้</h3>
+              <p className="text-gray-700 mb-4">ไม่สามารถดูเอกสาร PDF บนโทรศัพท์มือถือของคุณได้ หากไม่สามารถดูได้ กรุณาลองเลือกเปิดด้วยวิธีอื่น หรือดาวน์โหลดเพื่อดู PDF โดยตรง</p>
+              <div className="border-t border-blue-200 pt-3">
+                <p className="text-blue-800 font-medium mb-1">คลิกที่ไอคอนด้านล่างเพื่อเลือกวิธีเปิดเอกสาร PDF</p>
+                <ChevronDown className="h-5 w-5 text-blue-500 mx-auto mt-2 animate-bounce" />
+              </div>
             </div>
             
             <div 
@@ -145,47 +198,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
               <span className="text-gray-800 font-medium">เปิดเอกสาร {fileHash}</span>
             </div>
             
-            {showOptions && (
-              <div className="w-full max-w-xs bg-white shadow-lg rounded-lg p-4 mt-2">
-                {/* ปุ่ม PDF.js จะแสดงเฉพาะเมื่อ PDF เป็น URL สาธารณะเท่านั้น */}
-                {!isSameOrigin && (
-                  <div 
-                    onClick={openWithPdfJs} 
-                    className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
-                  >
-                    <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
-                    <span>เปิดด้วย PDF.js (สำหรับ PDF สาธารณะ)</span>
-                  </div>
-                )}
-                
-                {/* ถ้าเป็น PDF ในเซิร์ฟเวอร์เดียวกัน แสดงข้อความต่างกัน */}
-                {isSameOrigin && (
-                  <div 
-                    onClick={openWithPdfJs} 
-                    className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
-                  >
-                    <ExternalLink className="w-5 h-5 mr-3 text-blue-500" />
-                    <span>เปิดด้วย PDF Viewer ในแอพ</span>
-                  </div>
-                )}
-                
-                <div 
-                  onClick={openWithDefaultApp} 
-                  className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
-                >
-                  <ExternalLink className="w-5 h-5 mr-3 text-green-500" />
-                  <span>เปิดด้วยแอพเริ่มต้น (แนะนำ)</span>
-                </div>
-                
-                <div 
-                  onClick={downloadPdf} 
-                  className="flex items-center p-3 hover:bg-gray-100 rounded cursor-pointer"
-                >
-                  <Download className="w-5 h-5 mr-3 text-gray-500" />
-                  <span>ดาวน์โหลด PDF</span>
-                </div>
-              </div>
-            )}
+            {showOptions && <PdfOptions />}
           </>
         ) : isGenerating ? (
           <div className="text-center">
@@ -234,13 +247,64 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
 
   // สำหรับอุปกรณ์เดสก์ท็อป
   return (
-    <div className="w-full h-[600px] my-4">
+    <div className="w-full h-[600px] my-4 overflow-y-auto">
       {hasPdfReady ? (
-        <iframe 
-          src={hasPdfUrl ? pdfUrl : generatedPdf || ''}
-          className="w-full h-full border-0 rounded-lg shadow-md" 
-          title="PDF Viewer"
-        />
+        <div className="w-full h-full flex flex-col">
+          {/* เพิ่มแถบเครื่องมือสำหรับเดสก์ท็อป */}
+          <div className="w-full bg-gray-100 p-3 flex items-center justify-between rounded-t-lg sticky top-0 z-10">
+            <div className="flex items-center">
+              <FileIcon className="w-5 h-5 text-red-500 mr-2" />
+              <span className="text-gray-800 font-medium">{fileHash}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {viewMode === 'iframe' ? (
+                <button 
+                  onClick={() => setViewMode('options')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm flex items-center"
+                >
+                  <span className="mr-1">ตัวเลือกเพิ่มเติม</span>
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setViewMode('iframe')}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm"
+                >
+                  กลับไป
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* แสดงเนื้อหา PDF หรือตัวเลือก */}
+          {viewMode === 'iframe' ? (
+            <div className="w-full flex-1 min-h-[550px]">
+              <iframe 
+                src={hasPdfUrl ? pdfUrl : generatedPdf || ''}
+                className="w-full h-full border-0 rounded-b-lg shadow-md" 
+                title="PDF Viewer"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full bg-gray-50 rounded-b-lg flex items-center justify-center">
+              <div className="w-full max-w-lg">
+                <div className="text-center mb-4">
+                  <p className="text-gray-700 mb-2">กรุณาเลือกวิธีเปิดเอกสาร PDF</p>
+                </div>
+                
+                <div 
+                  onClick={() => setShowOptions(!showOptions)}
+                  className="my-4 bg-gray-100 rounded-lg p-6 w-full flex flex-col items-center justify-center cursor-pointer hover:bg-gray-200 transition-all duration-300"
+                >
+                  <FileIcon className="w-16 h-16 text-red-500 mb-4" />
+                  <span className="text-gray-800 font-medium">เปิดเอกสาร {fileHash}</span>
+                </div>
+                
+                {showOptions && <PdfOptions />}
+              </div>
+            </div>
+          )}
+        </div>
       ) : isGenerating ? (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
           <div className="text-center">
@@ -261,9 +325,11 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
           </div>
         </div>
       ) : hasPdfContent ? (
-        <PDFViewer className="w-full h-full">
-          <PDFDocument post={post} />
-        </PDFViewer>
+        <div className="w-full h-full overflow-auto">
+          <PDFViewer className="w-full h-full">
+            <PDFDocument post={post} />
+          </PDFViewer>
+        </div>
       ) : (
         <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded-lg">
           <p className="text-gray-500">ไม่พบเอกสาร PDF</p>

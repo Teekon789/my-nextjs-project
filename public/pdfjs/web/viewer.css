@@ -687,23 +687,25 @@
                 user-select:none;
       }
 
-.textLayer{
-  position:absolute;
-  text-align:initial;
-  inset:0;
-  overflow:clip;
-  opacity:1;
-  line-height:1;
-  -webkit-text-size-adjust: 100%;
-     -moz-text-size-adjust: 100%;
+      .textLayer {
+        position: absolute;
+        text-align: initial;
+        inset: 0;
+        overflow: hidden;
+        opacity: 1;
+        line-height: 1;
+        @supports (text-size-adjust: 100%) {
+          -webkit-text-size-adjust: 100%;
+          -moz-text-size-adjust: 100%;
           text-size-adjust: 100%;
-          @supports not (forced-color-adjust: auto) {
-            color-adjust: auto;
         }
-  transform-origin:0 0;
-  caret-color:CanvasText;
-  z-index:0;
-}
+        @supports not (forced-color-adjust: auto) {
+          color-adjust: auto;
+        }
+        transform-origin: 0 0;
+        caret-color: CanvasText;
+        z-index: 0;
+      }
 
 .textLayer.highlighting{
     touch-action:none;
@@ -4558,21 +4560,27 @@ body{
 body {
   margin: 0;
   background-color: var(--body-bg-color);
-  scrollbar-color: var(--scrollbar-color) var(--scrollbar-bg-color);
+  
+  /* ตรวจสอบการรองรับ scrollbar-color */
+  @supports (scrollbar-color: #333 #f1f1f1) {
+    scrollbar-color: #333 #f1f1f1; /* ใช้ scrollbar ที่กำหนดเอง */
+  }
+
+  /* fallback สำหรับ scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #333;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+  }
 }
 
-/* สำหรับ webkit browsers (Chrome, Safari, Edge) */
-::-webkit-scrollbar {
-  width: 10px; /* ปรับขนาดตามต้องการ */
-}
 
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-bg-color);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-color);
-}
 
 body.wait::before{
     content:"";
