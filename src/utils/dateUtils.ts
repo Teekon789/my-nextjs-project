@@ -32,4 +32,20 @@ export const formatThaiDateTime = (dateString?: string): string => {
       return dateString;
     }
   };
+
+  export const formatThaiDate = (dateTime) => {
+    if (!dateTime) return '';
+    
+    const date = new Date(dateTime);
+    const thaiMonths = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+  
+    const day = date.getDate();
+    const month = thaiMonths[date.getMonth()];
+    const year = date.getFullYear() + 543;
+  
+    return `${day} ${month} ${year}`;
+  };
   

@@ -15,11 +15,10 @@ const PostsTable = dynamic(() => import("../components/approval/PostsTable"));
 const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
 const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dletepre"), { ssr: false });
 
-const PDFDocument = dynamic(() => import("../components/PDF/PDFDocument"), { ssr: false });
+
 const Pagination = dynamic(() => import("../components/approval/Pagination"));
 
-// Dynamic import สำหรับ PDF components ซึ่งต้องทำงานที่ client-side เท่านั้น
-const PDFViewerComponent = dynamic(() => import('@react-pdf/renderer').then(mod => mod.PDFViewer), { ssr: false });
+
 
 //นําเข้า PDB_Document
 const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
@@ -39,7 +38,7 @@ const Approval = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPosts, setCurrentPosts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedPost, setSelectedPost] = useState(null); // ใช้ useState แทน React.useState
+  
   const [showDocument, setShowDocument] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [postsPerPage] = useState(10);
@@ -47,6 +46,7 @@ const Approval = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isClient, setIsClient] = useState(false); // เพิ่มตัวแปร state เพื่อตรวจสอบว่าเป็น client-side
 
+  const [selectedPost, setSelectedPost] = React.useState(null); // ใช้ React.useState แทน useState
 
 
    // ตัวอย่างการตั้งค่า selectedPost
@@ -425,6 +425,8 @@ const Approval = () => {
               </div>
             </div>
           )}
+
+          
             
             {showDeletePopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
