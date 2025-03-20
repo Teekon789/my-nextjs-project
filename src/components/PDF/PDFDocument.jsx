@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { Document, Page, Text, View, Image, StyleSheet, Font } from '@react-pdf/renderer';
 import { formatThaiDate, formatThaiDateTime } from '@/utils/dateUtils';
@@ -29,6 +27,10 @@ try {
 
 const PDFDocument = ({ post }) => {
   // ตรวจสอบว่ามีข้อมูลหรือไม่ ถ้าไม่มีให้ใช้ค่าเริ่มต้นเป็นอ็อบเจ็กต์ว่าง
+  if (!post) {
+    return <div>No post data available</div>;
+  }
+
   const safePost = post || {};
   
   // เตรียมข้อมูล travelers โดยตรวจสอบค่า null/undefined
@@ -249,8 +251,8 @@ const PDFDocument = ({ post }) => {
         {/* ลายเซ็น */}
         <View style={styles.compactSignature}>
           <Text style={styles.signatureLine}>ลงชื่อ...........................................................</Text>
-          <Text style={styles.signatureText}>({getSafeValue(safePost.fullname, 'วาคิม สุทธิ')})</Text>
-          <Text style={styles.signatureText}>ตำแหน่ง {getSafeValue(safePost.personnel_type, 'เจ้าฝ่ายกิจกรรม')}</Text>
+          <Text style={styles.signatureText}>({getSafeValue(safePost.fullname, '')})</Text>
+          <Text style={styles.signatureText}>ตำแหน่ง {getSafeValue(safePost.personnel_type, '')}</Text>
           <Text style={styles.signatureText}>วันที่ {getSafeDate(safePost.date123)}</Text>
         </View>
       </Page>
