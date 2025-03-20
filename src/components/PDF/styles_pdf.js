@@ -1,281 +1,285 @@
 import { StyleSheet } from '@react-pdf/renderer';
 
-
 const styles = StyleSheet.create({
-    // หน้าเอกสาร
-    page: { 
-      padding: 30, 
-      fontFamily: 'THSarabunNew', 
-      fontSize: 12 
+  // หน้าเอกสาร - แพดดิ้งและขนาดฟอนต์
+  page: { 
+    padding: 25,  // เพิ่มแพดดิ้ง
+    fontFamily: 'THSarabunNew', 
+    fontSize: 13
+  },
   
-      // ส่วนหัว
-    },
-    header: { 
-      alignItems: 'center', 
-      marginBottom: 10 
-    },
-    image: { 
-      width: 60, 
-      height: 60, 
-      alignSelf: 'center', 
-      marginBottom: 10 
-    },
-    title: { 
-      textAlign: 'center', 
-      fontSize: 14, 
-      fontWeight: 'bold',
-      marginBottom: 10,
-      fontFamily: 'THSarabunNew_Bold'
-    },
-    documentInfo: { 
-      flexDirection: 'row', 
-      justifyContent: 'flex-end',
-      marginBottom: 15 
-    },
-    documentInfoText: { 
-      textAlign: 'right',
-      fontSize: 12
-    },
-  
-     // ส่วนหัวข้อเรื่อง
-    subject: { 
-      marginBottom: 15
-    },
-    subjectText: { 
-      fontSize: 12
-    },
-  
-     // ส่วนข้อมูลส่วนตัว
-    row: { 
-      flexDirection: 'row', 
-      marginBottom: 8,
-      alignItems: 'center' 
-    },
-    label: { 
-      flexShrink: 0, 
-      marginRight: 5 
-    },
-    value: { 
-      flex: 1, 
-      alignSelf: 'stretch', 
-      borderBottomWidth: 1, 
-      borderBottomColor: '#000', 
-      textAlign: 'center', // จัดกลางข้อความในช่อง
-      marginLeft: 2, 
-      marginRight: 5, 
-      paddingBottom: 2,
-    },
-  
-    value_1: { 
-      flex: 1, 
-      alignSelf: 'stretch', 
-      borderBottomWidth: 1, 
-      borderBottomColor: '#000', 
-      textAlign: 'justify', // จัดกลางข้อความในช่อง
-      marginLeft: 20, 
-      marginRight: 5, 
-      paddingBottom: 2,
-      paddingLeft: 10, // ขยับข้อความออกจากเส้นด้านซ้าย
-    },
-  
-    value_2: { 
-      flex: 1, 
-      alignSelf: 'stretch', 
-      borderBottomWidth: 1, 
-      borderBottomColor: '#000', 
-      textAlign: 'justify', // จัดกลางข้อความในช่อง
-      marginLeft: 2, 
-      marginRight: 5, 
-      paddingBottom: 2,
-    },
+  // ส่วนหัว - เพิ่มระยะห่าง
+  header: { 
+    alignItems: 'center', 
+    marginBottom: 10   // เพิ่มระยะห่างด้านล่าง
+  },
+  image: { 
+    width: 50,
+    height: 50, 
+    alignSelf: 'center', 
+    marginBottom: 8   // เพิ่มระยะห่าง
+  },
+  title: { 
+    textAlign: 'center', 
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 8,  // เพิ่มระยะห่าง
+    fontFamily: 'THSarabunNew_Bold'
+  },
+  documentInfo: { 
+    flexDirection: 'row', 
+    justifyContent: 'flex-end',
+    marginBottom: 12   // เพิ่มระยะห่าง 
+  },
+  documentInfoText: { 
+    textAlign: 'right',
+    fontSize: 13
+  },
 
-    // เส้นคั้นแถวข้อมูล
-    underlineOnly: {
-      borderBottomWidth: 1,       // ความหนาของเส้นล่าง
-      borderBottomColor: '#ccc',  // สีของเส้น (สีเทาอ่อน)
-      width: '100%',                 // ความยาวของเส้น 
-      marginTop: 15,              // ระยะห่างด้านบน
-      marginBottom: 5,            // ระยะห่างด้านล่าง 
-    },  
-  
-     // ส่วนรายการค่าใช้จ่าย
-    section: { 
-      marginTop: 15,
-      marginBottom: 10
-    },
-    
-    // ส่วนของรายการเบิกค่าใช้จ่าย - แก้ไขให้ช่องจำนวน วัน รวม บาท ตรงกัน
-    expenseRow: { 
-      flexDirection: 'row', 
-      marginBottom: 12,
-      alignItems: 'center'
-    },
-    
-    // ส่วนชื่อรายการค่าใช้จ่าย - ปรับความกว้างให้เหมาะสม
-    expenseAllowanceLabel: { 
-      marginRight: 2,
-      marginLeft: 5,
-    },
-    expenseAccommodationLabel: {
-      marginRight: 2,
-      marginLeft: 5,
-    },
-    expenseTransportLabel: {
-       
-      marginRight: 2,
-      marginLeft: 5,
-    },
-    expenseOtherLabel: { 
-      marginRight: 2,
-      marginLeft: 5,
-    },
-    
-    // ส่วนประเภทของรายการ - ความกว้างแตกต่างกันไปตามรายการ
-    expenseTypeUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      textAlign: 'center', // จัดกลางข้อความในช่อง
-      alignItems: 'center',
-      marginRight: 2,
-      flexGrow: 1,
-    },
-    
-    transportTypeUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      alignItems: 'center',
-      marginRight: 5,
-      flexGrow: 1,
-    },
-  
-     // ปรับสไตล์สำหรับช่องจำนวนของค่าพาหนะโดยเฉพาะ
-     transportQuantityUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      width: '14%', // กำหนดความกว้างเท่ากับช่องวันและช่องกรอกวัน
-      alignItems: 'center',
-      marginRight: 0,
-      
-    },
-    
-    // ส่วนพาหนะพิเศษสำหรับแก้ไขปัญหาการจัดวาง
-    transportRow: {
-      flexDirection: 'row', 
-      marginBottom: 12,
-      alignItems: 'center'
-    },
-    
-    
-    otherExpenseTypeUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      textAlign: 'center',
-      marginRight: 0,
-      flexGrow: 1,
-      paddingBottom: 17, // เพิ่มพื้นที่ใต้ข้อความ
-    },
-    
-    //  "จำนวน"
-    amountLabel: {
-      width: 30,
-      textAlign: 'right',
-      marginLeft: -5,
-      marginRight: 5,
-    },
-    
-    // ช่องกรอกจำนวน
-    amountUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      width: 30,
-      textAlign: 'center', // จัดกลางข้อความในช่อง
-      marginRight: 5,
-    },
-    
-    // คำว่า "วัน"
-    dayLabel: {
-      width: 30,
-      textAlign: 'center',
-      marginLeft: -10,
-    },
-    
-    // ช่องกรอกวัน
-    dayUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      width: '5%',
-      textAlign: 'center', // จัดกลางข้อความในช่อง
-      marginLeft: -5,
-    },
+  // ส่วนหัวข้อเรื่อง - เพิ่มระยะห่าง
+  subject: { 
+    marginBottom: 12   // เพิ่มระยะห่าง
+  },
+  subjectText: { 
+    fontSize: 13
+  },
 
-    
-    // ส่วนยอดรวม
-    totalLabel: {
-      width: 20,
-      textAlign: 'right',
-      marginRight: 5,
-    },
-  
-    // ช่องกรอกจำนวนเงินรวม
-    totalUnderline: {
-      borderBottomWidth: 1,
-      borderBottomColor: '#000',
-      width: 60,
-      textAlign: 'center', // จัดกลางข้อความในช่อง
-      marginRight: 2,
-    },
-  
-    // คำว่า "บาท"
-    currencyLabel: {
-      width: 30,
-      textAlign: 'left',
-    },
-    
-    // สำหรับยอดรวมทั้งสิ้น
-    finalTotalRow: {
-      flexDirection: 'row',
-      marginTop: 10,
-      marginBottom: 10,
-      justifyContent: 'flex-end',
-    },
-    finalTotalLabel: {
-      width: 80,
-      textAlign: 'right',
-      marginRight: 5,
-    },
-    finalTotalUnderline: {
-      borderBottomWidth: 1, // เส้นใต้
-      borderBottomColor: '#000', // สีของเส้นใต้ (ดำ)
-      width: 56, // ความกว้างของช่อง
-      textAlign: 'center', // จัดกลางข้อความ
-      marginRight: 2, // ระยะห่างด้านขวา
-      fontWeight: 'bold', // ทำให้ตัวอักษรเป็นตัวหนา
-      fontFamily: 'THSarabunNew_Bold', // ใช้ฟอนต์ THSarabunNew_Bold
-    },
-    finalTotalCurrencyLabel: {
-      width: 30,
-      textAlign: 'left',
-    },
-  
-     // ส่วนรายละเอียดการเดินทาง
-    tripDetails: { 
-      marginTop: 15,
-      marginBottom: 15
-    },
-  
-     // ส่วนลายเซ็น
-    signature: { 
-      marginTop: 5,
-      alignItems: 'flex-end' 
-    },
-    signatureText: { 
-      textAlign: 'center',
-      marginBottom: 5
-    },
-    signatureLine: {
-      textAlign: 'center',
-      marginBottom: 15
-    }
-  });
+  // ส่วนข้อมูลส่วนตัว - เพิ่มระยะห่าง
+  row: { 
+    flexDirection: 'row', 
+    marginBottom: 8,  // เพิ่มระยะห่าง
+    alignItems: 'center' 
+  },
+  compactRow: {
+    flexDirection: 'row', 
+    marginBottom: 6,  // เพิ่มระยะห่าง
+    alignItems: 'center' 
+  },
+  label: { 
+    flexShrink: 0, 
+    marginRight: 5    // เพิ่มระยะห่าง
+  },
+  value: { 
+    flex: 1, 
+    alignSelf: 'stretch', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#000', 
+    textAlign: 'center',
+    marginLeft: 3,    // เพิ่มระยะห่าง
+    marginRight: 5,   // เพิ่มระยะห่าง
+    paddingBottom: 2  // เพิ่มระยะห่าง
+  },
+  value_1: { 
+    flex: 1, 
+    alignSelf: 'stretch', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#000', 
+    textAlign: 'justify',
+    marginLeft: 15,
+    marginRight: 5,   // เพิ่มระยะห่าง
+    paddingBottom: 2, // เพิ่มระยะห่าง
+    paddingLeft: 8    // เพิ่มระยะห่าง
+  },
+  value_2: { 
+    flex: 1, 
+    alignSelf: 'stretch', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#000', 
+    textAlign: 'justify',
+    marginLeft: 3,    // เพิ่มระยะห่าง
+    marginRight: 5,   // เพิ่มระยะห่าง
+    paddingBottom: 2  // เพิ่มระยะห่าง
+  },
 
-  export default styles;
+  // เส้นคั้นแถวข้อมูล - เพิ่มระยะห่าง
+  underlineOnly: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+    marginTop: 10,     // เพิ่มระยะห่าง
+    marginBottom: 6    // เพิ่มระยะห่าง
+  },  
+
+  // ส่วนรายการค่าใช้จ่าย - เพิ่มระยะห่าง
+  section: { 
+    marginTop: 15,    // เพิ่มระยะห่าง
+    marginBottom: 10  // เพิ่มระยะห่าง
+  },
+  compactSection: {
+    marginTop: 10,    // เพิ่มระยะห่าง
+    marginBottom: 8   // เพิ่มระยะห่าง
+  },
+  
+  // ส่วนของรายการเบิกค่าใช้จ่าย - เพิ่มระยะห่าง
+  expenseRow: { 
+    flexDirection: 'row', 
+    marginBottom: 12,  // เพิ่มระยะห่าง
+    alignItems: 'center'
+  },
+  compactExpenseRow: {
+    flexDirection: 'row', 
+    marginBottom: 8,   // เพิ่มระยะห่าง
+    alignItems: 'center'
+  },
+  
+  // ส่วนชื่อรายการค่าใช้จ่าย - เพิ่มระยะห่าง
+  expenseAllowanceLabel: { 
+    marginRight: 3,   // เพิ่มระยะห่าง
+    marginLeft: 5     // เพิ่มระยะห่าง
+  },
+  expenseAccommodationLabel: {
+    marginRight: 3,   // เพิ่มระยะห่าง
+    marginLeft: 5     // เพิ่มระยะห่าง
+  },
+  expenseTransportLabel: {
+    marginRight: 3,   // เพิ่มระยะห่าง
+    marginLeft: 5     // เพิ่มระยะห่าง
+  },
+  expenseOtherLabel: { 
+    marginRight: 3,   // เพิ่มระยะห่าง
+    marginLeft: 5     // เพิ่มระยะห่าง
+  },
+  
+  // ส่วนประเภทของรายการ - เพิ่มระยะห่าง
+  expenseTypeUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    textAlign: 'center',
+    alignItems: 'center',
+    marginRight: 3,   // เพิ่มระยะห่าง
+    flexGrow: 1
+  },
+  transportTypeUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    alignItems: 'center',
+    marginRight: 5,   // เพิ่มระยะห่าง
+    flexGrow: 1
+  },
+  transportQuantityUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    width: '12%',
+    alignItems: 'center',
+    marginRight: 3    // เพิ่มระยะห่าง
+  },
+  otherExpenseTypeUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    textAlign: 'center',
+    marginRight: 3,   // เพิ่มระยะห่าง
+    flexGrow: 1,
+    paddingBottom: 12 // เพิ่มระยะห่าง
+  },
+  
+  // "จำนวน" - ปรับระยะห่าง
+  amountLabel: {
+    width: 28,        // เพิ่มความกว้าง
+    textAlign: 'right',
+    marginLeft: -2,   // ปรับระยะห่าง
+    marginRight: 5    // เพิ่มระยะห่าง
+  },
+  
+  // ช่องกรอกจำนวน - เพิ่มระยะห่าง
+  amountUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    width: 30,        // เพิ่มความกว้าง
+    textAlign: 'center',
+    marginRight: 5    // เพิ่มระยะห่าง
+  },
+  
+  // คำว่า "วัน" - ปรับระยะห่าง
+  dayLabel: {
+    width: 25,
+    textAlign: 'center',
+    marginLeft: -5    // ปรับระยะห่าง
+  },
+  
+  // ช่องกรอกวัน - ปรับระยะห่าง
+  dayUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    width: '5%',      // เพิ่มความกว้าง
+    textAlign: 'center',
+    marginLeft: -2    // ปรับระยะห่าง
+  },
+  
+  // ส่วนยอดรวม - ปรับระยะห่าง
+  totalLabel: {
+    width: 20,        // เพิ่มความกว้าง
+    textAlign: 'right',
+    marginRight: 5    // เพิ่มระยะห่าง
+  },
+  
+  // ช่องกรอกจำนวนเงินรวม - เพิ่มระยะห่าง
+  totalUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    width: 60,        // เพิ่มความกว้าง
+    textAlign: 'center',
+    marginRight: 3    // เพิ่มระยะห่าง
+  },
+  
+  // คำว่า "บาท" - ปรับระยะห่าง
+  currencyLabel: {
+    width: 30,        // เพิ่มความกว้าง
+    textAlign: 'left'
+  },
+  
+  // สำหรับยอดรวมทั้งสิ้น - เพิ่มระยะห่าง
+  finalTotalRow: {
+    flexDirection: 'row',
+    marginTop: 10,     // เพิ่มระยะห่าง
+    marginBottom: 10,  // เพิ่มระยะห่าง
+    justifyContent: 'flex-end'
+  },
+  finalTotalLabel: {
+    width: 80,        // เพิ่มความกว้าง
+    textAlign: 'right',
+    marginRight: 5    // เพิ่มระยะห่าง
+  },
+  finalTotalUnderline: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    width: 60,        // เพิ่มความกว้าง
+    textAlign: 'center',
+    marginRight: 3,   // เพิ่มระยะห่าง
+    fontWeight: 'bold',
+    fontFamily: 'THSarabunNew_Bold'
+  },
+  finalTotalCurrencyLabel: {
+    width: 30,        // เพิ่มความกว้าง
+    textAlign: 'left'
+  },
+  
+  // ส่วนรายละเอียดการเดินทาง - เพิ่มระยะห่าง
+  tripDetails: { 
+    marginTop: 15,    // เพิ่มระยะห่าง
+    marginBottom: 15  // เพิ่มระยะห่าง
+  },
+  compactTripDetails: {
+    marginTop: 10,    // เพิ่มระยะห่าง
+    marginBottom: 10  // เพิ่มระยะห่าง
+  },
+  
+  // ส่วนลายเซ็น - เพิ่มระยะห่าง
+  signature: { 
+    marginTop: 10,    // เพิ่มระยะห่าง
+    alignItems: 'flex-end' 
+  },
+  compactSignature: {
+    marginTop: 6,     // เพิ่มระยะห่าง
+    alignItems: 'flex-end' 
+  },
+  signatureText: { 
+    textAlign: 'center',
+    marginBottom: 6   // เพิ่มระยะห่าง
+  },
+  signatureLine: {
+    textAlign: 'center',
+    marginBottom: 15  // เพิ่มระยะห่าง
+  }
+});
+
+export default styles;

@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useCallback } from 'react'; // นำเข้า React
 import { useRouter } from 'next/router';
 import { ToastContainer, toast } from "react-toastify";
@@ -27,7 +29,10 @@ const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
 });
 
 
-import MobileFriendlyPDFViewer from '@/components/PDF/MobileFriendlyPDFViewer';
+const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFriendlyPDFViewer'), {
+  ssr: false,
+  loading: () => <span className="text-gray-500">กำลังโหลด PDF Viewer...</span>
+});
 
 
 const Approval = () => {
