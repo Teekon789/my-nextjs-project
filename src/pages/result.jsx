@@ -99,6 +99,7 @@ const Result = () => {
           <DetailRow label="แหล่งเงิน:" value={post.fund_source} />
           <DetailRow label="จังหวัด:" value={post.province} />
           <DetailRow label="วันที่ไปราชการ:" value={formatThaiDateTime(post.trip_date)} />
+          <DetailRow label="วันที่สิ้นสุดการเดินทาง:" value={formatThaiDateTime(post.trip_date_end)} />
           <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.departure_date)} />
           <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.return_date)} />
 

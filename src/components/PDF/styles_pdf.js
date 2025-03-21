@@ -245,8 +245,7 @@ const styles = StyleSheet.create({
     width: 60,        // เพิ่มความกว้าง
     textAlign: 'center',
     marginRight: 3,   // เพิ่มระยะห่าง
-    fontWeight: 'bold',
-    fontFamily: 'THSarabunNew_Bold'
+  
   },
   finalTotalCurrencyLabel: {
     width: 30,        // เพิ่มความกว้าง
