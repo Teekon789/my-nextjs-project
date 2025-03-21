@@ -10,6 +10,7 @@
           "-moz-appearance"
         ]
       }
-    ]
+    ],
+    "no-inline-styles": "off"
   }
 }
