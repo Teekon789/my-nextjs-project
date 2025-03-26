@@ -388,6 +388,7 @@ const Approval = () => {
         ) : (
           // แสดงเนื้อหาหลักเมื่อโหลดเสร็จ
           <>
+          
             <DashboardStats 
               stats={getDashboardStats()} 
               onCardClick={handleCardClick} 
@@ -454,7 +455,8 @@ const Approval = () => {
                 </div>
               </div>
             )}
-  
+
+          {currentView === 'posts-table' && ( // ตรวจสอบ currentView  และแสดง Pagination ในหน้า posts-table เท่านั้น
             <div className="mt-6">
               <Pagination
                 postsPerPage={postsPerPage}
@@ -463,6 +465,8 @@ const Approval = () => {
                 paginate={paginate}
               />
             </div>
+          )}
+
           </>
         )}
   

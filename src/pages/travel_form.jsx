@@ -7,6 +7,7 @@ import { th } from 'date-fns/locale';
 
 import provinces from '../components/travel-form/provinces'
 import dynamic from 'next/dynamic'; // ใช้ Dynamic Imports พร้อม { ssr: false } 
+import { ArrowLeft } from 'lucide-react'; // ใช้ Icon จาก Lucide
 
 // ใช้ Dynamic Imports สำหรับ component ที่เป็น named export TripDetails
 const DP_Section = dynamic(() => import("../components/travel-form/DP_Section"), { ssr: false });
@@ -232,16 +233,27 @@ const TravelForm = () => {
       <div className="max-w-5xl mx-auto">
         <div className="backdrop-blur-sm bg-white/90 rounded-3xl shadow-2xl overflow-hidden border border-orange-100 transition-all duration-300 hover:shadow-orange-200/40">
           {/* Header Section */}
-          <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500 px-8 py-12 relative overflow-hidden">
-            <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)]">
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white text-center tracking-wide relative z-10">
-              รายละเอียดการเดินทาง
-            </h1>
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-b from-transparent to-white/10"></div>
-          </div>
-  
-          {/* Form Section */}
+                <div className="bg-gradient-to-r from-orange-400 via-orange-500 to-amber-500 px-4 sm:px-8 py-8 sm:py-12 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.1)_10px,rgba(255,255,255,0.1)_20px)]">
+                </div>
+
+                <button 
+                    onClick={() => router.push('/approval')}
+                    className="absolute top-2 sm:top-4 left-2 sm:left-4 p-2 sm:p-3 rounded-full bg-white/20 hover:bg-white/30 text-white 
+                    transition-all duration-300 backdrop-blur-sm border border-white/30 hover:border-white/50
+                    shadow-lg hover:shadow-white/20 transform hover:-translate-y-0.5"
+                    title="กลับไปยังหน้า Approval"
+                  >
+                    <ArrowLeft className="w-4 h-4 sm:w-6 sm:h-6" />
+                  </button>
+
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center tracking-wide relative z-10">
+                  รายละเอียดการเดินทาง
+                </h1>
+                <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-16 bg-gradient-to-b from-transparent to-white/10"></div>
+                </div>
+            
+                {/* Form Section */}
           <form onSubmit={handleSubmit} className="p-8 space-y-10">
             <div className="grid grid-cols-1 gap-8">
               {/* Personal Info Section */}
