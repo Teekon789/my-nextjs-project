@@ -377,7 +377,7 @@ const Approval = () => {
               onReject={handleReject}
               onView={handleViewPost}
               onDelete={handleDelete}
-              onDocument={handleViewPDF} // เปลี่ยน props จาก onDocument เป็น onViewPDF
+              onViewPDF={handleViewPDF} // เปลี่ยน props จาก onDocument เป็น onViewPDF
             />
   
             {showPopup && selectedPost && (

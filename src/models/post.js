@@ -36,6 +36,7 @@ const postSchema = new mongoose.Schema({
   traveler_name1: String, // ชื่อผู้เดินทางคนที่ 1
   traveler_name2: String, // ชื่อผู้เดินทางคนที่ 2
   traveler_relation: String, // ความสัมพันธ์กับผู้เดินทาง
+  agency_name: String, // ชื่อส่วนราชการ
 
   // สถานะการอนุมัติ
   status: {

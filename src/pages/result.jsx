@@ -94,12 +94,13 @@ const Result = () => {
           <DetailRow label="ชื่อเต็ม:" value={post.fullname} />
           <DetailRow label="ตำแหน่ง:" value={post.personnel_type} />
           <DetailRow label="สังกัด:" value={post.department} />
+          <DetailRow label="ที่:" value={post.agency_name} />
           <DetailRow label="อีเมล:" value={post.email} />
           <DetailRow label="เบอร์โทรศัพท์:" value={post.phone} />
           <DetailRow label="แหล่งเงิน:" value={post.fund_source} />
           <DetailRow label="จังหวัด:" value={post.province} />
           <DetailRow label="วันที่ไปราชการ:" value={formatThaiDateTime(post.trip_date)} />
-          <DetailRow label="วันที่สิ้นสุดการเดินทาง:" value={formatThaiDateTime(post.trip_date_end)} />
+          <DetailRow label="วันที่สิ้นสุดการเดินทางไปราชการ:" value={formatThaiDateTime(post.trip_date_end)} />
           <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.departure_date)} />
           <DetailRow label="วันที่ออกเดินทาง:" value={formatThaiDateTime(post.return_date)} />
 

@@ -67,6 +67,7 @@ const TravelForm = () => {
     trip_date_end: '',
     departure_date: '',
     return_date: '', 
+    agency_name : '', //ส่วนราชการ
     travelers: []
     
   });

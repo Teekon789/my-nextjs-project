@@ -31,7 +31,7 @@ const StatusBadge = ({ status }) => (
 );
 
 // Component สำหรับแสดงปุ่มการกระทำ (รวมปุ่มเอกสาร)
-const TableActions = React.memo(({ post, currentUser, onApprove, onReject, onView, onDelete, onDocument }) => (
+const TableActions = React.memo(({ post, currentUser, onApprove, onReject, onView, onDelete, onViewPDF }) => (
   <div className="flex justify-start sm:justify-center space-x-2">
     {currentUser && currentUser.role === "dean" && (
       <>
@@ -59,7 +59,7 @@ const TableActions = React.memo(({ post, currentUser, onApprove, onReject, onVie
       <Eye className="w-4 h-4" />
     </button>
     <button
-      onClick={() => onDocument(post)}
+      onClick={() => onViewPDF(post)}
       className="p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
       title="เอกสาร"
     >
@@ -85,7 +85,7 @@ const PostsTable = ({
   onReject, 
   onView, 
   onDelete, 
-  onDocument 
+  onViewPDF 
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
 
@@ -135,7 +135,7 @@ const PostsTable = ({
                     onReject={onReject} 
                     onView={onView} 
                     onDelete={onDelete} 
-                    onDocument={onDocument} 
+                    onViewPDF={onViewPDF} 
                   />
                 </td>
               </tr>
@@ -190,7 +190,7 @@ const PostsTable = ({
                   onReject={onReject} 
                   onView={onView} 
                   onDelete={onDelete} 
-                  onDocument={onDocument} 
+                  onViewPDF={onViewPDF} 
                 />
               </div>
             )}
@@ -208,7 +208,7 @@ PostsTable.propTypes = {
   onReject: PropTypes.func.isRequired,
   onView: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onDocument: PropTypes.func.isRequired,
+  onViewPDF: PropTypes.func.isRequired,
 };
 
 export default PostsTable;

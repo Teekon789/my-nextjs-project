@@ -87,23 +87,39 @@ const PDFDocument = ({ post }) => {
       <Page size="A4" style={styles.page}>
         {/* ตราครุฑและหัวเรื่อง */}
         <View style={styles.header}>
-          <Image src={'/logo/Garuda.png'} style={styles.image} />
-          <Text style={styles.title}>บันทึกการเดินทางไปราชการ</Text>
-        </View>
-
-        {/* ส่วนข้อมูลเอกสาร */}
-        <View style={styles.documentInfo}>
-          <View>
-            <Text style={styles.documentInfoText}>ที่ {getSafeValue(safePost.department)}</Text>
-            <Text style={styles.documentInfoText}>วันที่ {getSafeDate(safePost.date123)}</Text>
+          <View style={styles.headerContent}>
+            <Image src={'/logo/Garuda.png'} style={styles.image} />
+            <Text style={styles.title}>บันทึกข้อความ</Text>
           </View>
         </View>
 
-        {/* หัวข้อเรื่องและผู้รับ */}
-        <View style={styles.subject}>
-          <Text style={styles.subjectText}>เรื่อง: ขออนุมัติเบิกค่าใช้จ่ายในการเดินทางไปราชการ</Text>
-          <Text style={styles.subjectText}>เรียน: {getSafeValue(safePost.sendTo) ? sendToMapping[safePost.sendTo] || safePost.sendTo : '-'}</Text>
+        <View style={[styles.compactRow, {marginTop: 5}]}>
+            <Text style={styles.label_123}>ส่วนราชการ:</Text>
+            <Text style={styles.value_3}>{getSafeValue(safePost.department)}</Text>
+          </View>
+
+
+         {/* ข้อมูลผู้ยื่นและตำแหน่ง */}
+         <View style={styles.row}>
+          <Text style={styles.label_123}>ที่</Text>
+          <Text style={styles.value_2}>{getSafeValue(safePost.agency_name)}</Text>
+          <Text style={styles.label_123}>วันที่</Text>
+          <Text style={styles.value_2}>{getSafeDate(safePost.date123)}</Text>
         </View>
+
+        <View style={[styles.compactRow, {marginTop: 5}]}>
+            <Text style={styles.label_123}>เรื่อง:</Text>
+            <Text style={styles.value_3}> ขออนุมัติเบิกค่าใช้จ่ายในการเดินทางไปราชการ</Text>
+          </View>
+        
+          <View style={[styles.compactRow, {marginTop: 5}]}>
+            <Text style={styles.label_123}>เรียน:</Text>
+            <Text style={styles.value_3}> {getSafeValue(safePost.sendTo) ? sendToMapping[safePost.sendTo] || safePost.sendTo : '-'}</Text>
+          </View>
+
+          <View style={styles.underlineOnly_1}></View>
+   
+       
 
         {/* ข้อมูลผู้ยื่นและตำแหน่ง */}
         <View style={styles.row}>
@@ -202,6 +218,7 @@ const PDFDocument = ({ post }) => {
           <View style={styles.transportQuantityUnderline}>
             <Text>{getSafeNumber(safePost.transportation_quantity)}</Text>
           </View>
+          
           <Text style={styles.totalLabel}>รวม</Text>
           <View style={styles.totalUnderline}>
             <Text>{getSafeNumber(safePost.transportation)}</Text>
@@ -213,7 +230,7 @@ const PDFDocument = ({ post }) => {
         <View style={styles.compactExpenseRow}>
           <Text style={styles.expenseOtherLabel}>ค่าใช้จ่ายอื่นๆ</Text>
           <View style={styles.otherExpenseTypeUnderline}>
-            <Text>{getSafeValue(safePost.other_expenses_type)}</Text>
+           
           </View>
           <Text style={styles.totalLabel}>รวม</Text>
           <View style={styles.totalUnderline}>

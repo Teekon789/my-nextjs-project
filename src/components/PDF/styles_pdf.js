@@ -3,28 +3,38 @@ import { StyleSheet } from '@react-pdf/renderer';
 const styles = StyleSheet.create({
   // หน้าเอกสาร - แพดดิ้งและขนาดฟอนต์
   page: { 
-    padding: 25,  // เพิ่มแพดดิ้ง
+    padding: 20,  // เพิ่มแพดดิ้ง
     fontFamily: 'THSarabunNew', 
     fontSize: 13
   },
   
   // ส่วนหัว - เพิ่มระยะห่าง
-  header: { 
-    alignItems: 'center', 
-    marginBottom: 10   // เพิ่มระยะห่างด้านล่าง
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'center', // จัดให้เนื้อหาอยู่ตรงกลาง
+    marginBottom: 20,
   },
-  image: { 
-    width: 50,
-    height: 50, 
-    alignSelf: 'center', 
-    marginBottom: 8   // เพิ่มระยะห่าง
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center', // จัดให้ตราครุฑและข้อความอยู่ในแนวเดียวกัน
+    width: '100%', // ให้ความกว้างเต็มหน้า
+    position: 'relative', // ใช้สำหรับจัดตำแหน่งข้อความ
   },
-  title: { 
-    textAlign: 'center', 
-    fontSize: 15,
+  image: {
+    width: 55,
+    height: 55,
+    marginRight: 10, // ระยะห่างระหว่างตราครุฑและข้อความ
+    marginLeft: 40, // ขยับตราครุฑไปทางขวา 20 หน่วย
+    marginTop: 15, // ขยับตราครุฑลง
+  },
+  title: {
+    textAlign: 'center',
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 8,  // เพิ่มระยะห่าง
-    fontFamily: 'THSarabunNew_Bold'
+    fontFamily: 'THSarabunNew_Bold',
+    position: 'absolute', // จัดตำแหน่งข้อความให้อยู่ตรงกลาง
+    left: '50%', // ย้ายไปตรงกลาง
+    transform: 'translateX(-50%)', // ปรับตำแหน่งให้ตรงกลางพอดี
   },
   documentInfo: { 
     flexDirection: 'row', 
@@ -50,6 +60,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,  // เพิ่มระยะห่าง
     alignItems: 'center' 
   },
+
+
   compactRow: {
     flexDirection: 'row', 
     marginBottom: 6,  // เพิ่มระยะห่าง
@@ -59,6 +71,14 @@ const styles = StyleSheet.create({
     flexShrink: 0, 
     marginRight: 5    // เพิ่มระยะห่าง
   },
+
+  label_123: { 
+    flexShrink: 0, 
+    marginRight: 5,    // เพิ่มระยะห่าง
+    fontWeight: 'bold',
+    fontFamily: 'THSarabunNew_Bold',
+  },
+  
   value: { 
     flex: 1, 
     alignSelf: 'stretch', 
@@ -67,7 +87,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginLeft: 3,    // เพิ่มระยะห่าง
     marginRight: 5,   // เพิ่มระยะห่าง
-    paddingBottom: 2  // เพิ่มระยะห่าง
+    paddingBottom: 2,  // เพิ่มระยะห่าง
+
   },
   value_1: { 
     flex: 1, 
@@ -78,7 +99,8 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     marginRight: 5,   // เพิ่มระยะห่าง
     paddingBottom: 2, // เพิ่มระยะห่าง
-    paddingLeft: 8    // เพิ่มระยะห่าง
+    paddingLeft: 8,    // เพิ่มระยะห่าง
+    paddingLeft : 3
   },
   value_2: { 
     flex: 1, 
@@ -86,12 +108,34 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1, 
     borderBottomColor: '#000', 
     textAlign: 'justify',
-    marginLeft: 3,    // เพิ่มระยะห่าง
+    marginLeft: 2,    // เพิ่มระยะห่าง
     marginRight: 5,   // เพิ่มระยะห่าง
-    paddingBottom: 2  // เพิ่มระยะห่าง
+    paddingBottom: 2 , // เพิ่มระยะห่าง
+    paddingLeft : 5
+  },
+
+  value_3: { 
+    flex: 1, 
+    alignSelf: 'stretch', 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#000', 
+    textAlign: 'justify',
+    marginLeft: 2,    // เพิ่มระยะห่าง
+    marginRight: 5,   // เพิ่มระยะห่าง
+    paddingBottom: 2,  // เพิ่มระยะห่าง
+    paddingLeft : 5
+    
   },
 
   // เส้นคั้นแถวข้อมูล - เพิ่มระยะห่าง
+  underlineOnly_1: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    width: '100%',
+    marginTop: 10,     // เพิ่มระยะห่าง
+    marginBottom: 10    // เพิ่มระยะห่าง
+  },  
+
   underlineOnly: {
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
@@ -159,14 +203,14 @@ const styles = StyleSheet.create({
   transportQuantityUnderline: {
     borderBottomWidth: 1,
     borderBottomColor: '#000',
-    width: '12%',
+    width: '14%',
     alignItems: 'center',
     marginRight: 3    // เพิ่มระยะห่าง
   },
   otherExpenseTypeUnderline: {
     borderBottomWidth: 1,
     borderBottomColor: '#000',
-    textAlign: 'center',
+    
     marginRight: 3,   // เพิ่มระยะห่าง
     flexGrow: 1,
     paddingBottom: 12 // เพิ่มระยะห่าง
@@ -174,10 +218,10 @@ const styles = StyleSheet.create({
   
   // "จำนวน" - ปรับระยะห่าง
   amountLabel: {
-    width: 28,        // เพิ่มความกว้าง
-    textAlign: 'right',
-    marginLeft: -2,   // ปรับระยะห่าง
-    marginRight: 5    // เพิ่มระยะห่าง
+    width: 17,        // เพิ่มความกว้าง
+    textAlign: 'justify',
+    marginLeft: 0,   // ปรับระยะห่าง
+    marginRight: 5,    // เพิ่มระยะห่าง
   },
   
   // ช่องกรอกจำนวน - เพิ่มระยะห่าง
