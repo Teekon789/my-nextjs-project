@@ -156,6 +156,16 @@ const PostsTable = ({
 
       {/* แสดงผลบนจอขนาดเล็ก */}
       <div className="sm:hidden space-y-4">
+
+        {/* ปุ่ม Dashboard สำหรับ mobile */}
+        <button 
+              onClick={onNavigateToPostsDashboard}
+              className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
+              title="ไปยังแดชบอร์ด"
+            >
+              <LayoutDashboard className="w-5 h-5" />
+          </button>
+
         {currentPosts.map((post) => (
           <div key={post._id} className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-2">
