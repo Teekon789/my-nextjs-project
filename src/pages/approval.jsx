@@ -7,20 +7,18 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
+
+
 import dynamic from "next/dynamic";
 // โหลดคอมโพเนนท์แบบ Dynamic Imports 
 const ApprovalHeader = dynamic(() => import("../components/approval/ApprovalHeader"));
 const DashboardStats = dynamic(() => import("../components/approval/DashboardStats"));
 const SearchFilter = dynamic(() => import("../components/approval/SearchFilter"));
+const PostsDashboard = dynamic(() => import("../components/approval/PostsDashboard"));
 const PostsTable = dynamic(() => import("../components/approval/PostsTable"));
-
-const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
 const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dletepre"), { ssr: false });
-
-
 const Pagination = dynamic(() => import("../components/approval/Pagination"));
-
-
+const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
 
 //นําเข้า PDB_Document
 const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
@@ -52,6 +50,8 @@ const Approval = () => {
   const [isClient, setIsClient] = useState(false); // เพิ่มตัวแปร state เพื่อตรวจสอบว่าเป็น client-side
 
   const [selectedPost, setSelectedPost] = React.useState(null); // ใช้ React.useState แทน useState
+  
+  const [currentView, setCurrentView] = useState('posts-table'); // เพิ่มตัวแปร state สำหรับการเปลี่ยนแสดงหน้า
 
 
    // ตัวอย่างการตั้งค่า selectedPost
@@ -240,6 +240,8 @@ const Approval = () => {
     setSelectedPost(post);
     setShowDeletePopup(true);
   };
+
+ 
   
   const handleDeletePermanently = async () => {
     if (!selectedPost) return;
@@ -340,7 +342,35 @@ const Approval = () => {
       : "/travel_form";
 
 
-      
+      // เลือกหน้าที่จะแสดง
+  const renderCurrentView = () => {
+    switch(currentView) {
+      case 'posts-table':
+        return (
+          <PostsTable 
+            currentPosts={currentPosts}
+            currentUser={currentUser}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            onView={handleViewPost}
+            onDelete={handleDelete}
+            onViewPDF={handleViewPDF}
+            onNavigateToPostsDashboard={() => setCurrentView('posts-dashboard')}
+          />
+        );
+      case 'posts-dashboard':
+        return (
+          <PostsDashboard 
+            posts={posts}
+            currentUser={currentUser}
+            onNavigateToPostsTable={() => setCurrentView('posts-table')}
+          />
+        );
+      default:
+        return null;
+    }
+
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
@@ -370,16 +400,9 @@ const Approval = () => {
               linkHref={linkHref}
             />
             
-            <PostsTable 
-              currentPosts={currentPosts}
-              currentUser={currentUser}
-              onApprove={handleApprove}
-              onReject={handleReject}
-              onView={handleViewPost}
-              onDelete={handleDelete}
-              onViewPDF={handleViewPDF} // เปลี่ยน props จาก onDocument เป็น onViewPDF
-            />
-  
+            {renderCurrentView()}
+
+
             {showPopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
@@ -387,6 +410,8 @@ const Approval = () => {
                 </div>
               </div>
             )}
+  
+            
   
           {/* PDFViewer ที่แสดง PDFDocument - รองรับทั้งหน้าจอคอมพิวเตอร์และมือถือด้วย Tailwind CSS */}
             {showDocument && selectedPost && isClient && (

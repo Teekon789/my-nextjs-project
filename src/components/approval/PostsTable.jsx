@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from "react";
-import { Check, X, Eye, Trash2, FileText, Menu } from "lucide-react";
+import { Check, X, Eye, Trash2, FileText, Menu,LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
 
 // Custom Hook สำหรับจัดการเมนู
@@ -85,7 +85,8 @@ const PostsTable = ({
   onReject, 
   onView, 
   onDelete, 
-  onViewPDF 
+  onViewPDF,
+  onNavigateToPostsDashboard // อัปเดตชื่อ prop
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
 
@@ -96,7 +97,16 @@ const PostsTable = ({
   };
 
   return (
-    <div className="bg-slate-50 rounded-xl shadow-lg p-4 sm:p-6">
+    <div className="bg-slate-50 rounded-xl shadow-lg p-4 sm:p-6 relative">
+    {/* เพิ่มปุ่มไปยังแดชบอร์ด */}
+    <button 
+      onClick={onNavigateToPostsDashboard}
+      className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
+      title="ไปยังแดชบอร์ด"
+    >
+      <LayoutDashboard className="w-5 h-5" />
+    </button>
+
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">รายการ</h2>
       
       {/* แสดงผลบนจอขนาดใหญ่ */}
@@ -209,6 +219,7 @@ PostsTable.propTypes = {
   onView: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onViewPDF: PropTypes.func.isRequired,
+  onNavigateToPostsDashboard: PropTypes.func.isRequired, // อัปเดตชื่อ prop type
 };
 
 export default PostsTable;
