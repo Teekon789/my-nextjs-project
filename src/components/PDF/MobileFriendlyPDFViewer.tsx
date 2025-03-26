@@ -212,7 +212,7 @@ const MobileFriendlyPDFViewer: React.FC<MobileFriendlyPDFViewerProps> = ({ post 
       <Worker workerUrl={PDF_WORKER_URL}>
         <Viewer
           fileUrl={pdfToShow}
-          defaultScale={isMobile ? SpecialZoomLevel.PageWidth : SpecialZoomLevel.PageFit}
+          defaultScale={isMobile ? SpecialZoomLevel.PageFit : SpecialZoomLevel.ActualSize}
           plugins={[defaultLayoutPluginInstance]}
           onDocumentLoad={() => {
             setIsPdfLoaded(true);
