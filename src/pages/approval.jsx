@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
 
-
+import NotificationDropdown from '../components/notifications/NotificationDropdown'; // นำเข้า NotificationDropdown
 
 import dynamic from "next/dynamic";
 // โหลดคอมโพเนนท์แบบ Dynamic Imports 
@@ -207,13 +207,28 @@ const Approval = () => {
         throw new Error(errorData.message || 'Failed to approve post');
       }
   
+      // ส่งการแจ้งเตือนไปยังผู้สร้างโพสต์
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipientId: post.createdBy,
+          senderId: currentUser.id,
+          type: 'approved',
+          message: `คำขอของคุณได้รับการอนุมัติโดย ${currentUser.fullname}`,
+          postId: post._id
+        })
+      });
+  
       toast.success("โพสต์ได้รับการอนุมัติ!");
       fetchPosts();
     } catch (error) {
       console.error('Error approving post:', error);
       toast.error(`เกิดข้อผิดพลาดในการอนุมัติ: ${error.message}`);
     }
-  }; 
+  };
   
 
   {/* สร้างฟังก์ชัน handleReject สำหรับการปฏิเสธโพสต์ */}
@@ -240,6 +255,21 @@ const Approval = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to reject post');
       }
+  
+      // ส่งการแจ้งเตือนไปยังผู้สร้างโพสต์
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipientId: post.createdBy,
+          senderId: currentUser.id,
+          type: 'rejected',
+          message: `คำขอของคุณถูกปฏิเสธโดย ${currentUser.fullname}: ${rejectReason}`,
+          postId: post._id
+        })
+      });
   
       toast.success("โพสต์ถูกปฏิเสธ!");
       fetchPosts();
@@ -394,7 +424,12 @@ const Approval = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
-      <ApprovalHeader currentUser={currentUser} handleLogout={handleLogout} />
+     <ApprovalHeader 
+      currentUser={currentUser} 
+      handleLogout={handleLogout}
+    >
+      <NotificationDropdown userId={currentUser.id} />
+    </ApprovalHeader>
       
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
