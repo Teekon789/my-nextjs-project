@@ -19,6 +19,7 @@ const PostsTable = dynamic(() => import("../components/approval/PostsTable"));
 const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dletepre"), { ssr: false });
 const Pagination = dynamic(() => import("../components/approval/Pagination"));
 const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
+const RejectionReasonDialog = dynamic(() => import("../components/approval/RejectionReasonDialog")); // นําเข้า RejectionReasonDialog
 
 //นําเข้า PDB_Document
 const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
@@ -52,6 +53,9 @@ const Approval = () => {
   const [selectedPost, setSelectedPost] = React.useState(null); // ใช้ React.useState แทน useState
   
   const [currentView, setCurrentView] = useState('posts-table'); // เพิ่มตัวแปร state สำหรับการเปลี่ยนแสดงหน้า
+
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+  const [postToReject, setPostToReject] = useState(null);
 
 
    // ตัวอย่างการตั้งค่า selectedPost
@@ -213,12 +217,12 @@ const Approval = () => {
     }
   };
   
-  const handleReject = async (post) => {
-    // เพิ่มการป้อนเหตุผลการปฏิเสธ
-    const rejectReason = prompt('กรุณาระบุเหตุผลที่ไม่อนุมัติ:');
-    
-    if (rejectReason === null) return; // ยกเลิกการปฏิเสธ
-    
+  const handleReject = (post) => {
+    setPostToReject(post);
+    setShowRejectionDialog(true);
+  };
+  
+  const handleRejectSubmit = async (post, rejectReason) => {
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
         method: 'PUT',
@@ -227,7 +231,7 @@ const Approval = () => {
         },
         body: JSON.stringify({ 
           status: 'Rejected',
-          reject_reason: rejectReason // เพิ่มเหตุผลการปฏิเสธ
+          reject_reason: rejectReason
         })
       });
   
@@ -467,6 +471,15 @@ const Approval = () => {
                   />
                 </div>
               </div>
+            )}
+
+            {showRejectionDialog && (
+              <RejectionReasonDialog 
+                isOpen={showRejectionDialog}
+                onClose={() => setShowRejectionDialog(false)}
+                onSubmit={handleRejectSubmit}
+                post={postToReject}
+              />
             )}
 
           {currentView === 'posts-table' && ( // ตรวจสอบ currentView  และแสดง Pagination ในหน้า posts-table เท่านั้น
