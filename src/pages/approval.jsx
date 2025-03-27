@@ -7,7 +7,7 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import NotificationCenter from '../components/NotificationCenter'; // นำเข้า NotificationCenter
+
 
 
 import dynamic from "next/dynamic";
@@ -32,8 +32,8 @@ const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFr
 
 
 const Approval = () => {
-  const router = useRouter();
-  const [posts, setPosts] = useState([]);
+  const router = useRouter(); // นำเข้า useRouter
+  const [posts, setPosts] = useState([]);// เพิ่มตัวแปร state สำหรับเก็บโพสต์
   const [currentUser, setCurrentUser] = useState({ username: "-", role: "-" }); // กำหนดค่าเริ่มต้นของ currentUser
   const [searchQuery, setSearchQuery] = useState("");// เพิ่มตัวแปร state สำหรับการค้นหา
   const [statusFilter, setStatusFilter] = useState("");// เพิ่มตัวแปร state สำหรับการกรองสถานะ
@@ -422,9 +422,6 @@ const Approval = () => {
             />
 
             
-            <div className="flex justify-end">
-            <NotificationCenter currentUser={currentUser} posts={posts} />
-            </div>
 
             {renderCurrentView()}
 
