@@ -70,7 +70,6 @@ const nextConfig = {
         encoding: false,
         bufferutil: false,
         'utf-8-validate': false,
-
         process: require.resolve('process/browser'),
         util: require.resolve('util/'),
         buffer: require.resolve('buffer/'),
@@ -107,6 +106,14 @@ const nextConfig = {
 
   env: {
     CUSTOM_API_KEY: process.env.CUSTOM_API_KEY,
+  },
+
+  // เพิ่มการตั้งค่าสำหรับ WebSocket
+  serverRuntimeConfig: {
+    socketPort: process.env.SOCKET_PORT || 3000, // กำหนดค่า port ของ socket
+  },
+  publicRuntimeConfig: {
+    socketUrl: process.env.SOCKET_URL || 'http://localhost:3000', // URL สำหรับ WebSocket
   },
 };
 

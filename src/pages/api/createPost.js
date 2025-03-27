@@ -3,6 +3,7 @@ import Post from '../../models/post';
 import Notification from '../../models/notification'; // นำเข้า Model การแจ้งเตือน
 import User from '../../models/user'; // นำเข้า Model ผู้ใช้เพื่อค้นหาผู้รับ
 import mongoose from 'mongoose';
+import io from 'socket.io-client'; // นำเข้า socket client
 
 export default async function handler(req, res) {
   // เชื่อมต่อ MongoDB
@@ -45,9 +46,9 @@ export default async function handler(req, res) {
 
       // ค้นหาผู้ใช้ที่ตรงกับ sendTo เพื่อส่งการแจ้งเตือน
       const recipientUser = await User.findOne({ role: sendTo });
-      
+
+      // สร้างการแจ้งเตือนใหม่
       if (recipientUser) {
-        // สร้างการแจ้งเตือนใหม่
         const notification = new Notification({
           recipient: recipientUser._id,
           sender: createdBy,
@@ -56,8 +57,15 @@ export default async function handler(req, res) {
           post: savedPost._id,
           read: false
         });
-
+    
         await notification.save();
+    
+        // ส่งการแจ้งเตือนผ่าน Socket
+        const socket = io(); // เชื่อมต่อ socket
+        socket.emit('newNotification', {
+          recipient: recipientUser._id.toString(),
+          ...notification.toObject()
+        });
       }
   
       return res.status(201).json(savedPost);

@@ -1,10 +1,15 @@
+// src/components/notifications/NotificationDropdown.js
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, X } from 'lucide-react';
+import io from 'socket.io-client';
+import { useRouter } from 'next/router';
 
 const NotificationDropdown = ({ userId }) => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [socket, setSocket] = useState(null);
+  const router = useRouter();
 
   // ดึงการแจ้งเตือน
   const fetchNotifications = async () => {
@@ -19,11 +24,19 @@ const NotificationDropdown = ({ userId }) => {
   };
 
   // มาร์คการแจ้งเตือนว่าอ่านแล้ว
-  const markAsRead = async (notificationId) => {
+  const markAsRead = async (notification) => {
     try {
-      await fetch(`/api/notifications?notificationId=${notificationId}`, {
-        method: 'PUT'
+      await fetch(`/api/notifications/${notification._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ read: true })
       });
+
+      // นำทางไปยังโพสต์ที่เกี่ยวข้อง
+      if (notification.postId) {
+        router.push(`/viewPost?id=${notification.postId}`);
+      }
+
       fetchNotifications();
     } catch (error) {
       console.error('Error marking notification as read:', error);
@@ -33,10 +46,35 @@ const NotificationDropdown = ({ userId }) => {
   useEffect(() => {
     if (userId) {
       fetchNotifications();
-      // ตั้งเวลาดึงการแจ้งเตือนทุก 1 นาที
-      const intervalId = setInterval(fetchNotifications, 60000);
+      
+      // ตั้งเวลาดึงการแจ้งเตือนใหม่ทุก 5 วินาที
+      const intervalId = setInterval(fetchNotifications, 5000);
       return () => clearInterval(intervalId);
     }
+  }, [userId]);
+
+  useEffect(() => {
+    // สร้าง socket connection
+    const newSocket = io();
+    setSocket(newSocket);
+
+    // ลงทะเบียน userId
+    newSocket.emit('register', userId);
+
+    // รับการแจ้งเตือนใหม่
+    newSocket.on('receiveNotification', (newNotification) => {
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+    });
+
+    // รับการรีเฟรชโพสต์
+    newSocket.on('refreshPosts', (data) => {
+      // อาจเพิ่มลอจิกสำหรับการรีเฟรชโพสต์ในอนาคต
+      console.log('Post status updated:', data);
+    });
+
+    // ล้าง socket เมื่อ component unmount
+    return () => newSocket.close();
   }, [userId]);
 
   // แปลงวันที่ให้อ่านง่าย
@@ -48,17 +86,15 @@ const NotificationDropdown = ({ userId }) => {
     if (diffMinutes < 1) return 'เมื่อกี้';
     if (diffMinutes < 60) return `${diffMinutes} นาทีที่แล้ว`;
     if (diffMinutes < 1440) return `${Math.floor(diffMinutes/60)} ชั่วโมงที่แล้ว`;
-    return notificationDate.toLocaleDateString();
+    return notificationDate.toLocaleDateString('th-TH');
   };
 
   // เลือกไอคอนตามประเภทการแจ้งเตือน
   const getNotificationIcon = (type) => {
     switch(type) {
-      case 'new_submission': 
-        return <Bell className="text-blue-500" />;
-      case 'approved': 
+      case 'post_approved': 
         return <Check className="text-green-500" />;
-      case 'rejected': 
+      case 'post_rejected': 
         return <X className="text-red-500" />;
       default: 
         return <Bell className="text-gray-500" />;
@@ -94,7 +130,7 @@ const NotificationDropdown = ({ userId }) => {
               <div 
                 key={notification._id}
                 className={`p-4 flex items-center hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
-                onClick={() => markAsRead(notification._id)}
+                onClick={() => markAsRead(notification)}
               >
                 <div className="mr-3">
                   {getNotificationIcon(notification.type)}

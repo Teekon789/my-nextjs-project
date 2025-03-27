@@ -1,34 +1,44 @@
 const handleApprove = async (post) => {
   try {
-    // ทำงานทั้ง 3 อย่างพร้อมกัน
-    const [updatePostResponse, updateNotificationResponse, createNotificationResponse] = await Promise.all([
-      // 1. อัปเดตสถานะโพสต์
-      fetch(`/api/updatePost?_id=${post._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Approved' })
-      }),
+    // อัปเดตสถานะโพสต์
+    const response = await fetch(`/api/updatePost?_id=${post._id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Approved' })
+    });
 
-      // 2. อัปเดตการแจ้งเตือนเก่า
-      fetch(`/api/notifications?postId=${post._id}`, {
-        method: 'PUT'
-      }),
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to approve post');
+    }
 
-      // 3. สร้างการแจ้งเตือนใหม่
-      fetch('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientId: post.userId,
-          type: 'post_approved',
-          message: 'โพสต์ของคุณได้รับการอนุมัติแล้ว',
-          postId: post._id,
-          senderId: session?.user?._id
-        })
-      })
-    ]);
+    // อัปเดตสถานะการอ่านการแจ้งเตือนเก่าที่เกี่ยวข้องกับโพสต์นี้
+    const updateNotificationResponse = await fetch(`/api/notifications?postId=${post._id}`, {
+      method: 'PUT'
+    });
 
-    if (!updatePostResponse.ok) throw new Error('Failed to approve post');
+    if (!updateNotificationResponse.ok) {
+      console.error('Failed to update existing notifications');
+    }
+
+    // สร้างการแจ้งเตือนใหม่
+    const newNotification = {
+      recipientId: post.userId,
+      type: 'post_approved',
+      message: 'โพสต์ของคุณได้รับการอนุมัติแล้ว',
+      postId: post._id,
+      senderId: session?.user?._id
+    };
+
+    const notificationResponse = await fetch('/api/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newNotification)
+    });
+
+    if (!notificationResponse.ok) {
+      console.error('Failed to create new notification');
+    }
 
     toast.success("โพสต์ได้รับการอนุมัติ!");
     fetchPosts();
@@ -42,32 +52,38 @@ const handleDeletePermanently = async () => {
   if (!selectedPost) return;
 
   try {
-    const [deleteResponse, updateNotifResponse, createNotifResponse] = await Promise.all([
-      // 1. ลบโพสต์
-      fetch(`/api/deletePost?_id=${selectedPost._id}`, {
-        method: 'DELETE'
-      }),
+    // ลบโพสต์
+    const response = await fetch(`/api/deletePost?_id=${selectedPost._id}`, {
+      method: 'DELETE'
+    });
 
-      // 2. อัปเดตการแจ้งเตือนเก่า
-      fetch(`/api/notifications?postId=${selectedPost._id}`, {
-        method: 'PUT'
-      }),
+    if (!response.ok) {
+      throw new Error('Failed to delete post');
+    }
 
-      // 3. สร้างการแจ้งเตือนใหม่
-      fetch('/api/notifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipientId: selectedPost.userId,
-          type: 'post_rejected',
-          message: 'โพสต์ของคุณไม่ได้รับการอนุมัติ',
-          postId: selectedPost._id,
-          senderId: session?.user?._id
-        })
-      })
-    ]);
+    // อัปเดตสถานะการอ่านการแจ้งเตือนเก่า
+    await fetch(`/api/notifications?postId=${selectedPost._id}`, {
+      method: 'PUT'
+    });
 
-    if (!deleteResponse.ok) throw new Error('Failed to delete post');
+    // สร้างการแจ้งเตือนใหม่สำหรับการปฏิเสธ
+    const newNotification = {
+      recipientId: selectedPost.userId,
+      type: 'post_rejected',
+      message: 'โพสต์ของคุณไม่ได้รับการอนุมัติ',
+      postId: selectedPost._id,
+      senderId: session?.user?._id
+    };
+
+    const notificationResponse = await fetch('/api/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newNotification)
+    });
+
+    if (!notificationResponse.ok) {
+      console.error('Failed to create rejection notification');
+    }
 
     toast.success("ลบโพสต์สำเร็จ!");
     setShowDeletePopup(false);

@@ -1,3 +1,5 @@
+//src/components/approval/PostsTable.jsx
+
 import React from 'react';
 import { useState } from "react";
 import { Check, X, Eye, Trash2, FileText, Menu,LayoutDashboard } from "lucide-react";
