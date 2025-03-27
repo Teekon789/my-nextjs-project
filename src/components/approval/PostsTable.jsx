@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from "react";
 import { Check, X, Eye, Trash2, FileText, Menu,LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
+import NotificationDropdown from '../notifications/NotificationDropdown';
 
 // Custom Hook สำหรับจัดการเมนู
 const useMenu = () => {
@@ -99,16 +100,20 @@ const PostsTable = ({
   return (
     <div className="bg-slate-50 rounded-xl shadow-lg p-4 sm:p-6 relative">
     {/* เพิ่มปุ่มไปยังแดชบอร์ด */}
-    <button 
-      onClick={onNavigateToPostsDashboard}
-      className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
-      title="ไปยังแดชบอร์ด"
-    >
-      <LayoutDashboard className="w-5 h-5" />
-    </button>
+    <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold text-gray-800">รายการ</h2>
+        <div className="flex items-center space-x-4">
+          <NotificationDropdown userId={currentUser.id} />
+          <button 
+            onClick={onNavigateToPostsDashboard}
+            className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
+            title="ไปยังแดชบอร์ด"
+          >
+            <LayoutDashboard className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
 
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6">รายการ</h2>
-      
       {/* แสดงผลบนจอขนาดใหญ่ */}
       <div className="hidden sm:block overflow-x-auto">
         <table className="w-full">
@@ -158,14 +163,6 @@ const PostsTable = ({
       <div className="sm:hidden space-y-4">
 
         {/* ปุ่ม Dashboard สำหรับ mobile */}
-        <button 
-              onClick={onNavigateToPostsDashboard}
-              className="absolute top-4 right-4 p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
-              title="ไปยังแดชบอร์ด"
-            >
-              <LayoutDashboard className="w-5 h-5" />
-          </button>
-
         {currentPosts.map((post) => (
           <div key={post._id} className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-2">

@@ -428,7 +428,6 @@ const Approval = () => {
       currentUser={currentUser} 
       handleLogout={handleLogout}
     >
-      <NotificationDropdown userId={currentUser.id} />
     </ApprovalHeader>
       
       <div className="container mx-auto px-4 py-8">
@@ -443,6 +442,8 @@ const Approval = () => {
         ) : (
           // แสดงเนื้อหาหลักเมื่อโหลดเสร็จ
           <>
+
+       
           
             <DashboardStats 
               stats={getDashboardStats()} 
@@ -456,9 +457,11 @@ const Approval = () => {
               linkHref={linkHref}
             />
 
-            
+      
 
             {renderCurrentView()}
+
+            
 
             {showPopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
