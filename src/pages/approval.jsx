@@ -7,6 +7,7 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import NotificationCenter from '../components/NotificationCenter'; // นำเข้า NotificationCenter
 
 
 import dynamic from "next/dynamic";
@@ -419,9 +420,13 @@ const Approval = () => {
               onStatusChange={setStatusFilter}
               linkHref={linkHref}
             />
-            
-            {renderCurrentView()}
 
+            
+            <div className="flex justify-end">
+            <NotificationCenter currentUser={currentUser} posts={posts} />
+            </div>
+
+            {renderCurrentView()}
 
             {showPopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
