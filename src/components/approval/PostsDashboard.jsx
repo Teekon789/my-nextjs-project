@@ -17,9 +17,18 @@ import {
 
 // ฟังก์ชันประมวลผลข้อมูลแดชบอร์ด
 const processDashboardData = (posts) => {
-  // คำนวณสถานะ
+  // คำนวณสถานะการอนุมัติ
   const statusCounts = posts.reduce((acc, post) => {
-    acc[post.status] = (acc[post.status] || 0) + 1;
+    let status;
+    if (post.status === 'Approved') {
+      status = 'อนุมัติแล้ว';
+    } else if (post.status === 'pending') {
+      status = 'รอการอนุมัติ';
+    } else {
+      status = 'ไม่อนุมัติ';
+    }
+    
+    acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
 
@@ -43,10 +52,20 @@ const processDashboardData = (posts) => {
 
   // จัดข้อมูลสำหรับกราฟ
   const statusData = Object.entries(statusCounts).map(([status, count]) => ({
-    name: status === 'pending' ? 'รอการอนุมัติ' : 
-           status === 'Approved' ? 'อนุมัติแล้ว' : 'ไม่อนุมัติ',
-    count
-  }));
+    name: status,
+    count,
+    percentage: ((count / posts.length) * 100).toFixed(2)
+  })).sort((a, b) => {
+    const order = {
+      'อนุมัติแล้ว': 1,
+      'รอการอนุมัติ': 2,
+      'ไม่อนุมัติ': 3
+    };
+    return order[a.name] - order[b.name];
+  });
+
+  
+
 
   const departmentData = Object.entries(departmentCounts).map(([dept, count]) => ({
     name: {
@@ -76,16 +95,31 @@ const processDashboardData = (posts) => {
       fullname: post.fullname
     }));
 
-  // จัดกลุ่มเหตุผลการไม่อนุมัติ
-  const rejectedReasons = rejectedData.reduce((acc, item) => {
-    acc[item.reason] = (acc[item.reason] || 0) + 1;
+   // เหตุผลการไม่อนุมัติ
+   const rejectedReasons = posts
+  .filter(post => post.status !== 'Approved' && post.status !== 'pending')
+  .reduce((acc, post) => {
+    // เพิ่มเหตุผลการไม่อนุมัติใหม่
+    const reasonMapping = {
+      'งบประมาณไม่ถูกต้อง': 'งบประมาณไม่ถูกต้อง',
+      'เอกสารประกอบไม่ครบถ้วน': 'เอกสารประกอบไม่ครบถ้วน', 
+      'รายละเอียดการเดินทางไม่ชัดเจน': 'รายละเอียดการเดินทางไม่ชัดเจน',
+      'ขัดต่อระเบียบการเบิกจ่าย': 'ขัดต่อระเบียบการเบิกจ่าย',
+      'ระยะเวลาการเดินทางไม่เหมาะสม': 'ระยะเวลาการเดินทางไม่เหมาะสม',
+      'อื่น ๆ': 'อื่น ๆ'
+    };
+
+    const reason = reasonMapping[post.reject_reason] || 'อื่น ๆ';
+    acc[reason] = (acc[reason] || 0) + 1;
     return acc;
   }, {});
 
-  const rejectedReasonData = Object.entries(rejectedReasons).map(([reason, count]) => ({
-    name: reason,
-    count
-  }));
+  // จัดข้อมูลสำหรับกราฟ
+const rejectedReasonData = Object.entries(rejectedReasons).map(([reason, count]) => ({
+  name: reason,
+  count,
+  percentage: ((count / posts.length) * 100).toFixed(2)
+})).sort((a, b) => b.count - a.count);
 
   return { 
     statusData, 
@@ -124,7 +158,7 @@ const PostsDashboard = ({
     rejectedReasonData 
   } = processDashboardData(posts);
 
-  const COLORS = ['#FFC107', '#4CAF50', '#F44336'];
+  const COLORS = ['#4CAF50', '#FFC107', '#F44336']; // เขียว เหลือง แดง
   const DEPARTMENT_COLORS = ['#3B82F6', '#10B981', '#8B5CF6'];
   const REJECTED_COLORS = ['#EF4444', '#F97316', '#FBBF24', '#10B981'];
 
@@ -134,14 +168,17 @@ const PostsDashboard = ({
     const averageBudgetPerPost = totalBudget / posts.length;
     const pendingCount = posts.filter(post => post.status === 'pending').length;
     const approvedCount = posts.filter(post => post.status === 'Approved').length;
+    const rejectedCount = posts.filter(post => post.status !== 'pending' && post.status !== 'Approved').length;
 
     return {
       totalBudget,
       averageBudgetPerPost,
       pendingCount,
       approvedCount,
+      rejectedCount,
       pendingPercentage: (pendingCount / posts.length * 100).toFixed(2),
-      approvedPercentage: (approvedCount / posts.length * 100).toFixed(2)
+      approvedPercentage: (approvedCount / posts.length * 100).toFixed(2),
+      rejectedPercentage: (rejectedCount / posts.length * 100).toFixed(2)
     };
   };
 
@@ -190,6 +227,7 @@ const PostsDashboard = ({
     );
   };
 
+  // แสดงเนื้อหาแต่ละแท็บ
   const CustomTabsContent = ({ value, activeTab, children }) => {
     return activeTab === value ? <>{children}</> : null;
   };
@@ -408,9 +446,11 @@ const PostsDashboard = ({
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            
             <div>
               <h2 className="text-xl font-semibold mb-4 text-gray-700">สรุปสถานะการอนุมัติ</h2>
               <div className="space-y-4">
+                {/* รอการอนุมัติ */}
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
@@ -425,6 +465,7 @@ const PostsDashboard = ({
                     คิดเป็น {summaryStats.pendingPercentage}% ของรายการทั้งหมด
                   </p>
                 </div>
+                {/* สรุปสถานะการอนุมัติ */}
                 <div className="bg-green-50 p-4 rounded-lg">
                   <div className="flex justify-between items-center">
                     <div>
@@ -437,6 +478,21 @@ const PostsDashboard = ({
                   </div>
                   <p className="text-sm text-green-700 mt-2">
                     คิดเป็น {summaryStats.approvedPercentage}% ของรายการทั้งหมด
+                  </p>
+                </div>
+                {/* สรุปสถานะการไม่อนุมัติ */}
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-lg font-semibold text-red-800">ไม่อนุมัติ</h3>
+                      <p className="text-2xl font-bold text-red-600">
+                        {summaryStats.rejectedCount} รายการ
+                      </p>
+                    </div>
+                    <Ban className="w-10 h-10 text-red-500" />
+                  </div>
+                  <p className="text-sm text-red-700 mt-2">
+                    คิดเป็น {summaryStats.rejectedPercentage}% ของรายการทั้งหมด
                   </p>
                 </div>
               </div>
