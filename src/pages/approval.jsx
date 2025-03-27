@@ -8,8 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
 
-import NotificationDropdown from '../components/notifications/NotificationDropdown'; // นำเข้า NotificationDropdown
-
 import dynamic from "next/dynamic";
 // โหลดคอมโพเนนท์แบบ Dynamic Imports 
 const ApprovalHeader = dynamic(() => import("../components/approval/ApprovalHeader"));
