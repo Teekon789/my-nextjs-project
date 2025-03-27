@@ -20,15 +20,11 @@ const DeletePermanentlyPopup = dynamic(() => import("../components/approval/dlet
 const Pagination = dynamic(() => import("../components/approval/Pagination"));
 const PostPopup = dynamic(() => import("../components/approval/PostPopup"));
 const RejectionReasonDialog = dynamic(() => import("../components/approval/RejectionReasonDialog")); // นําเข้า RejectionReasonDialog
-
-//นําเข้า PDB_Document
-const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), {
-  ssr: false,
+const PDB_Document = dynamic(() => import('../components/PDF/PDB_Document'), { //นําเข้า PDB_Document
+  ssr: false, 
   loading: () => <span className="text-gray-500">กำลังโหลด...</span>
 });
-
-
-const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFriendlyPDFViewer'), {
+const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFriendlyPDFViewer'), { // นําเข้า MobileFriendlyPDFViewer
   ssr: false,
   loading: () => <span className="text-gray-500">กำลังโหลด PDF Viewer...</span>
 });
@@ -37,25 +33,21 @@ const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFr
 const Approval = () => {
   const router = useRouter();
   const [posts, setPosts] = useState([]);
-  const [currentUser, setCurrentUser] = useState({ username: "John Doe", role: "dean" }); // Mock user data
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [currentPosts, setCurrentPosts] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  
-  const [showDocument, setShowDocument] = useState(false);
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
-  const [postsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState({ username: "-", role: "-" }); // กำหนดค่าเริ่มต้นของ currentUser
+  const [searchQuery, setSearchQuery] = useState("");// เพิ่มตัวแปร state สำหรับการค้นหา
+  const [statusFilter, setStatusFilter] = useState("");// เพิ่มตัวแปร state สำหรับการกรองสถานะ
+  const [currentPosts, setCurrentPosts] = useState([]);// เพิ่มตัวแปร state สำหรับการเก็บโพสต์ที่แสดง
+  const [showPopup, setShowPopup] = useState(false);// เพิ่มตัวแปร state สำหรับการแสดง Popup
+  const [showDocument, setShowDocument] = useState(false);// เพิ่มตัวแปร state สำหรับการแสดงเอกสาร
+  const [showDeletePopup, setShowDeletePopup] = useState(false);// เพิ่มตัวแปร state สำหรับการแสดง Popup การลบ
+  const [postsPerPage] = useState(10);// เพิ่มตัวแปร state สำหรับจำนวนโพสต์ต่อหน้า
+  const [currentPage, setCurrentPage] = useState(1);// เพิ่มตัวแปร state สำหรับหน้าปัจจุบัน
+  const [isLoading, setIsLoading] = useState(true);// เพิ่มตัวแปร state สำหรับการโหลดข้อมูล
   const [isClient, setIsClient] = useState(false); // เพิ่มตัวแปร state เพื่อตรวจสอบว่าเป็น client-side
-
   const [selectedPost, setSelectedPost] = React.useState(null); // ใช้ React.useState แทน useState
-  
   const [currentView, setCurrentView] = useState('posts-table'); // เพิ่มตัวแปร state สำหรับการเปลี่ยนแสดงหน้า
-
-  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const [postToReject, setPostToReject] = useState(null);
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false); // เพิ่มตัวแปร state สำหรับการแสดง Dialog การปฏิเสธ
+  const [postToReject, setPostToReject] = useState(null); // เพิ่มตัวแปร state สำหรับการเก็บโพสต์ที่จะปฏิเสธ
 
 
    // ตัวอย่างการตั้งค่า selectedPost
@@ -139,7 +131,8 @@ const Approval = () => {
       router.push('/');
     }
   }, [router]);
-  
+
+
   useEffect(() => {
     const filtered = posts.filter((post) => {
       const matchesStatus = statusFilter ? post.status === statusFilter : true;
@@ -154,7 +147,9 @@ const Approval = () => {
     // พลิกลำดับรายการโพสให้ล่าสุดมาก่อน
     setCurrentPosts(filtered.reverse().slice(indexOfFirstPost, indexOfLastPost));
   }, [posts, statusFilter, searchQuery, currentPage, postsPerPage]);
-  
+
+
+  {/* สร้างฟังก์ชัน handleLogout สำหรับการออกจากระบบ */}
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -181,7 +176,8 @@ const Approval = () => {
     } catch (error) {
       console.error('Logout failed', error);
     }
-  };
+  }; 
+
   
   // เปลี่ยนชื่อฟังก์ชัน handleDocument เป็น handleViewPDF
   const handleViewPDF = (post) => {
@@ -189,6 +185,7 @@ const Approval = () => {
     setShowDocument(true);
   };
   
+  {/* สร้างฟังก์ชัน handleApprove สำหรับการอนุมัติโพสต์ */}
   const handleApprove = async (post) => {
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
@@ -215,13 +212,16 @@ const Approval = () => {
       console.error('Error approving post:', error);
       toast.error(`เกิดข้อผิดพลาดในการอนุมัติ: ${error.message}`);
     }
-  };
+  }; 
   
+
+  {/* สร้างฟังก์ชัน handleReject สำหรับการปฏิเสธโพสต์ */}
   const handleReject = (post) => {
     setPostToReject(post);
     setShowRejectionDialog(true);
   };
   
+  {/* สร้างฟังก์ชัน handleRejectSubmit สำหรับการส่งเหตุผลการปฏิเสธ */}
   const handleRejectSubmit = async (post, rejectReason) => {
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
@@ -248,18 +248,20 @@ const Approval = () => {
     }
   };
   
+  {/* สร้างฟังก์ชัน handleViewPost สำหรับการแสดงโพสต์ */}
   const handleViewPost = (post) => {
     setSelectedPost(post);
     setShowPopup(true);
   };
   
+  {/* สร้างฟังก์ชัน handleDelete สำหรับการลบโพสต์ */}
   const handleDelete = (post) => {
     setSelectedPost(post);
     setShowDeletePopup(true);
   };
 
  
-  
+  {/* สร้างฟังก์ชัน handleDeletePermanently สำหรับการลบโพสต์อย่างถาวร */}
   const handleDeletePermanently = async () => {
     if (!selectedPost) return;
   
