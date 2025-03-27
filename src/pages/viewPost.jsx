@@ -50,6 +50,13 @@ const ViewPost = () => {
         );
       }
 
+      // เพิ่ม constant สำหรับการแปลสถานะเป็นภาษาไทย
+      const SEND_TO_MAPPING = {
+        'dean': 'คณบดี',
+        'head': 'หัวหน้าภาควิชา',
+        'director': 'ผู้อำนวยการ'
+      };
+
      return (
       
       <div className="max-w-[1200px] mx-auto my-12 p-12 bg-gradient-to-br from-white to-gray-100 
@@ -59,12 +66,57 @@ const ViewPost = () => {
             บันทึกรายละเอียดการเดินทาง
           </h1>
 
+          {/* ส่วนแสดงสถานะเอกสาร */}
+          <div className="mb-6">
+            <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg">
+              <h2 className="text-lg font-semibold text-gray-700">สถานะเอกสาร</h2>
+              
+              {/* แสดงผู้รับเอกสาร */}
+              <div className="text-sm text-gray-600 mb-2">
+                ส่งถึง: {SEND_TO_MAPPING[post.sendTo] || 'ไม่ระบุ'}
+              </div>
+              
+              {/* แสดงสถานะปัจจุบัน */}
+              <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+                post.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                post.status === "Approved" ? "bg-emerald-100 text-emerald-700" :
+                "bg-red-100 text-red-700"
+              }`}>
+                {post.status === "pending" ? "รอการอนุมัติ" :
+                post.status === "Approved" ? "อนุมัติแล้ว" :
+                "ไม่อนุมัติ"}
+              </div>
+
+              {/* แสดงข้อมูลการอนุมัติ */}
+              {post.status === "Approved" && post.approvedAt && (
+                <div className="text-sm text-gray-600">
+                  <p>ผู้อนุมัติ: {SEND_TO_MAPPING[post.sendTo]}</p>
+                  <p>วันที่อนุมัติ: {formatThaiDateTime(post.approvedAt)}</p>
+                </div>
+              )}
+
+              {/* แสดงข้อมูลการปฏิเสธ */}
+              {post.status === "Rejected" && (
+                <div className="w-full max-w-md p-3 bg-red-50 rounded-lg">
+                  <p className="font-medium text-red-800">เหตุผลที่ไม่อนุมัติ</p>
+                  <p className="text-red-600 mt-1">{post.reject_reason}</p>
+                  {post.rejectedAt && (
+                    <div className="mt-2 text-sm text-gray-600">
+                      <p>ผู้ปฏิเสธ: {SEND_TO_MAPPING[post.sendTo]}</p>
+                      <p>วันที่ปฏิเสธ: {formatThaiDateTime(post.rejectedAt)}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* ข้อมูลการเดินทาง */}
           <div className="flex flex-col space-y-2">
             <DetailRow label="เลขสัญญา:" value={post.contract_number} />
             <DetailRow label="ชื่อเต็ม:" value={post.fullname} />
             <DetailRow label="ตำแหน่ง:" value={post.personnel_type} />
-            <DetailRow label="สังกัด:" value={post.department} />
+            <DetailRow label="ส่วนราขการ:" value={post.department} />
             <DetailRow label="ที่:" value={post.agency_name} />
             <DetailRow label="อีเมล:" value={post.email} />
             <DetailRow label="เบอร์โทรศัพท์:" value={post.phone} />

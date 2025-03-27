@@ -52,6 +52,13 @@ const postSchema = new mongoose.Schema({
     enum: ['dean', 'head', 'director'], // คณบดี, หัวหน้าภาควิชา, ผู้อำนวยการ
   },
 
+  // สาเหตุที่ปฏิเสธ
+  reject_reason: {
+    type: String,
+    default: null
+  },
+  
+
   // ควบคุมการแสดงผล
   visibility: {
     creator: { type: Boolean, default: true }, // ผู้สร้างเห็น

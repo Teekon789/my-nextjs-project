@@ -192,7 +192,12 @@ const Approval = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'Approved' })
+        body: JSON.stringify({ 
+          status: 'Approved',
+          approvedAt: new Date().toISOString(),
+          approvedBy: currentUser.id,
+          approverName: currentUser.username
+        })
       });
   
       if (!response.ok) {
@@ -209,13 +214,21 @@ const Approval = () => {
   };
   
   const handleReject = async (post) => {
+    // เพิ่มการป้อนเหตุผลการปฏิเสธ
+    const rejectReason = prompt('กรุณาระบุเหตุผลที่ไม่อนุมัติ:');
+    
+    if (rejectReason === null) return; // ยกเลิกการปฏิเสธ
+    
     try {
       const response = await fetch(`/api/updatePost?_id=${post._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'Rejected' })
+        body: JSON.stringify({ 
+          status: 'Rejected',
+          reject_reason: rejectReason // เพิ่มเหตุผลการปฏิเสธ
+        })
       });
   
       if (!response.ok) {

@@ -15,6 +15,14 @@ const PDFDownloadButton = dynamic(
     loading: () => <div className="text-gray-400">กำลังโหลด...</div>
   }
 );
+
+const SEND_TO_MAPPING = {
+  'dean': 'คณบดี',
+  'head': 'หัวหน้าภาควิชา',
+  'director': 'ผู้อำนวยการ'
+};
+
+
 interface Traveler {
   traveler_name?: string;
   personnel_type?: string;
@@ -47,6 +55,16 @@ interface PostProps {
     traveler_name2?: string;
     agency_name?: string;
     travelers?: Traveler[];
+    status?: string;
+    reject_reason?: string;
+    approvedAt?: string;
+    approvedBy?: string;
+    approverName?: string;
+    rejectedAt?: string;
+    rejectedBy?: string;
+    rejectorName?: string;
+    sendTo?: 'dean' | 'head' | 'director';
+
   };
   onClose: () => void;
 }
@@ -86,6 +104,51 @@ const PostPopup: React.FC<PostProps> = ({ post, onClose }) => {
           {isClient && <PDFDownloadButton post={post} />}
         </div>
 
+         {/* ส่วนแสดงสถานะ */}
+         <div className="mt-4 mb-6">
+          <div className="flex flex-col items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <h2 className="text-lg font-semibold text-gray-700">สถานะเอกสาร</h2>
+            
+            {/* แสดงผู้รับเอกสาร */}
+            <div className="text-sm text-gray-600 mb-2">
+              ส่งถึง: {SEND_TO_MAPPING[post.sendTo] || 'ไม่ระบุ'}
+            </div>
+            
+            {/* แสดงสถานะ */}
+            <div className={`px-4 py-2 rounded-full text-sm font-medium ${
+              post.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+              post.status === "Approved" ? "bg-emerald-100 text-emerald-700" :
+              "bg-red-100 text-red-700"
+            }`}>
+              {post.status === "pending" ? "รอการอนุมัติ" :
+               post.status === "Approved" ? "อนุมัติแล้ว" :
+               "ไม่อนุมัติ"}
+            </div>
+
+            {/* รายละเอียดการอนุมัติ */}
+            {post.status === "Approved" && post.approvedAt && (
+              <div className="text-sm text-gray-600">
+                <p>ผู้อนุมัติ: {SEND_TO_MAPPING[post.sendTo]}</p>
+                <p>วันที่อนุมัติ: {formatThaiDateTime(post.approvedAt)}</p>
+              </div>
+            )}
+
+            {/* รายละเอียดการปฏิเสธ */}
+            {post.status === "Rejected" && (
+              <div className="w-full max-w-md p-3 bg-red-50 rounded-lg">
+                <p className="font-medium text-red-800">เหตุผลที่ไม่อนุมัติ</p>
+                <p className="text-red-600 mt-1">{post.reject_reason}</p>
+                {post.rejectedAt && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    <p>ผู้ปฏิเสธ: {SEND_TO_MAPPING[post.sendTo]}</p>
+                    <p>วันที่ปฏิเสธ: {formatThaiDateTime(post.rejectedAt)}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* เนื้อหาหลัก */}
         <div className="mt-4">
           <h1 className="text-xl sm:text-2xl text-black font-bold mb-4 sm:mb-6">
@@ -97,7 +160,7 @@ const PostPopup: React.FC<PostProps> = ({ post, onClose }) => {
             <DetailRow label="เลขสัญญา:" value={post.contract_number} />
             <DetailRow label="ชื่อเต็ม:" value={post.fullname} />
             <DetailRow label="ตำแหน่ง:" value={post.personnel_type} />
-            <DetailRow label="สังกัด:" value={post.department} />
+            <DetailRow label="ส่วนราขการ:" value={post.department} />
             <DetailRow label="ที่:" value={post.agency_name} />
             <DetailRow label="อีเมล:" value={post.email} />
             <DetailRow label="เบอร์โทรศัพท์:" value={post.phone} />
