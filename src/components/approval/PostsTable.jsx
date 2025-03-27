@@ -105,7 +105,9 @@ const PostsTable = ({
     <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">รายการ</h2>
         <div className="flex items-center space-x-4">
+        {currentUser && currentUser.id && (
           <NotificationDropdown userId={currentUser.id} />
+        )}
           <button 
             onClick={onNavigateToPostsDashboard}
             className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
