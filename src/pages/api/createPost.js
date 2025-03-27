@@ -1,10 +1,10 @@
 import { connectMongoDB } from '../../lib/mongodb';
 import Post from '../../models/post';
+import Notification from '../../models/notification'; // นำเข้า Model การแจ้งเตือน
+import User from '../../models/user'; // นำเข้า Model ผู้ใช้เพื่อค้นหาผู้รับ
 import mongoose from 'mongoose';
 
 export default async function handler(req, res) {
-  const { _id } = req.query; // ดึง _id จาก query string
-
   // เชื่อมต่อ MongoDB
   try {
     await connectMongoDB();
@@ -38,9 +38,27 @@ export default async function handler(req, res) {
         });
       }
   
+      // สร้างโพสต์ใหม่
       const newPost = new Post(req.body);
       const savedPost = await newPost.save();
       console.log('Saved post:', savedPost);
+
+      // ค้นหาผู้ใช้ที่ตรงกับ sendTo เพื่อส่งการแจ้งเตือน
+      const recipientUser = await User.findOne({ role: sendTo });
+      
+      if (recipientUser) {
+        // สร้างการแจ้งเตือนใหม่
+        const notification = new Notification({
+          recipient: recipientUser._id,
+          sender: createdBy,
+          type: 'new_submission',
+          message: `มีคำขอใหม่จาก ${fullname} รอการอนุมัติ`,
+          post: savedPost._id,
+          read: false
+        });
+
+        await notification.save();
+      }
   
       return res.status(201).json(savedPost);
     } catch (error) {

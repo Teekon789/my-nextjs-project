@@ -1,11 +1,12 @@
 // src/pages/api/notifications.js
 import { connectMongoDB } from '../../lib/mongodb';
-import Notification from '../../models/notification'; // We'll create this model
+import Notification from '../../models/notification';
 import User from '../../models/user';
 
 export default async function handler(req, res) {
   await connectMongoDB();
 
+  // โค้ดเดิมสำหรับ POST method
   if (req.method === 'POST') {
     try {
       const { 
@@ -39,9 +40,19 @@ export default async function handler(req, res) {
         error: error.message 
       });
     }
-  } else if (req.method === 'GET') {
+  } 
+  
+  // แก้ไข GET method เพื่อเพิ่มการตรวจสอบสิทธิ์
+  else if (req.method === 'GET') {
     try {
       const { userId } = req.query;
+
+      // ตรวจสอบว่ามี userId หรือไม่
+      if (!userId) {
+        return res.status(400).json({ 
+          message: 'ต้องระบุ userId' 
+        });
+      }
 
       // ดึงการแจ้งเตือนของผู้ใช้ โดยเรียงลำดับจากล่าสุด
       const notifications = await Notification.find({ 
@@ -49,7 +60,7 @@ export default async function handler(req, res) {
       })
       .sort({ createdAt: -1 })
       .populate('sender', 'fullname')
-      .populate('post');
+      .populate('post', 'fullname status');
 
       return res.status(200).json(notifications);
     } catch (error) {
@@ -59,18 +70,49 @@ export default async function handler(req, res) {
         error: error.message 
       });
     }
-  } else if (req.method === 'PUT') {
+  } 
+  
+  // โค้ดเดิมสำหรับ PUT method
+  else if (req.method === 'PUT') {
     try {
-      const { notificationId } = req.query;
+      const { notificationId, postId } = req.query;
       
-      // อัปเดตสถานะการอ่านการแจ้งเตือน
-      await Notification.findByIdAndUpdate(notificationId, { 
-        read: true 
+      // กรณีอัพเดทการแจ้งเตือนเดี่ยว
+      if (notificationId) {
+        // ตรวจสอบว่ามีการแจ้งเตือนนี้อยู่จริงหรือไม่
+        const notification = await Notification.findById(notificationId);
+        if (!notification) {
+          return res.status(404).json({ 
+            message: 'ไม่พบการแจ้งเตือนที่ระบุ' 
+          });
+        }
+
+        await Notification.findByIdAndUpdate(notificationId, { 
+          read: true 
+        });
+
+        return res.status(200).json({ 
+          message: 'อัปเดตการแจ้งเตือนสำเร็จ' 
+        });
+      }
+      
+      // กรณีอัพเดทการแจ้งเตือนทั้งหมดที่เกี่ยวข้องกับโพสต์
+      else if (postId) {
+        const result = await Notification.updateMany(
+          { post: postId },
+          { read: true }
+        );
+
+        return res.status(200).json({
+          message: 'อัปเดตการแจ้งเตือนทั้งหมดสำเร็จ',
+          updatedCount: result.modifiedCount
+        });
+      }
+
+      return res.status(400).json({
+        message: 'กรุณาระบุ notificationId หรือ postId'
       });
 
-      return res.status(200).json({ 
-        message: 'อัปเดตการแจ้งเตือนสำเร็จ' 
-      });
     } catch (error) {
       console.error('Error updating notification:', error);
       return res.status(500).json({ 
