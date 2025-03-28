@@ -1,12 +1,8 @@
-//src/components/approval/PostsTable.jsx
-
-
-import React, { useState, useEffect } from 'react';
-import { Check, X, Eye, Trash2, FileText, Menu,LayoutDashboard } from "lucide-react";
+import React, { useState, useCallback } from 'react';
+import { Check, X, Eye, Trash2, FileText, Menu, LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
 import NotificationDropdown from '../notifications/NotificationDropdown';
 
-// Custom Hook สำหรับจัดการเมนู
 const useMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState({});
 
@@ -20,7 +16,6 @@ const useMenu = () => {
   return { isMenuOpen, toggleMenu };
 };
 
-// Component สำหรับแสดงสถานะ
 const StatusBadge = ({ status }) => (
   <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
     status === "pending" ? "bg-yellow-100 text-yellow-700" :
@@ -33,10 +28,9 @@ const StatusBadge = ({ status }) => (
   </span>
 );
 
-// Component สำหรับแสดงปุ่มการกระทำ (รวมปุ่มเอกสาร)
 const TableActions = React.memo(({ post, currentUser, onApprove, onReject, onView, onDelete, onViewPDF }) => (
   <div className="flex justify-start sm:justify-center space-x-2">
-    {currentUser && currentUser.role === "dean" && (
+    {currentUser?.role === "dean" && (
       <>
         <button
           onClick={() => onApprove(post)}
@@ -80,7 +74,6 @@ const TableActions = React.memo(({ post, currentUser, onApprove, onReject, onVie
   </div>
 ));
 
-// Component หลัก
 const PostsTable = ({ 
   currentPosts, 
   currentUser, 
@@ -93,51 +86,12 @@ const PostsTable = ({
   currentPage,    
   setCurrentPage,  
   onChangeView,
+  posts,
+  postsPerPage,
+  handleNavigateFromNotification
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
   const [selectedPost, setSelectedPost] = useState(null);
-  
-// เพิ่มฟังก์ชันนำทางจากการแจ้งเตือน
-const handleNavigateFromNotification = ({ page, postId }) => {
-  // คำนวณหน้าที่ถูกต้องจาก postId 
-  const postIndex = currentPosts.findIndex(post => post._id === postId);
-  
-  if (postIndex === -1) {
-    // ถ้าไม่พบโพสต์ในหน้าปัจจุบัน
-    if (setCurrentPage && page !== currentPage) {
-      setCurrentPage(page); // ใช้หน้าที่ส่งมาจากการแจ้งเตือน
-    }
-
-    // เปลี่ยนวิวกลับไปที่ตารางโพสต์
-    if (onChangeView) {
-      onChangeView('posts-table');
-    }
-
-    // รอให้ DOM อัพเดทแล้วค่อยเลื่อนไปที่โพสต์
-    setTimeout(() => {
-      const element = document.getElementById(`post-${postId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        // เพิ่ม highlight effect
-        element.classList.add('bg-yellow-100');
-        setTimeout(() => {
-          element.classList.remove('bg-yellow-100');
-        }, 2000);
-      }
-    }, 500);
-  } else {
-    // กรณีพบโพสต์ในหน้าปัจจุบัน scroll ไปที่โพสต์ได้เลย
-    const element = document.getElementById(`post-${postId}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      element.classList.add('bg-yellow-100');
-      setTimeout(() => {
-        element.classList.remove('bg-yellow-100');
-      }, 2000);
-    }
-  }
-};
-
 
   const sendToMapping = {
     dean: "คณบดี",
@@ -145,21 +99,16 @@ const handleNavigateFromNotification = ({ page, postId }) => {
     director: "ผู้อำนวยการ"
   };
 
-  
-
-  
-
   return (
     <div className="bg-slate-50 rounded-xl shadow-lg p-4 sm:p-6 relative">
-    {/* เพิ่มปุ่มไปยังแดชบอร์ด */}
-    <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">รายการ</h2>
         <div className="flex items-center space-x-4">
-        {currentUser && currentUser.id && (
+          {currentUser?.id && (
             <NotificationDropdown 
-            userId={currentUser.id} 
-            onNavigateToPost={handleNavigateFromNotification} 
-          />
+              userId={currentUser.id} 
+              onNavigateToPost={handleNavigateFromNotification} 
+            />
           )}
           <button 
             onClick={onNavigateToPostsDashboard}
@@ -171,7 +120,7 @@ const handleNavigateFromNotification = ({ page, postId }) => {
         </div>
       </div>
 
-      {/* แสดงผลบนจอขนาดใหญ่ */}
+      {/* Desktop View */}
       <div className="hidden sm:block overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -181,25 +130,27 @@ const handleNavigateFromNotification = ({ page, postId }) => {
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">จํานวนเงินที่ขอเบิก</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">สถานะ</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">การกระทำ</th>
-              </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200/50">
-                  {currentPosts.map((post) => (
-                  <tr 
-                    key={post._id} 
-                    id={`post-${post._id}`} // เพิ่ม id เพื่อการค้นหาและเลื่อนไปยังรายการ
-                    className="hover:bg-white/50 transition-colors"
-                  >
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-200/50">
+            {currentPosts.map((post) => (
+              <tr 
+                key={`${post._id}-${currentPage}`}
+                id={`post-${post._id}`}
+                className="hover:bg-white/50 transition-colors"
+              >
                 <td className="px-6 py-4">
-                  <a href={`/viewPost?id=${post._id}`} className="cursor-pointer">
+                  <div className="cursor-pointer">
                     <div className="font-medium text-slate-800">{post.fullname}</div>
                     <div className="text-xs text-slate-500">
                       {new Date(post.updatedAt).toLocaleString('th-TH')}
                     </div>
-                  </a>
+                  </div>
                 </td>
-                <td className="px-6 py-4 text-slate-600">{sendToMapping[post.sendTo]}</td>
-                <td className="px-6 py-4 text-slate-600 text-center">{`${post.total_budget.toLocaleString('th-TH')} บาท`}</td>
+                <td className="px-6 py-4 text-slate-600">{sendToMapping[post.sendTo] || post.sendTo}</td>
+                <td className="px-6 py-4 text-slate-600 text-center">
+                  {post.total_budget?.toLocaleString('th-TH') || '0'} บาท
+                </td>
                 <td className="px-6 py-4 text-center">
                   <StatusBadge status={post.status} />
                 </td>
@@ -220,20 +171,18 @@ const handleNavigateFromNotification = ({ page, postId }) => {
         </table>
       </div>
 
-      {/* แสดงผลบนจอขนาดเล็ก */}
+      {/* Mobile View */}
       <div className="sm:hidden space-y-4">
-
-        {/* ปุ่ม Dashboard สำหรับ mobile */}
         {currentPosts.map((post) => (
           <div key={post._id} className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <a href={`/viewPost?id=${post._id}`} className="cursor-pointer">
+                <div className="cursor-pointer">
                   <div className="font-medium text-slate-800">{post.fullname}</div>
                   <div className="text-xs text-slate-500">
                     {new Date(post.updatedAt).toLocaleString('th-TH')}
                   </div>
-                </a>
+                </div>
               </div>
               <button
                 onClick={() => toggleMenu(post._id)}
@@ -246,11 +195,13 @@ const handleNavigateFromNotification = ({ page, postId }) => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-sm text-slate-500">เรียนถึง</span>
-                <span className="text-sm text-slate-700">{sendToMapping[post.sendTo]}</span>
+                <span className="text-sm text-slate-700">{sendToMapping[post.sendTo] || post.sendTo}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-slate-500">จํานวนเงินที่ขอเบิก</span>
-                <span className="text-sm text-slate-700">{`${post.total_budget.toLocaleString('th-TH')} บาท`}</span>
+                <span className="text-sm text-slate-700">
+                  {post.total_budget?.toLocaleString('th-TH') || '0'} บาท
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-slate-500">สถานะ</span>
@@ -258,7 +209,6 @@ const handleNavigateFromNotification = ({ page, postId }) => {
               </div>
             </div>
 
-            {/* เมนูการกระทำบนมือถือ */}
             {isMenuOpen[post._id] && (
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <TableActions 
@@ -287,12 +237,13 @@ PostsTable.propTypes = {
   onView: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
   onViewPDF: PropTypes.func.isRequired,
-  onNavigateToPostsDashboard: PropTypes.func.isRequired, // อัปเดตชื่อ prop type
+  onNavigateToPostsDashboard: PropTypes.func.isRequired,
   currentPage: PropTypes.number.isRequired,
   setCurrentPage: PropTypes.func.isRequired,
-  onChangeView: PropTypes.func, // เพิ่ม prop type นี้
-  posts: PropTypes.array.isRequired, // เพิ่ม prop type นี้
-  
+  onChangeView: PropTypes.func,
+  posts: PropTypes.array.isRequired,
+  postsPerPage: PropTypes.number.isRequired,
+  handleNavigateFromNotification: PropTypes.func.isRequired
 };
 
 export default PostsTable;

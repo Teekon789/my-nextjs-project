@@ -2,87 +2,92 @@ import React from 'react';
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 const Pagination = ({ postsPerPage, totalPosts, paginate, currentPage }) => {
-  // คำนวณจำนวนหน้าทั้งหมด
-  const pageNumbers = [];
   const totalPages = Math.ceil(totalPosts / postsPerPage);
   
-  // คำนวณช่วงของหน้าที่จะแสดง
-  let startPage = Math.max(1, currentPage - 2);
-  let endPage = Math.min(totalPages, currentPage + 2);
-  
-  // ปรับช่วงหน้าเมื่ออยู่ใกล้จุดเริ่มต้นหรือจุดสิ้นสุด
-  if (currentPage <= 3) {
-    endPage = Math.min(5, totalPages);
-  } else if (currentPage >= totalPages - 2) {
-    startPage = Math.max(1, totalPages - 4);
-  }
-  
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
-  
+  // คำนวณช่วงหน้าที่จะแสดง (แสดงสูงสุด 5 ปุ่ม)
+  const getPageNumbers = () => {
+    const pages = [];
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    // ปรับเมื่ออยู่ใกล้จุดเริ่มต้นหรือสิ้นสุด
+    if (currentPage <= 3) {
+      endPage = Math.min(5, totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      startPage = Math.max(1, totalPages - 4);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
+
   return (
-    <div className="pagination-container">
+    <div className="flex justify-center items-center space-x-1 mt-6">
       {/* ปุ่มไปหน้าแรก */}
       <button
         onClick={() => paginate(1)}
-        className={`pagination-link pagination-navigate ${currentPage === 1 ? 'pagination-disabled' : ''}`}
         disabled={currentPage === 1}
-        aria-label="ไปหน้าแรก"
+        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+        aria-label="First page"
       >
-        <span>&#171;</span> {/* สัญลักษณ์ << */}
+        &laquo;
       </button>
-      
+
       {/* ปุ่มย้อนกลับ */}
       <button
-        onClick={() => currentPage > 1 && paginate(currentPage - 1)}
-        className={`pagination-link pagination-navigate ${currentPage === 1 ? 'pagination-disabled' : ''}`}
+        onClick={() => paginate(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
-        aria-label="ย้อนกลับ"
+        className={`p-2 rounded-md ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+        aria-label="Previous page"
       >
-        <MdKeyboardArrowLeft />
+        <MdKeyboardArrowLeft size={20} />
       </button>
-      
-      {/* แสดงจุดไข่ปลาถ้ามีหน้าก่อนหน้านี้อีก */}
-      {startPage > 1 && (
-        <span className="pagination-ellipsis">...</span>
+
+      {/* จุดไข่ปลาหากมีหน้าก่อนหน้า */}
+      {pageNumbers[0] > 1 && (
+        <span className="px-2">...</span>
       )}
-      
+
       {/* หมายเลขหน้า */}
       {pageNumbers.map(number => (
         <button
           key={number}
           onClick={() => paginate(number)}
-          className={`pagination-link ${currentPage === number ? 'pagination-active' : ''}`}
+          className={`px-3 py-1 rounded-md ${currentPage === number ? 'bg-blue-500 text-white' : 'text-blue-600 hover:bg-blue-50'}`}
           aria-current={currentPage === number ? 'page' : undefined}
         >
           {number}
         </button>
       ))}
-      
-      {/* แสดงจุดไข่ปลาถ้ามีหน้าต่อจากนี้อีก */}
-      {endPage < totalPages && (
-        <span className="pagination-ellipsis">...</span>
+
+      {/* จุดไข่ปลาหากมีหน้าถัดไป */}
+      {pageNumbers[pageNumbers.length - 1] < totalPages && (
+        <span className="px-2">...</span>
       )}
-      
+
       {/* ปุ่มถัดไป */}
       <button
-        onClick={() => currentPage < totalPages && paginate(currentPage + 1)}
-        className={`pagination-link pagination-navigate ${currentPage === totalPages ? 'pagination-disabled' : ''}`}
+        onClick={() => paginate(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
-        aria-label="ถัดไป"
+        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+        aria-label="Next page"
       >
-        <MdKeyboardArrowRight />
+        <MdKeyboardArrowRight size={20} />
       </button>
-      
+
       {/* ปุ่มไปหน้าสุดท้าย */}
       <button
         onClick={() => paginate(totalPages)}
-        className={`pagination-link pagination-navigate ${currentPage === totalPages ? 'pagination-disabled' : ''}`}
         disabled={currentPage === totalPages}
-        aria-label="ไปหน้าสุดท้าย"
+        className={`p-2 rounded-md ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-50'}`}
+        aria-label="Last page"
       >
-        <span>&#187;</span> {/* สัญลักษณ์ >> */}
+        &raquo;
       </button>
     </div>
   );
