@@ -89,38 +89,23 @@ const PostsTable = ({
   onView, 
   onDelete, 
   onViewPDF,
-  onNavigateToPostsDashboard, // อัปเดตชื่อ prop
-  currentPage,     // รับค่า currentPage จาก parent
-  setCurrentPage,  // รับ prop setCurrentPage
-  onChangeView, // เพิ่มนี้
+  onNavigateToPostsDashboard,
+  currentPage,    
+  setCurrentPage,  
+  onChangeView,
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
   const [selectedPost, setSelectedPost] = useState(null);
   
 // เพิ่มฟังก์ชันนำทางจากการแจ้งเตือน
 const handleNavigateFromNotification = ({ page, postId }) => {
-  // คำนวณหน้าที่ถูกต้องจาก postId
+  // คำนวณหน้าที่ถูกต้องจาก postId 
   const postIndex = currentPosts.findIndex(post => post._id === postId);
   
   if (postIndex === -1) {
-    // ถ้าไม่พบโพสต์ในหน้าปัจจุบัน ต้องคำนวณหน้าที่ถูกต้อง
-    if (setCurrentPage) {
-      // คำนวณหน้าที่ควรจะเป็นจาก postId
-      const postPerPage = 10; // จำนวนโพสต์ต่อหน้า
-      const totalPosts = posts?.length || 0;
-      const totalPages = Math.ceil(totalPosts / postPerPage);
-
-      // วนลูปหาหน้าที่มีโพสต์ที่ต้องการ
-      for (let i = 1; i <= totalPages; i++) {
-        const start = (i - 1) * postPerPage;
-        const end = start + postPerPage;
-        const pageContent = posts?.slice(start, end) || [];
-        
-        if (pageContent.some(post => post._id === postId)) {
-          setCurrentPage(i);
-          break;
-        }
-      }
+    // ถ้าไม่พบโพสต์ในหน้าปัจจุบัน
+    if (setCurrentPage && page !== currentPage) {
+      setCurrentPage(page); // ใช้หน้าที่ส่งมาจากการแจ้งเตือน
     }
 
     // เปลี่ยนวิวกลับไปที่ตารางโพสต์
@@ -141,11 +126,10 @@ const handleNavigateFromNotification = ({ page, postId }) => {
       }
     }, 500);
   } else {
-    // กรณีพบโพสต์ในหน้าปัจจุบัน
+    // กรณีพบโพสต์ในหน้าปัจจุบัน scroll ไปที่โพสต์ได้เลย
     const element = document.getElementById(`post-${postId}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // เพิ่ม highlight effect
       element.classList.add('bg-yellow-100');
       setTimeout(() => {
         element.classList.remove('bg-yellow-100');
@@ -197,15 +181,15 @@ const handleNavigateFromNotification = ({ page, postId }) => {
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">จํานวนเงินที่ขอเบิก</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">สถานะ</th>
               <th className="px-6 py-3 text-center text-sm font-semibold text-slate-600">การกระทำ</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-200/50">
-          {currentPosts.map((post) => (
-  <tr 
-    key={post._id} 
-    id={`post-${post._id}`} // เพิ่ม id เพื่อการค้นหาและเลื่อนไปยังรายการ
-    className="hover:bg-white/50 transition-colors"
-  >
+              </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200/50">
+                  {currentPosts.map((post) => (
+                  <tr 
+                    key={post._id} 
+                    id={`post-${post._id}`} // เพิ่ม id เพื่อการค้นหาและเลื่อนไปยังรายการ
+                    className="hover:bg-white/50 transition-colors"
+                  >
                 <td className="px-6 py-4">
                   <a href={`/viewPost?id=${post._id}`} className="cursor-pointer">
                     <div className="font-medium text-slate-800">{post.fullname}</div>
