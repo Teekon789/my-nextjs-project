@@ -173,7 +173,10 @@ const PostsTable = ({
       {/* Mobile View */}
       <div className="sm:hidden space-y-4">
         {currentPosts.map((post) => (
-          <div key={post._id} className="bg-white rounded-lg p-4 shadow-sm">
+          <div 
+            key={`${post._id}-${currentPage}`}
+            id={`post-${post._id}`}
+            className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="cursor-pointer" onClick={() => onView(post)}>
