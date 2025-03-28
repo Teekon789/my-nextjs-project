@@ -1,7 +1,7 @@
 //src/components/approval/PostsTable.jsx
 
-import React from 'react';
-import { useState } from "react";
+
+import React, { useState, useEffect } from 'react';
 import { Check, X, Eye, Trash2, FileText, Menu,LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
 import NotificationDropdown from '../notifications/NotificationDropdown';
@@ -89,15 +89,81 @@ const PostsTable = ({
   onView, 
   onDelete, 
   onViewPDF,
-  onNavigateToPostsDashboard // อัปเดตชื่อ prop
+  onNavigateToPostsDashboard, // อัปเดตชื่อ prop
+  currentPage,     // รับค่า currentPage จาก parent
+  setCurrentPage,  // รับ prop setCurrentPage
+  onChangeView, // เพิ่มนี้
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
+  const [selectedPost, setSelectedPost] = useState(null);
+  
+// เพิ่มฟังก์ชันนำทางจากการแจ้งเตือน
+const handleNavigateFromNotification = ({ page, postId }) => {
+  // คำนวณหน้าที่ถูกต้องจาก postId
+  const postIndex = currentPosts.findIndex(post => post._id === postId);
+  
+  if (postIndex === -1) {
+    // ถ้าไม่พบโพสต์ในหน้าปัจจุบัน ต้องคำนวณหน้าที่ถูกต้อง
+    if (setCurrentPage) {
+      // คำนวณหน้าที่ควรจะเป็นจาก postId
+      const postPerPage = 10; // จำนวนโพสต์ต่อหน้า
+      const totalPosts = posts?.length || 0;
+      const totalPages = Math.ceil(totalPosts / postPerPage);
+
+      // วนลูปหาหน้าที่มีโพสต์ที่ต้องการ
+      for (let i = 1; i <= totalPages; i++) {
+        const start = (i - 1) * postPerPage;
+        const end = start + postPerPage;
+        const pageContent = posts?.slice(start, end) || [];
+        
+        if (pageContent.some(post => post._id === postId)) {
+          setCurrentPage(i);
+          break;
+        }
+      }
+    }
+
+    // เปลี่ยนวิวกลับไปที่ตารางโพสต์
+    if (onChangeView) {
+      onChangeView('posts-table');
+    }
+
+    // รอให้ DOM อัพเดทแล้วค่อยเลื่อนไปที่โพสต์
+    setTimeout(() => {
+      const element = document.getElementById(`post-${postId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // เพิ่ม highlight effect
+        element.classList.add('bg-yellow-100');
+        setTimeout(() => {
+          element.classList.remove('bg-yellow-100');
+        }, 2000);
+      }
+    }, 500);
+  } else {
+    // กรณีพบโพสต์ในหน้าปัจจุบัน
+    const element = document.getElementById(`post-${postId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // เพิ่ม highlight effect
+      element.classList.add('bg-yellow-100');
+      setTimeout(() => {
+        element.classList.remove('bg-yellow-100');
+      }, 2000);
+    }
+  }
+};
+
 
   const sendToMapping = {
     dean: "คณบดี",
     head: "หัวหน้าภาควิชา",
     director: "ผู้อำนวยการ"
   };
+
+  
+
+  
 
   return (
     <div className="bg-slate-50 rounded-xl shadow-lg p-4 sm:p-6 relative">
@@ -106,8 +172,11 @@ const PostsTable = ({
         <h2 className="text-2xl font-semibold text-gray-800">รายการ</h2>
         <div className="flex items-center space-x-4">
         {currentUser && currentUser.id && (
-          <NotificationDropdown userId={currentUser.id} />
-        )}
+            <NotificationDropdown 
+            userId={currentUser.id} 
+            onNavigateToPost={handleNavigateFromNotification} 
+          />
+          )}
           <button 
             onClick={onNavigateToPostsDashboard}
             className="p-2 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-700 transition-colors"
@@ -131,8 +200,12 @@ const PostsTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200/50">
-            {currentPosts.map((post) => (
-              <tr key={post._id} className="hover:bg-white/50 transition-colors">
+          {currentPosts.map((post) => (
+  <tr 
+    key={post._id} 
+    id={`post-${post._id}`} // เพิ่ม id เพื่อการค้นหาและเลื่อนไปยังรายการ
+    className="hover:bg-white/50 transition-colors"
+  >
                 <td className="px-6 py-4">
                   <a href={`/viewPost?id=${post._id}`} className="cursor-pointer">
                     <div className="font-medium text-slate-800">{post.fullname}</div>
@@ -231,6 +304,11 @@ PostsTable.propTypes = {
   onDelete: PropTypes.func.isRequired,
   onViewPDF: PropTypes.func.isRequired,
   onNavigateToPostsDashboard: PropTypes.func.isRequired, // อัปเดตชื่อ prop type
+  currentPage: PropTypes.number.isRequired,
+  setCurrentPage: PropTypes.func.isRequired,
+  onChangeView: PropTypes.func, // เพิ่ม prop type นี้
+  posts: PropTypes.array.isRequired, // เพิ่ม prop type นี้
+  
 };
 
 export default PostsTable;

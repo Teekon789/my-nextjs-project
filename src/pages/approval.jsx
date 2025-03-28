@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect, useCallback } from 'react'; // นำเข้า React
 import { useRouter } from 'next/router';
 import { ToastContainer, toast } from "react-toastify";
@@ -397,13 +396,16 @@ const Approval = () => {
         return (
           <PostsTable 
             currentPosts={currentPosts}
-            currentUser={currentUser}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onView={handleViewPost}
-            onDelete={handleDelete}
-            onViewPDF={handleViewPDF}
-            onNavigateToPostsDashboard={() => setCurrentView('posts-dashboard')}
+              currentUser={currentUser}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onView={handleViewPost}
+              onDelete={handleDelete}
+              onViewPDF={handleViewPDF}
+              onNavigateToPostsDashboard={() => setCurrentView('posts-dashboard')}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              onChangeView={setCurrentView} 
           />
         );
       case 'posts-dashboard':

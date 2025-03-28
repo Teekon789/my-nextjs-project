@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, X } from 'lucide-react';
 
-const NotificationDropdown = ({ userId }) => {
+const NotificationDropdown = ({ userId, onNavigateToPost }) => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [highlightedPostId, setHighlightedPostId] = useState(null);
   
-
   // ดึงการแจ้งเตือน
   const fetchNotifications = async () => {
     try {
@@ -41,7 +41,6 @@ const NotificationDropdown = ({ userId }) => {
     }
   }, [userId]);
 
-
   // แปลงวันที่ให้อ่านง่าย
   const formatDate = (date) => {
     const now = new Date();
@@ -68,6 +67,34 @@ const NotificationDropdown = ({ userId }) => {
     }
   };
 
+  // จัดการการคลิกการแจ้งเตือน
+  const handleNotificationClick = (notification) => {
+    // มาร์คการแจ้งเตือนว่าอ่านแล้ว
+    markAsRead(notification._id);
+    
+    // เลื่อนไปยังรายการและไฮไลท์
+    const element = document.getElementById(`post-${notification.post?._id}`);
+    if (element) {
+      // คำนวณหน้าของรายการ
+      const postIndex = Array.from(element.parentNode.children).indexOf(element);
+      const pageNumber = Math.floor(postIndex / 10) + 1;
+      
+      // เลื่อนหน้าและนำทาง
+      onNavigateToPost({
+        page: pageNumber,
+        postId: notification.post._id
+      });
+
+      // ไฮไลท์รายการ
+      setHighlightedPostId(notification.post._id);
+      
+      // ยกเลิกไฮไลท์หลัง 5 วินาที
+      setTimeout(() => {
+        setHighlightedPostId(null);
+      }, 5000);
+    }
+  };
+
   return (
     <div className="relative">
       <button 
@@ -83,7 +110,7 @@ const NotificationDropdown = ({ userId }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-80 bg-white border rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
           <div className="p-4 border-b font-semibold">
             การแจ้งเตือน ({unreadCount} รายการใหม่)
           </div>
@@ -96,8 +123,8 @@ const NotificationDropdown = ({ userId }) => {
             notifications.map(notification => (
               <div 
                 key={notification._id}
-                className={`p-4 flex items-center hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
-                onClick={() => markAsRead(notification._id)}
+                className={`p-4 flex items-center hover:bg-gray-50 cursor-pointer transition-colors duration-200 ${!notification.read ? 'bg-blue-50' : ''}`}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="mr-3">
                   {getNotificationIcon(notification.type)}
@@ -107,6 +134,11 @@ const NotificationDropdown = ({ userId }) => {
                   <p className="text-xs text-gray-500">
                     {formatDate(notification.createdAt)}
                   </p>
+                  {notification.post && (
+                    <div className="text-xs text-blue-600 mt-1">
+                      คลิกเพื่อไปยังรายการ
+                    </div>
+                  )}
                 </div>
               </div>
             ))
