@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Check, X, Eye, Trash2, FileText, Menu, LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
 import NotificationDropdown from '../notifications/NotificationDropdown';
@@ -91,8 +91,7 @@ const PostsTable = ({
   handleNavigateFromNotification
 }) => {
   const { isMenuOpen, toggleMenu } = useMenu();
-  const [selectedPost, setSelectedPost] = useState(null);
-
+  
   const sendToMapping = {
     dean: "คณบดี",
     head: "หัวหน้าภาควิชา",
@@ -140,7 +139,7 @@ const PostsTable = ({
                 className="hover:bg-white/50 transition-colors"
               >
                 <td className="px-6 py-4">
-                  <div className="cursor-pointer">
+                  <div className="cursor-pointer" onClick={() => onView(post)}>
                     <div className="font-medium text-slate-800">{post.fullname}</div>
                     <div className="text-xs text-slate-500">
                       {new Date(post.updatedAt).toLocaleString('th-TH')}
@@ -177,7 +176,7 @@ const PostsTable = ({
           <div key={post._id} className="bg-white rounded-lg p-4 shadow-sm">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <div className="cursor-pointer">
+                <div className="cursor-pointer" onClick={() => onView(post)}>
                   <div className="font-medium text-slate-800">{post.fullname}</div>
                   <div className="text-xs text-slate-500">
                     {new Date(post.updatedAt).toLocaleString('th-TH')}
@@ -239,7 +238,7 @@ PostsTable.propTypes = {
   onViewPDF: PropTypes.func.isRequired,
   onNavigateToPostsDashboard: PropTypes.func.isRequired,
   currentPage: PropTypes.number.isRequired,
-  setCurrentPage: PropTypes.func.isRequired,
+  setCurrentPage: PropTypes.func,
   onChangeView: PropTypes.func,
   posts: PropTypes.array.isRequired,
   postsPerPage: PropTypes.number.isRequired,

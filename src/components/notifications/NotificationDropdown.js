@@ -5,9 +5,7 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [highlightedPostId, setHighlightedPostId] = useState(null);
   
-  // ดึงการแจ้งเตือน
   const fetchNotifications = async () => {
     try {
       const response = await fetch(`/api/notifications?userId=${userId}`);
@@ -19,7 +17,6 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
     }
   };
 
-  // มาร์คการแจ้งเตือนว่าอ่านแล้ว
   const markAsRead = async (notificationId) => {
     try {
       await fetch(`/api/notifications?notificationId=${notificationId}`, {
@@ -34,14 +31,11 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
   useEffect(() => {
     if (userId) {
       fetchNotifications();
-      
-      // ตั้งเวลาดึงข้อมูลทุก 10 วินาที
       const intervalId = setInterval(fetchNotifications, 10000);
       return () => clearInterval(intervalId);
     }
   }, [userId]);
 
-  // แปลงวันที่ให้อ่านง่าย
   const formatDate = (date) => {
     const now = new Date();
     const notificationDate = new Date(date);
@@ -53,7 +47,6 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
     return notificationDate.toLocaleDateString();
   };
 
-  // เลือกไอคอนตามประเภทการแจ้งเตือน
   const getNotificationIcon = (type) => {
     switch(type) {
       case 'new_submission': 
@@ -67,31 +60,18 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
     }
   };
 
-  // จัดการการคลิกการแจ้งเตือน
-  const handleNotificationClick = (notification) => {
+  const handleNotificationClick = async (notification) => {
     // มาร์คการแจ้งเตือนว่าอ่านแล้ว
-    markAsRead(notification._id);
+    await markAsRead(notification._id);
     
-    // เลื่อนไปยังรายการและไฮไลท์
-    const element = document.getElementById(`post-${notification.post?._id}`);
-    if (element) {
-      // คำนวณหน้าของรายการ
-      const postIndex = Array.from(element.parentNode.children).indexOf(element);
-      const pageNumber = Math.floor(postIndex / 10) + 1;
-      
-      // เลื่อนหน้าและนำทาง
+    // ปิด dropdown
+    setIsOpen(false);
+    
+    // ส่งข้อมูลไปยังฟังก์ชันนำทาง
+    if (notification.post?._id) {
       onNavigateToPost({
-        page: pageNumber,
         postId: notification.post._id
       });
-
-      // ไฮไลท์รายการ
-      setHighlightedPostId(notification.post._id);
-      
-      // ยกเลิกไฮไลท์หลัง 5 วินาที
-      setTimeout(() => {
-        setHighlightedPostId(null);
-      }, 5000);
     }
   };
 
@@ -100,6 +80,7 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 rounded-full hover:bg-gray-100"
+        aria-label="การแจ้งเตือน"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -123,20 +104,20 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
             notifications.map(notification => (
               <div 
                 key={notification._id}
-                className={`p-4 flex items-center hover:bg-gray-50 cursor-pointer transition-colors duration-200 ${!notification.read ? 'bg-blue-50' : ''}`}
+                className={`p-4 flex items-start hover:bg-gray-50 cursor-pointer transition-colors duration-200 ${!notification.read ? 'bg-blue-50' : ''}`}
                 onClick={() => handleNotificationClick(notification)}
               >
-                <div className="mr-3">
+                <div className="mr-3 mt-1">
                   {getNotificationIcon(notification.type)}
                 </div>
                 <div className="flex-1">
                   <p className="text-sm">{notification.message}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 mt-1">
                     {formatDate(notification.createdAt)}
                   </p>
                   {notification.post && (
                     <div className="text-xs text-blue-600 mt-1">
-                      คลิกเพื่อไปยังรายการ
+                      คลิกเพื่อดูรายละเอียด
                     </div>
                   )}
                 </div>
