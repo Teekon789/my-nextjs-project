@@ -5,9 +5,10 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import dynamic from "next/dynamic";
+// Dynamic Imports เพื่อลดการโหลดหน้าแรก
+const dynamic = require("next/dynamic").default;
 
-// Dynamic Imports
+// โหลดคอมโพเนนต์แบบ Dynamic เพื่อเพิ่มประสิทธิภาพ
 const ApprovalHeader = dynamic(() => import("../components/approval/ApprovalHeader"));
 const DashboardStats = dynamic(() => import("../components/approval/DashboardStats"));
 const SearchFilter = dynamic(() => import("../components/approval/SearchFilter"));
@@ -28,313 +29,42 @@ const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFr
 
 const Approval = () => {
   const router = useRouter();
+  // State สำหรับเก็บข้อมูลโพสต์
   const [posts, setPosts] = useState([]);
+  // State สำหรับเก็บข้อมูลผู้ใช้ปัจจุบัน
   const [currentUser, setCurrentUser] = useState({ username: "-", role: "-" });
+  // State สำหรับการค้นหา
   const [searchQuery, setSearchQuery] = useState("");
+  // State สำหรับการกรองสถานะ
   const [statusFilter, setStatusFilter] = useState("");
+  // State สำหรับโพสต์ที่แสดงในหน้าปัจจุบัน
   const [currentPosts, setCurrentPosts] = useState([]);
+  // State สำหรับโพสต์ที่ผ่านการกรองแล้ว
   const [filteredPosts, setFilteredPosts] = useState([]);
+  // State สำหรับควบคุมการแสดง Popup
   const [showPopup, setShowPopup] = useState(false);
+  // State สำหรับควบคุมการแสดงเอกสาร PDF
   const [showDocument, setShowDocument] = useState(false);
+  // State สำหรับควบคุมการแสดง Popup ลบ
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  // จำนวนโพสต์ต่อหน้า
   const [postsPerPage] = useState(10);
+  // หน้าปัจจุบัน
   const [currentPage, setCurrentPage] = useState(1);
+  // State สำหรับสถานะการโหลด
   const [isLoading, setIsLoading] = useState(true);
+  // ตรวจสอบว่าเป็น client-side หรือไม่
   const [isClient, setIsClient] = useState(false);
+  // โพสต์ที่ถูกเลือก
   const [selectedPost, setSelectedPost] = useState(null);
+  // View ปัจจุบัน (ตารางหรือแดชบอร์ด)
   const [currentView, setCurrentView] = useState('posts-table');
+  // ควบคุมการแสดง Dialog การปฏิเสธ
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
+  // โพสต์ที่จะปฏิเสธ
   const [postToReject, setPostToReject] = useState(null);
 
-  useEffect(() => {
-    setIsClient(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  }, []);
-
-  useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      setCurrentUser(JSON.parse(user));
-    } else {
-      router.push('/');
-    }
-  }, [router]);
-
-  const fetchPosts = useCallback(async () => {
-    try {
-      const response = await fetch("/api/createPost");
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        console.error("Error: Data is not an array", data);
-        return;
-      }
-
-      const filteredData = data.filter(post => {
-        if (!currentUser) return false;
-
-        if (post.createdBy === currentUser.id) {
-          return post.visibility.creator;
-        }
-
-        if (post.sendTo === currentUser.role) {
-          return post.visibility.approver;
-        }
-
-        if (currentUser.role === 'admin') {
-          return true;
-        }
-
-        return false;
-      });
-
-      setPosts(filteredData);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && !user) {
-      localStorage.removeItem('token');
-      router.push('/');
-    }
-  }, [router]);
-
-  useEffect(() => {
-    const filtered = posts.filter((post) => {
-      const matchesStatus = statusFilter ? post.status === statusFilter : true;
-      const matchesQuery =
-        post.fullname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.personnel_type?.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesStatus && matchesQuery;
-    }).reverse(); // เรียงลำดับใหม่ก่อนเก่า
-
-    setFilteredPosts(filtered);
-  }, [posts, statusFilter, searchQuery]);
-
-  useEffect(() => {
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    setCurrentPosts(filteredPosts.slice(indexOfFirstPost, indexOfLastPost));
-  }, [filteredPosts, currentPage, postsPerPage]);
-
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/auth/logout', {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('ally-supports-cache');
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
-      setCurrentUser(null);
-      router.push('/');
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
-  };
-
-  const handleViewPDF = (post) => {
-    setSelectedPost(post);
-    setShowDocument(true);
-  };
-
-  const handleApprove = async (post) => {
-    try {
-      const response = await fetch(`/api/updatePost?_id=${post._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          status: 'Approved',
-          approvedAt: new Date().toISOString(),
-          approvedBy: currentUser.id,
-          approverName: currentUser.username
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to approve post');
-      }
-
-      await fetch('/api/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recipientId: post.createdBy,
-          senderId: currentUser.id,
-          type: 'approved',
-          message: `คำขอของคุณได้รับการอนุมัติโดย ${currentUser.fullname}`,
-          postId: post._id
-        })
-      });
-
-      toast.success("โพสต์ได้รับการอนุมัติ!");
-      fetchPosts();
-    } catch (error) {
-      console.error('Error approving post:', error);
-      toast.error(`เกิดข้อผิดพลาดในการอนุมัติ: ${error.message}`);
-    }
-  };
-
-  const handleReject = (post) => {
-    setPostToReject(post);
-    setShowRejectionDialog(true);
-  };
-
-  const handleRejectSubmit = async (post, rejectReason) => {
-    try {
-      const response = await fetch(`/api/updatePost?_id=${post._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          status: 'Rejected',
-          reject_reason: rejectReason
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to reject post');
-      }
-
-      await fetch('/api/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recipientId: post.createdBy,
-          senderId: currentUser.id,
-          type: 'rejected',
-          message: `คำขอของคุณถูกปฏิเสธโดย ${currentUser.fullname}: ${rejectReason}`,
-          postId: post._id
-        })
-      });
-
-      toast.success("โพสต์ถูกปฏิเสธ!");
-      fetchPosts();
-    } catch (error) {
-      console.error('Error rejecting post:', error);
-      toast.error(`เกิดข้อผิดพลาดในการปฏิเสธ: ${error.message}`);
-    }
-  };
-
-  const handleViewPost = (post) => {
-    setSelectedPost(post);
-    setShowPopup(true);
-  };
-
-  const handleDelete = (post) => {
-    setSelectedPost(post);
-    setShowDeletePopup(true);
-  };
-
-  const handleDeletePermanently = async () => {
-    if (!selectedPost) return;
-
-    try {
-      const userString = localStorage.getItem('user');
-      if (!userString) {
-        toast.error("กรุณาเข้าสู่ระบบใหม่");
-        return;
-      }
-
-      const user = JSON.parse(userString);
-      const isCreator = selectedPost.createdBy === user.id;
-      
-      if (isCreator) {
-        const confirmDelete = window.confirm(
-          'คุณต้องการลบโพสต์นี้ออกจากระบบใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้'
-        );
-        if (!confirmDelete) return;
-      }
-
-      const response = await fetch('/api/deletePost', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          postId: selectedPost._id,
-          userId: user.id,
-          userRole: user.role
-        })
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      toast.success(data.message);
-      setShowDeletePopup(false);
-      fetchPosts();
-    } catch (error) {
-      console.error('Delete error:', error);
-      toast.error(error.message || "เกิดข้อผิดพลาดในการลบโพสต์");
-    }
-  };
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const getDashboardStats = useCallback(() => {
-    return {
-      totalPosts: posts.length,
-      pendingApproval: posts.filter(p => p.status === "pending").length,
-      approved: posts.filter(p => p.status === "Approved").length,
-      rejected: posts.filter(p => p.status === "Rejected").length
-    };
-  }, [posts]);
-
-  const handleCardClick = (key) => {
-    if (key === "totalPosts") {
-      setStatusFilter("");
-    } else if (key === "pendingApproval") {
-      setStatusFilter("pending");
-    } else if (key === "approved") {
-      setStatusFilter("Approved");
-    } else if (key === "rejected") {
-      setStatusFilter("Rejected");
-    }
-  };
-
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
- 
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    if (storedToken) setToken(storedToken);
-    if (storedUser) setUser(storedUser);
-  }, []);
-
-  const linkHref =
-    token && user
-      ? `/travel_form?token=${encodeURIComponent(token)}&user=${encodeURIComponent(user)}`
-      : "/travel_form";
-
+  // ฟังก์ชันสำหรับจัดการการนำทางจากการแจ้งเตือน
   const handleNavigateFromNotification = useCallback(({ postId }) => {
     // 1. เปลี่ยนไปยังหน้า posts-table ก่อน (ถ้ายังไม่อยู่ที่หน้านี้)
     setCurrentView('posts-table');
@@ -367,6 +97,335 @@ const Approval = () => {
     }, 300);
   }, [filteredPosts, postsPerPage, currentPage]);
 
+  // ตรวจสอบว่าเป็น client-side และโหลดข้อมูลเริ่มต้น
+  useEffect(() => {
+    setIsClient(true);
+    const loadData = async () => {
+      try {
+        // จำลองการโหลดข้อมูล
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  // ดึงข้อมูลผู้ใช้จาก localStorage
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    } else {
+      router.push('/');
+    }
+  }, [router]);
+
+  // ดึงข้อมูลโพสต์จาก API
+  const fetchPosts = useCallback(async () => {
+    try {
+      const response = await fetch("/api/createPost");
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        console.error("Error: Data is not an array", data);
+        return;
+      }
+
+      // กรองโพสต์ตามสิทธิ์ผู้ใช้
+      const filteredData = data.filter(post => {
+        if (!currentUser) return false;
+
+        // ผู้สร้างเห็นโพสต์ของตัวเองถ้า visibility.creator เป็น true
+        if (post.createdBy === currentUser.id) {
+          return post.visibility?.creator ?? true;
+        }
+
+        // ผู้ approve เห็นโพสต์ที่ส่งถึงตัวเองถ้า visibility.approver เป็น true
+        if (post.sendTo === currentUser.role) {
+          return post.visibility?.approver ?? true;
+        }
+
+        // Admin เห็นทุกโพสต์
+        if (currentUser.role === 'admin') {
+          return true;
+        }
+
+        return false;
+      });
+
+      setPosts(filteredData);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      toast.error("เกิดข้อผิดพลาดในการดึงข้อมูลโพสต์");
+    }
+  }, [currentUser]);
+
+  // เรียกใช้ฟังก์ชันดึงข้อมูลโพสต์
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  // ตรวจสอบ token และ user
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    if (token && !user) {
+      localStorage.removeItem('token');
+      router.push('/');
+    }
+  }, [router]);
+
+  // กรองโพสต์ตามเงื่อนไขการค้นหาและสถานะ
+  useEffect(() => {
+    const filtered = posts.filter((post) => {
+      const matchesStatus = statusFilter ? post.status === statusFilter : true;
+      const matchesQuery =
+        post.fullname?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.personnel_type?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesStatus && matchesQuery;
+    }).reverse(); // เรียงลำดับใหม่ก่อนเก่า
+
+    setFilteredPosts(filtered);
+  }, [posts, statusFilter, searchQuery]);
+
+  // คำนวณโพสต์ที่จะแสดงในหน้าปัจจุบัน
+  useEffect(() => {
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    setCurrentPosts(filteredPosts.slice(indexOfFirstPost, indexOfLastPost));
+  }, [filteredPosts, currentPage, postsPerPage]);
+
+  // ฟังก์ชันออกจากระบบ
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/api/auth/logout', {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      // ลบข้อมูลการล็อกอิน
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('ally-supports-cache');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      setCurrentUser(null);
+      
+      // ไปยังหน้าล็อกอิน
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed', error);
+      toast.error('เกิดข้อผิดพลาดในการออกจากระบบ');
+    }
+  };
+
+  // ดูเอกสาร PDF
+  const handleViewPDF = (post) => {
+    setSelectedPost(post);
+    setShowDocument(true);
+  };
+
+  // อนุมัติโพสต์
+  const handleApprove = async (post) => {
+    try {
+      const response = await fetch(`/api/updatePost?_id=${post._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'Approved',
+          approvedAt: new Date().toISOString(),
+          approvedBy: currentUser.id,
+          approverName: currentUser.username
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to approve post');
+      }
+
+      // ส่งการแจ้งเตือนไปยังผู้สร้าง
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipientId: post.createdBy,
+          senderId: currentUser.id,
+          type: 'approved',
+          message: `คำขอของคุณได้รับการอนุมัติโดย ${currentUser.fullname}`,
+          postId: post._id
+        })
+      });
+
+      toast.success("โพสต์ได้รับการอนุมัติ!");
+      fetchPosts(); // ดึงข้อมูลใหม่
+    } catch (error) {
+      console.error('Error approving post:', error);
+      toast.error(`เกิดข้อผิดพลาดในการอนุมัติ: ${error.message}`);
+    }
+  };
+
+  // ปฏิเสธโพสต์
+  const handleReject = (post) => {
+    setPostToReject(post);
+    setShowRejectionDialog(true);
+  };
+
+  // ส่งเหตุผลการปฏิเสธ
+  const handleRejectSubmit = async (post, rejectReason) => {
+    try {
+      const response = await fetch(`/api/updatePost?_id=${post._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'Rejected',
+          reject_reason: rejectReason
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to reject post');
+      }
+
+      // ส่งการแจ้งเตือนไปยังผู้สร้าง
+      await fetch('/api/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          recipientId: post.createdBy,
+          senderId: currentUser.id,
+          type: 'rejected',
+          message: `คำขอของคุณถูกปฏิเสธโดย ${currentUser.fullname}: ${rejectReason}`,
+          postId: post._id
+        })
+      });
+
+      toast.success("โพสต์ถูกปฏิเสธ!");
+      fetchPosts(); // ดึงข้อมูลใหม่
+    } catch (error) {
+      console.error('Error rejecting post:', error);
+      toast.error(`เกิดข้อผิดพลาดในการปฏิเสธ: ${error.message}`);
+    }
+  };
+
+  // ดูรายละเอียดโพสต์
+  const handleViewPost = (post) => {
+    setSelectedPost(post);
+    setShowPopup(true);
+  };
+
+  // ลบโพสต์
+  const handleDelete = (post) => {
+    setSelectedPost(post);
+    setShowDeletePopup(true);
+  };
+
+  // ลบโพสต์อย่างถาวร
+  const handleDeletePermanently = async () => {
+    if (!selectedPost) return;
+
+    try {
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        toast.error("กรุณาเข้าสู่ระบบใหม่");
+        return;
+      }
+
+      const user = JSON.parse(userString);
+      const isCreator = selectedPost.createdBy === user.id;
+      
+      // ยืนยันการลบสำหรับผู้สร้าง
+      if (isCreator) {
+        const confirmDelete = window.confirm(
+          'คุณต้องการลบโพสต์นี้ออกจากระบบใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้'
+        );
+        if (!confirmDelete) return;
+      }
+
+      const response = await fetch('/api/deletePost', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          postId: selectedPost._id,
+          userId: user.id,
+          userRole: user.role
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      toast.success(data.message);
+      setShowDeletePopup(false);
+      fetchPosts(); // ดึงข้อมูลใหม่
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error(error.message || "เกิดข้อผิดพลาดในการลบโพสต์");
+    }
+  };
+
+  // เปลี่ยนหน้า
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // สถิติแดชบอร์ด
+  const getDashboardStats = useCallback(() => {
+    return {
+      totalPosts: posts.length,
+      pendingApproval: posts.filter(p => p.status === "pending").length,
+      approved: posts.filter(p => p.status === "Approved").length,
+      rejected: posts.filter(p => p.status === "Rejected").length
+    };
+  }, [posts]);
+
+  // การคลิกที่การ์ดสถิติ
+  const handleCardClick = (key) => {
+    if (key === "totalPosts") {
+      setStatusFilter("");
+    } else if (key === "pendingApproval") {
+      setStatusFilter("pending");
+    } else if (key === "approved") {
+      setStatusFilter("Approved");
+    } else if (key === "rejected") {
+      setStatusFilter("Rejected");
+    }
+  };
+
+  // เตรียมข้อมูลสำหรับลิงก์แบบฟอร์ม
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+ 
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    if (storedToken) setToken(storedToken);
+    if (storedUser) setUser(storedUser);
+  }, []);
+
+  const linkHref =
+    token && user
+      ? `/travel_form?token=${encodeURIComponent(token)}&user=${encodeURIComponent(user)}`
+      : "/travel_form";
+
+  // เลือก View ที่จะแสดง
   const renderCurrentView = () => {
     switch(currentView) {
       case 'posts-table':
@@ -384,9 +443,9 @@ const Approval = () => {
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
               onChangeView={setCurrentView}
-              posts={filteredPosts} // ส่ง filteredPosts แทน posts ทั้งหมด
+              posts={filteredPosts}
               postsPerPage={postsPerPage}
-              handleNavigateFromNotification={handleNavigateFromNotification} // ส่งฟังก์ชันนี้ลงไปโดยตรง
+              handleNavigateFromNotification={handleNavigateFromNotification}
             />
           </>
         );
@@ -412,6 +471,7 @@ const Approval = () => {
       
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
+          // Skeleton Loading ขณะโหลดข้อมูล
           <div className="space-y-6 animate-pulse">
             <div className="h-10 bg-gray-300 rounded w-1/3"></div>
             <div className="h-40 bg-gray-300 rounded"></div>
@@ -434,6 +494,7 @@ const Approval = () => {
 
             {renderCurrentView()}
 
+            {/* Popup รายละเอียดโพสต์ */}
             {showPopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
@@ -442,6 +503,7 @@ const Approval = () => {
               </div>
             )}
   
+            {/* PDF Viewer */}
             {showDocument && selectedPost && isClient && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
                 <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[95vh] sm:h-[90vh] mx-auto flex flex-col">
@@ -468,6 +530,7 @@ const Approval = () => {
               </div>
             )}
 
+            {/* Popup ลบโพสต์ */}
             {showDeletePopup && selectedPost && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -481,6 +544,7 @@ const Approval = () => {
               </div>
             )}
 
+            {/* Dialog ปฏิเสธ */}
             {showRejectionDialog && (
               <RejectionReasonDialog 
                 isOpen={showRejectionDialog}
@@ -490,6 +554,7 @@ const Approval = () => {
               />
             )}
 
+            {/* Pagination */}
             {currentView === 'posts-table' && (
               <div className="mt-6">
                 <Pagination
