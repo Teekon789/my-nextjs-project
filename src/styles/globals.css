@@ -68,6 +68,19 @@
   }
 }
 
+/* เพิ่มสไตล์สำหรับไฮไลท์ */
+.highlight-post {
+  animation: highlight 0.5s ease-in-out;
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.5);
+  background-color: rgba(254, 240, 138, 0.5) !important;
+}
+
+@keyframes highlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
 
 
 /* สไตล์ปุ่มพื้นฐาน */

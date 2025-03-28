@@ -68,34 +68,61 @@ const Approval = () => {
   const handleNavigateFromNotification = useCallback(({ postId }) => {
     // 1. เปลี่ยนไปยังหน้า posts-table ก่อน (ถ้ายังไม่อยู่ที่หน้านี้)
     setCurrentView('posts-table');
-
+  
     // 2. หา index ของโพสต์ใน filteredPosts
     const postIndex = filteredPosts.findIndex(post => post._id === postId);
     if (postIndex === -1) {
       toast.error("ไม่พบโพสต์ที่ระบุ");
       return;
     }
-
+  
     // 3. คำนวณหน้าที่โพสต์อยู่
     const targetPage = Math.floor(postIndex / postsPerPage) + 1;
-
+  
     // 4. เปลี่ยนหน้า (ถ้ายังไม่อยู่หน้าที่ถูกต้อง)
     if (targetPage !== currentPage) {
       setCurrentPage(targetPage);
+      // รอให้หน้าเปลี่ยนก่อนค่อยเลื่อน
+      setTimeout(() => {
+        scrollAndHighlightPost(postId);
+      }, 500);
+    } else {
+      // ถ้าอยู่หน้าที่ถูกต้องแล้ว ให้เลื่อนทันที
+      scrollAndHighlightPost(postId);
     }
-
-    // 5. เลื่อนไปยังโพสต์ (รอให้ state อัพเดต)
-    setTimeout(() => {
-      const element = document.getElementById(`post-${postId}`);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        element.classList.add('bg-yellow-100', 'animate-pulse');
-        setTimeout(() => {
-          element.classList.remove('bg-yellow-100', 'animate-pulse');
-        }, 2000);
-      }
-    }, 300);
   }, [filteredPosts, postsPerPage, currentPage]);
+  
+  // ฟังก์ชันแยกสำหรับการเลื่อนและไฮไลท์
+  const scrollAndHighlightPost = (postId) => {
+    setTimeout(() => {
+      // สำหรับ Desktop View (ตาราง)
+      const tableRow = document.getElementById(`post-${postId}`);
+      
+      // สำหรับ Mobile View (การ์ด)
+      const mobileCard = document.querySelector(`.mobile-post-card[data-post-id="${postId}"]`);
+      
+      const element = tableRow || mobileCard;
+      
+      if (element) {
+        // เลื่อนไปยัง element
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'center'
+        });
+        
+        // เพิ่มเอฟเฟกต์ไฮไลท์
+        element.classList.add('highlight-post');
+        
+        // ยกเลิกไฮไลท์หลังจาก 3 วินาที
+        setTimeout(() => {
+          element.classList.remove('highlight-post');
+        }, 3000);
+      } else {
+        console.warn('ไม่พบ element ที่ต้องการ:', postId);
+      }
+    }, 100);
+  };
 
   // ตรวจสอบว่าเป็น client-side และโหลดข้อมูลเริ่มต้น
   useEffect(() => {

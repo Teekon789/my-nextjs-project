@@ -172,27 +172,39 @@ const PostsTable = ({
 
       {/* Mobile View */}
       <div className="sm:hidden space-y-4">
-        {currentPosts.map((post) => (
+  {currentPosts.map((post) => (
+    <div 
+      key={`${post._id}-${currentPage}`}
+      data-post-id={post._id} // ใช้ data-post-id แทน id
+      className={`
+        mobile-post-card 
+        bg-white rounded-lg p-4 shadow-sm 
+        transition-all duration-300
+        hover:shadow-md
+      `}
+    >
+      <div className="flex justify-between items-start mb-2">
+        <div className="flex-1">
           <div 
-            key={`${post._id}-${currentPage}`}
-            id={`post-${post._id}`}
-            className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <div className="cursor-pointer" onClick={() => onView(post)}>
-                  <div className="font-medium text-slate-800">{post.fullname}</div>
-                  <div className="text-xs text-slate-500">
-                    {new Date(post.updatedAt).toLocaleString('th-TH')}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => toggleMenu(post._id)}
-                className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
-              >
-                <Menu className="w-5 h-5 text-slate-600" />
-              </button>
+            className="cursor-pointer"
+            onClick={() => onView(post)}
+          >
+            <div className="font-medium text-slate-800">{post.fullname}</div>
+            <div className="text-xs text-slate-500">
+              {new Date(post.updatedAt).toLocaleString('th-TH')}
             </div>
+          </div>
+        </div>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleMenu(post._id);
+          }}
+          className="p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+        >
+          <Menu className="w-5 h-5 text-slate-600" />
+        </button>
+      </div>
             
             <div className="space-y-2">
               <div className="flex justify-between">
