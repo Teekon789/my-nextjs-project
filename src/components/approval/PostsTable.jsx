@@ -175,6 +175,7 @@ const PostsTable = ({
   {currentPosts.map((post) => (
     <div 
       key={`${post._id}-${currentPage}`}
+      id={`post-${post._id}`} // เพิ่ม id เพื่อทำงานได้เหมือน Desktop
       data-post-id={post._id} // ใช้ data-post-id แทน id
       className={`
         mobile-post-card 

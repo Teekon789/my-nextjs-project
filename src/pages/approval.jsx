@@ -99,6 +99,7 @@ const Approval = () => {
       const tableRow = document.getElementById(`post-${postId}`);
       
       // สำหรับ Mobile View (การ์ด)
+      // แก้ไขตัวเลือกให้ตรงกับ data attribute ที่กำหนดในโค้ด PostsTable
       const mobileCard = document.querySelector(`.mobile-post-card[data-post-id="${postId}"]`);
       
       const element = tableRow || mobileCard;
@@ -114,12 +115,45 @@ const Approval = () => {
         // เพิ่มเอฟเฟกต์ไฮไลท์
         element.classList.add('highlight-post');
         
+        // ลอง console.log เพื่อตรวจสอบว่าพบ element ที่ถูกต้อง
+        console.log('พบ element:', postId, element);
+        
+        // เพิ่ม class เพื่อให้เห็นได้ชัดเจนยิ่งขึ้น (สำหรับ Mobile)
+        if (mobileCard) {
+          mobileCard.classList.add('border-2', 'border-blue-500', 'shadow-lg');
+        }
+        
         // ยกเลิกไฮไลท์หลังจาก 3 วินาที
         setTimeout(() => {
           element.classList.remove('highlight-post');
+          // ลบ class ที่เพิ่มไว้สำหรับ Mobile
+          if (mobileCard) {
+            mobileCard.classList.remove('border-2', 'border-blue-500', 'shadow-lg');
+          }
         }, 3000);
       } else {
-        console.warn('ไม่พบ element ที่ต้องการ:', postId);
+        console.warn('ไม่พบ element ที่ต้องการ:', postId, 'ลองตรวจสอบ DOM');
+        
+        // เพิ่มโค้ดแก้ไขให้พยายามค้นหาอีกครั้งด้วยวิธีที่แตกต่าง
+        console.log('กำลังพยายามค้นหาด้วยวิธีอื่น...');
+        
+        // ลองหา element ในโค้ด DOM ทั้งหมดที่มี attribute ที่เกี่ยวข้องกับ postId
+        const allElements = document.querySelectorAll(`[data-post-id]`);
+        console.log('พบ elements ทั้งหมดที่มี data-post-id:', allElements.length);
+        
+        // ตรวจสอบ element ทั้งหมดที่พบ
+        allElements.forEach(el => {
+          console.log('ตรวจสอบ element:', el.getAttribute('data-post-id'));
+          if (el.getAttribute('data-post-id') === postId) {
+            console.log('พบ element ที่ถูกต้อง!');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('highlight-post', 'border-2', 'border-blue-500', 'shadow-lg');
+            
+            setTimeout(() => {
+              el.classList.remove('highlight-post', 'border-2', 'border-blue-500', 'shadow-lg');
+            }, 3000);
+          }
+        });
       }
     }, 100);
   };
