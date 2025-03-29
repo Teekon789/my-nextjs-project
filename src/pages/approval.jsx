@@ -522,6 +522,7 @@ const Approval = () => {
         return null;
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
