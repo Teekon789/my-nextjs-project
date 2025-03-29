@@ -115,7 +115,7 @@ const Approval = () => {
         // เพิ่มเอฟเฟกต์ไฮไลท์
         element.classList.add('highlight-post');
         
-        // ลอง console.log เพื่อตรวจสอบว่าพบ element ที่ถูกต้อง
+       // ลอง console.log เพื่อตรวจสอบว่าพบ element ที่ถูกต้อง
         console.log('พบ element:', postId, element);
         
         // เพิ่ม class เพื่อให้เห็นได้ชัดเจนยิ่งขึ้น (สำหรับ Mobile)

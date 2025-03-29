@@ -534,7 +534,7 @@ const PostsDashboard = ({
                   <thead className="sticky top-0 bg-slate-100">
                     <tr>
                       <th className="p-3 text-left">ชื่อ</th>
-                      <th className="p-3 text-left">แผนก</th>
+                      <th className="p-3 text-left">แผนกที่ไม่อนุมัติ</th>
                       <th className="p-3 text-left">งบประมาณ</th>
                       <th className="p-3 text-left">เหตุผล</th>
                     </tr>
