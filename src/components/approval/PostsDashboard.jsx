@@ -29,6 +29,35 @@ const COLORS = {
   averageLine: '#EF4444'   // สีเส้นค่าเฉลี่ย
 };
 
+// ฟังก์ชันสร้างข้อมูลตัวอย่างรายเดือน
+const generateMonthlySampleData = () => {
+  const currentDate = new Date();
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  
+  // สร้างข้อมูลตัวอย่าง 12 เดือนย้อนหลัง
+  return Array.from({ length: 12 }, (_, i) => {
+    const date = new Date();
+    date.setMonth(currentDate.getMonth() - (11 - i));
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    // สุ่มข้อมูลงบประมาณระหว่าง 50,000 - 300,000 บาท
+    const budget = Math.floor(Math.random() * 250000) + 50000;
+    // สุ่มจำนวนรายการระหว่าง 1-5 รายการ
+    const count = Math.floor(Math.random() * 5) + 1;
+    
+    return {
+      date,
+      month,
+      year,
+      dateKey: `1-${month}-${year}`, // ใช้วันที่ 1 ของเดือน
+      monthYear: `${month} ${year}`,
+      budget,
+      count
+    };
+  });
+};
+
 // ฟังก์ชันประมวลผลข้อมูลสำหรับแดชบอร์ด
 const processDashboardData = (posts) => {
   if (!posts || posts.length === 0) {
@@ -63,19 +92,23 @@ const processDashboardData = (posts) => {
     return acc;
   }, {});
 
-  // คำนวณแนวโน้มงบประมาณรายเดือน (รวมเดือนก่อนหน้า)
-  const monthlyBudgetTrend = posts.reduce((acc, post) => {
+  // คำนวณแนวโน้มงบประมาณรายวัน (รวมวันก่อนหน้า)
+  const dailyBudgetTrend = posts.reduce((acc, post) => {
     const date = new Date(post.updatedAt);
+    const day = date.getDate();
     const month = date.toLocaleString('th-TH', { month: 'short' });
     const year = date.getFullYear();
-    const key = `${month} ${year}`;
+    const dateKey = `${day}-${month}-${year}`;
     
-    acc[key] = {
-      monthYear: key,
+    acc[dateKey] = {
+      date,
+      day,
       month,
       year,
-      budget: (acc[key]?.budget || 0) + (post.total_budget || 0),
-      count: (acc[key]?.count || 0) + 1
+      dateKey,
+      monthYear: `${month} ${year}`,
+      budget: (acc[dateKey]?.budget || 0) + (post.total_budget || 0),
+      count: (acc[dateKey]?.count || 0) + 1
     };
     return acc;
   }, {});
@@ -103,68 +136,51 @@ const processDashboardData = (posts) => {
       budget: departmentBudgets[dept] || 0
     }));
 
-  // เรียงลำดับเดือนไทยตามปีและเดือน
-  const monthsOrder = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-  
-  // 1. ตรวจสอบและปรับโครงสร้างข้อมูลจริง
-const processedRealData = Object.values(monthlyBudgetTrend)
-.map(item => ({
-  monthYear: item.monthYear || `${item.month} ${item.year}`,
-  month: item.month,
-  year: item.year,
-  budget: Number(item.budget) || 0,
-  count: Number(item.count) || 0
-}))
-.filter(item => item.month && item.year)
-// ลบข้อมูลที่ซ้ำกันโดยใช้ monthYear เป็น key
-.reduce((acc, current) => {
-  const x = acc.find(item => item.monthYear === current.monthYear);
-  if (!x) {
-    return acc.concat([current]);
-  } else {
-    return acc;
-  }
-}, []);
+  // แปลงข้อมูลเป็น array และเรียงลำดับตามวันที่
+  const processedRealData = Object.values(dailyBudgetTrend)
+    .sort((a, b) => a.date - b.date)
+    .map(item => ({
+      ...item,
+      budget: Number(item.budget) || 0,
+      count: Number(item.count) || 0
+    }));
 
-// 2. สร้างข้อมูลตัวอย่างแบบไดนามิก (ย้อนหลัง 4 เดือนจากเดือนปัจจุบัน)
-const currentDate = new Date();
-const sampleData = Array.from({ length: 4 }, (_, i) => {
-const date = new Date();
-date.setMonth(currentDate.getMonth() - (3 - i));
-const month = date.toLocaleString('th-TH', { month: 'short' });
-const year = date.getFullYear();
-return {
-  monthYear: `${month} ${year}`,
-  month,
-  year,
-  budget: [200000, 150000, 100000, 50000][i], // งบประมาณตัวอย่าง
-  count: [1, 2, 3, 1][i]
-};
-});
-
-// 3. รวมข้อมูลและเรียงลำดับ
-let budgetTrendData = [...processedRealData];
-
-// เพิ่มข้อมูลตัวอย่างหากข้อมูลจริงน้อยกว่า 2 เดือน
-if (budgetTrendData.length < 2) {
-budgetTrendData = [...sampleData, ...budgetTrendData]
-  .sort((a, b) => {
-    // สร้างฟังก์ชันแปลงเดือนไทยเป็นเลขเดือน (0-11)
-    const thaiMonthToNumber = (month) => {
-      const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 
-                     'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-      return months.indexOf(month);
-    };
+  // สร้างข้อมูลตัวอย่างรายวัน (7 วันย้อนหลัง)
+  const dailySampleData = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
     
-    // เปรียบเทียบปีก่อน ถ้าเท่ากันจึงเปรียบเทียบเดือน
-    if (a.year !== b.year) return a.year - b.year;
-    return thaiMonthToNumber(a.month) - thaiMonthToNumber(b.month);
+    return {
+      date,
+      day: date.getDate(),
+      month: date.toLocaleString('th-TH', { month: 'short' }),
+      year: date.getFullYear(),
+      dateKey: `${date.getDate()}-${date.toLocaleString('th-TH', { month: 'short' })}-${date.getFullYear()}`,
+      monthYear: `${date.toLocaleString('th-TH', { month: 'short' })} ${date.getFullYear()}`,
+      budget: 0,
+      count: 0  // จำนวนรายการ
+    };
   });
-}
-console.log('ข้อมูลหลังเพิ่มตัวอย่าง:', budgetTrendData);
 
+  // สร้างข้อมูลตัวอย่างรายเดือน (12 เดือนย้อนหลัง)
+  const monthlySampleData = generateMonthlySampleData();
 
+  // รวมข้อมูลและเรียงลำดับ
+  let budgetTrendData = [...processedRealData];
 
+  // เพิ่มข้อมูลตัวอย่างหากข้อมูลจริงน้อยกว่า 2 วัน
+  if (budgetTrendData.length < 2) {
+    budgetTrendData = [...dailySampleData, ...budgetTrendData]
+      .sort((a, b) => a.date - b.date);
+  }
+
+  // เพิ่มข้อมูลตัวอย่างรายเดือนหากต้องการแสดงผลรายเดือน
+  const allData = {
+    daily: budgetTrendData,
+    monthly: monthlySampleData
+  };
+
+  console.log('ข้อมูลตัวอย่างรายเดือน:', monthlySampleData);
 
   // ข้อมูลรายการที่ไม่อนุมัติ
   const rejectedData = posts
@@ -200,7 +216,7 @@ console.log('ข้อมูลหลังเพิ่มตัวอย่า�
   return { 
     statusData, 
     departmentData, 
-    budgetTrendData, 
+    budgetTrendData: allData, // ส่งคืนข้อมูลทั้งรายวันและรายเดือน
     rejectedData,
     rejectedReasonData 
   };
@@ -210,7 +226,8 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  const [showAllMonths, setShowAllMonths] = useState(false);
+  const [showAllDays, setShowAllDays] = useState(false);
+  const [displayMode, setDisplayMode] = useState('daily'); // 'daily' หรือ 'monthly'
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -248,17 +265,31 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
 
   const summaryStats = calculateSummaryStats();
 
-  // คำนวณค่าเฉลี่ยงบประมาณรายเดือน
+  // คำนวณค่าเฉลี่ยงบประมาณ
   const calculateAverageBudget = () => {
-    if (budgetTrendData.length === 0) return 0;
-    const sum = budgetTrendData.reduce((total, item) => total + item.budget, 0);
-    return sum / budgetTrendData.length;
+    // เลือกข้อมูลตามโหมดการแสดงผล
+    const data = displayMode === 'daily' 
+      ? budgetTrendData.daily 
+      : budgetTrendData.monthly;
+    
+    if (!data || data.length === 0) return 0;
+    const sum = data.reduce((total, item) => total + item.budget, 0);
+    return sum / data.length;
   };
 
-  // กรองข้อมูลเดือนที่จะแสดง (3 เดือนล่าสุดหรือทั้งหมด)
-  const filteredBudgetTrendData = showAllMonths 
-    ? budgetTrendData 
-    : budgetTrendData.slice(-3);
+  const getFilteredData = () => {
+    // เลือกข้อมูลตามโหมดการแสดงผล
+    const data = displayMode === 'daily' 
+      ? budgetTrendData.daily 
+      : budgetTrendData.monthly;
+    
+    if (!data) return [];
+    
+    // กรองตามจำนวนวันที่แสดง
+    return showAllDays ? data : data.slice(-7);
+  };
+
+  const filteredBudgetTrendData = getFilteredData();
 
   // คอมโพเนนต์ Custom Tooltip สำหรับกราฟแนวโน้ม
   const CustomTrendTooltip = ({ active, payload, label }) => {
@@ -266,7 +297,9 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border rounded-lg shadow-md">
-          <p className="font-bold text-blue-600">{data.monthYear}</p>
+          <p className="font-bold text-blue-600">
+            {displayMode === 'daily' ? data.dateKey : data.monthYear}
+          </p>
           <div className="grid grid-cols-2 gap-2 mt-2">
             <span className="text-gray-600">งบประมาณ:</span>
             <span className="font-semibold text-right">
@@ -561,19 +594,19 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
         {/* แท็บแนวโน้ม */}
         <CustomTabsContent value="trends" activeTab={activeTab}>
           <div className="grid md:grid-cols-2 gap-6">
-            {/* กราฟเส้นแสดงแนวโน้มงบประมาณรายเดือน */}
+            {/* กราฟเส้นแสดงแนวโน้มงบประมาณ */}
             <CustomCard 
-              title="แนวโน้มงบประมาณรายเดือน"
+              title="แนวโน้มงบประมาณ"
               headerRight={
                 <div className="flex items-center space-x-2">
                   <div className="text-sm bg-blue-50 text-blue-600 px-3 py-1 rounded-full">
                     ค่าเฉลี่ย: {calculateAverageBudget().toLocaleString('th-TH')} บาท
                   </div>
                   <button 
-                    onClick={() => setShowAllMonths(!showAllMonths)}
+                    onClick={() => setShowAllDays(!showAllDays)}
                     className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded flex items-center"
                   >
-                    {showAllMonths ? (
+                    {showAllDays ? (
                       <>
                         <ChevronUp className="w-4 h-4 mr-1" /> ย่อ
                       </>
@@ -582,6 +615,12 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
                         <ChevronDown className="w-4 h-4 mr-1" /> ดูทั้งหมด
                       </>
                     )}
+                  </button>
+                  <button
+                    onClick={() => setDisplayMode(displayMode === 'daily' ? 'monthly' : 'daily')}
+                    className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded"
+                  >
+                    {displayMode === 'daily' ? 'แสดงรายเดือน' : 'แสดงรายวัน'}
                   </button>
                 </div>
               }
@@ -594,7 +633,7 @@ const PostsDashboard = ({ posts, currentUser, onNavigateToPostsTable }) => {
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis 
-                      dataKey="monthYear"
+                      dataKey={displayMode === 'daily' ? 'dateKey' : 'monthYear'}
                       tick={{ fill: '#555' }}
                     />
                     <YAxis 
