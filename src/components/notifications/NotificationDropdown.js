@@ -135,6 +135,7 @@ const NotificationDropdown = ({ userId, onNavigateToPost }) => {
     <div className="relative">
       {/* ปุ่มการแจ้งเตือน */}
       <button 
+        title="การแจ้งเตือน"
         onClick={(e) => {
           e.stopPropagation(); // ป้องกันการปิด dropdown
           setIsOpen(!isOpen);
