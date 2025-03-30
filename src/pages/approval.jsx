@@ -63,6 +63,7 @@ const Approval = () => {
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
   // โพสต์ที่จะปฏิเสธ
   const [postToReject, setPostToReject] = useState(null);
+  
 
   // ฟังก์ชันสำหรับจัดการการนำทางจากการแจ้งเตือน
   const handleNavigateFromNotification = useCallback(({ postId }) => {
@@ -527,8 +528,10 @@ const Approval = () => {
   return (
     <div className="min-h-screen bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50">
       <ApprovalHeader 
-        currentUser={currentUser} 
-        handleLogout={handleLogout}
+        currentUser={currentUser} // ส่งข้อมูลผู้ใช้ปัจจุบันไปให้ ApprovalHeader
+        handleLogout={handleLogout} // ส่งฟังก์ชัน handleLogout ไปให้ ApprovalHeader
+        setCurrentUser={setCurrentUser} // ส่งฟังก์ชัน setCurrentUser ไปให้ ApprovalHeader
+        fetchPosts={fetchPosts} // ส่งฟังก์ชัน fetchPosts ไปให้ ApprovalHeader
       />
       
       <div className="container mx-auto px-4 py-8">
