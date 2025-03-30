@@ -66,7 +66,7 @@ const ApprovalHeader = ({ currentUser, handleLogout, setCurrentUser }) => { // �
             <Image
               src={mn_1}
               alt="Logo"
-              className="w-16 h-16 text-3xl text-blue-600"
+              className="w-16 h-16 text-3xl text-gray-600"
               priority={true}  // ให้โหลดภาพทันที
             />
             <h1 className="text-2xl font-bold text-gray-800 relative">
@@ -81,13 +81,13 @@ const ApprovalHeader = ({ currentUser, handleLogout, setCurrentUser }) => { // �
                 onClick={handleOpenEditDialog}
               >
                 <div className="relative">
-                  <FaUserCircle className="text-gray-600 text-xl group-hover:text-blue-600 transition-colors" />
-                  <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <FaUserCircle className="text-gray-600 text-xl group-hover:text-gray-600 transition-colors" />
+                  <div className="absolute -top-1 -right-1 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <FaEdit className="text-xs" />
                   </div>
                 </div>
-                <span className="text-gray-700 group-hover:text-blue-600 transition-colors">{currentUser.fullname}</span>
-                <span className="hidden group-hover:inline-block text-xs text-blue-600">(แก้ไข)</span>
+                <span className="text-gray-700 group-hover:text-gray-600 transition-colors">{currentUser.fullname}</span>
+                <span className="hidden group-hover:inline-block text-xs text-gray-600">(แก้ไข)</span>
               </div>
               <button
                 onClick={handleLogout}
