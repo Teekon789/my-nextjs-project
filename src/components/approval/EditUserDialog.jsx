@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaRegSave, FaTimes, FaUser, FaEnvelope, FaPhone, FaBuilding, FaBriefcase, FaGraduationCap, FaIdCard, FaUserTag } from 'react-icons/fa';
 
 const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
@@ -18,17 +18,21 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
   
   // เพิ่ม animation state
   const [showAnimation, setShowAnimation] = useState(false);
+  
+  // เพิ่ม ref เพื่อตรวจสอบว่า component ได้ mount แล้วหรือยัง
+  const isMounted = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       setShowAnimation(true);
+      isMounted.current = true;
     } else {
       setShowAnimation(false);
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && isMounted.current) {
       setUserData({
         fullname: currentUser.fullname || '',
         email: currentUser.email || '',
@@ -86,50 +90,32 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) => {
+  // แยกส่วนการจัดการสำหรับ input text และ select
+  const handleTextInputChange = (e) => {
     const { name, value } = e.target;
-    setUserData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    setUserData((prevData) => {
+      const newData = { ...prevData, [name]: value };
+      console.log(`Updated ${name} to: "${value}"`, newData);
+      return newData;
+    });
+    
     // ล้าง error เมื่อผู้ใช้เริ่มพิมพ์
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Form submitted with data:", userData);
     if (validateForm()) {
       onSave(userData);
     }
   };
-
-  // สร้าง Input component ที่เรียบง่ายแต่ดูดี
-  const Input = ({ label, name, type = "text", value, error, icon, ...props }) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {error && <span className="text-orange-500">*</span>}
-      </label>
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
-          {icon}
-        </div>
-        <input
-          type={type}
-          name={name}
-          value={value}
-          className={`w-full pl-10 pr-3 py-2.5 border-2 ${
-            error ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
-          } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
-          bg-white shadow-sm transition-all duration-200`}
-          {...props}
-        />
-      </div>
-      {error && <p className="mt-1 text-xs text-orange-500 font-medium">{error}</p>}
-    </div>
-  );
 
   if (!isOpen) return null;
 
@@ -148,6 +134,7 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
           <button 
             onClick={onClose} 
             className="text-white/80 hover:text-white p-1.5 hover:bg-white/20 rounded-full transition-colors duration-200"
+            type="button"
           >
             <FaTimes className="text-xl" />
           </button>
@@ -158,62 +145,150 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
           <form onSubmit={handleSubmit} className="p-4 sm:p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
               <div className="col-span-1 md:col-span-2 bg-orange-50 p-4 rounded-lg border border-orange-100 shadow-sm">
-                <Input
-                  label="ชื่อ-นามสกุล"
-                  name="fullname"
-                  value={userData.fullname}
-                  onChange={handleChange}
-                  error={errors.fullname}
-                  placeholder="ชื่อ-นามสกุล"
-                  icon={<FaUser />}
-                />
+                {/* ชื่อ-นามสกุล */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    ชื่อ-นามสกุล {errors.fullname && <span className="text-orange-500">*</span>}
+                  </label>
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                      <FaUser />
+                    </div>
+                    <input
+                      type="text"
+                      name="fullname"
+                      value={userData.fullname}
+                      onChange={handleTextInputChange}
+                      className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                        errors.fullname ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                      } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                      bg-white shadow-sm transition-all duration-200`}
+                      placeholder="ชื่อ-นามสกุล"
+                    />
+                  </div>
+                  {errors.fullname && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.fullname}</p>}
+                </div>
               </div>
-              <Input
-                label="อีเมล"
-                name="email"
-                type="email"
-                value={userData.email}
-                onChange={handleChange}
-                error={errors.email}
-                placeholder="อีเมล"
-                icon={<FaEnvelope />}
-              />
-              <Input
-                label="เบอร์โทรศัพท์"
-                name="tel"
-                value={userData.tel}
-                onChange={handleChange}
-                error={errors.tel}
-                placeholder="เบอร์โทรศัพท์"
-                icon={<FaPhone />}
-              />
-              <Input
-                label="ภาควิชา/หน่วยงาน"
-                name="department"
-                value={userData.department}
-                onChange={handleChange}
-                error={errors.department}
-                placeholder="ภาควิชา/หน่วยงาน"
-                icon={<FaBuilding />}
-              />
-              <Input
-                label="ตำแหน่ง"
-                name="position"
-                value={userData.position}
-                onChange={handleChange}
-                error={errors.position}
-                placeholder="ตำแหน่ง"
-                icon={<FaBriefcase />}
-              />
-              <Input
-                label="คณะ"
-                name="faculty"
-                value={userData.faculty}
-                onChange={handleChange}
-                error={errors.faculty}
-                placeholder="คณะ"
-                icon={<FaGraduationCap />}
-              />
+
+              {/* อีเมล */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  อีเมล {errors.email && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaEnvelope />
+                  </div>
+                  <input
+                    type="email"
+                    name="email"
+                    value={userData.email}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.email ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="อีเมล"
+                  />
+                </div>
+                {errors.email && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.email}</p>}
+              </div>
+
+              {/* เบอร์โทรศัพท์ */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  เบอร์โทรศัพท์ {errors.tel && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaPhone />
+                  </div>
+                  <input
+                    type="text"
+                    name="tel"
+                    value={userData.tel}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.tel ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="เบอร์โทรศัพท์"
+                  />
+                </div>
+                {errors.tel && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.tel}</p>}
+              </div>
+
+              {/* ภาควิชา/หน่วยงาน */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ภาควิชา/หน่วยงาน {errors.department && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaBuilding />
+                  </div>
+                  <input
+                    type="text"
+                    name="department"
+                    value={userData.department}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.department ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="ภาควิชา/หน่วยงาน"
+                  />
+                </div>
+                {errors.department && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.department}</p>}
+              </div>
+
+              {/* ตำแหน่ง */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ตำแหน่ง {errors.position && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaBriefcase />
+                  </div>
+                  <input
+                    type="text"
+                    name="position"
+                    value={userData.position}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.position ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="ตำแหน่ง"
+                  />
+                </div>
+                {errors.position && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.position}</p>}
+              </div>
+
+              {/* คณะ */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  คณะ {errors.faculty && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaGraduationCap />
+                  </div>
+                  <input
+                    type="text"
+                    name="faculty"
+                    value={userData.faculty}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.faculty ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="คณะ"
+                  />
+                </div>
+                {errors.faculty && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.faculty}</p>}
+              </div>
               
               {/* ส่วน Dropdown ประเภทผู้ใช้ */}
               <div className="mb-4">
@@ -227,7 +302,7 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
                   <select
                     name="userType"
                     value={userData.userType}
-                    onChange={handleChange}
+                    onChange={handleTextInputChange}
                     className={`w-full pl-10 pr-10 py-2.5 border-2 ${
                       errors.userType ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
                     } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200
@@ -250,15 +325,29 @@ const EditUserDialog = ({ isOpen, onClose, currentUser, onSave }) => {
                 )}
               </div>
               
-              <Input
-                label="รหัสพนักงาน/รหัสนักศึกษา"
-                name="employeeId"
-                value={userData.employeeId}
-                onChange={handleChange}
-                error={errors.employeeId}
-                placeholder="รหัสพนักงาน/รหัสนักศึกษา"
-                icon={<FaIdCard />}
-              />
+              {/* รหัสพนักงาน/รหัสนักศึกษา */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  รหัสพนักงาน/รหัสนักศึกษา {errors.employeeId && <span className="text-orange-500">*</span>}
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-orange-500 group-hover:text-orange-600 transition-colors duration-200">
+                    <FaIdCard />
+                  </div>
+                  <input
+                    type="text"
+                    name="employeeId"
+                    value={userData.employeeId}
+                    onChange={handleTextInputChange}
+                    className={`w-full pl-10 pr-3 py-2.5 border-2 ${
+                      errors.employeeId ? 'border-orange-300 bg-orange-50' : 'border-gray-200 group-hover:border-orange-300'
+                    } rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 
+                    bg-white shadow-sm transition-all duration-200`}
+                    placeholder="รหัสพนักงาน/รหัสนักศึกษา"
+                  />
+                </div>
+                {errors.employeeId && <p className="mt-1 text-xs text-orange-500 font-medium">{errors.employeeId}</p>}
+              </div>
             </div>
 
             {/* ส่วนปุ่มกดด้านล่าง */}
