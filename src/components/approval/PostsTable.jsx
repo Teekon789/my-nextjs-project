@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Check, X, Eye, Trash2, FileText, Menu, LayoutDashboard } from "lucide-react";
 import PropTypes from 'prop-types';
-import NotificationDropdown from '../notifications/NotificationDropdown';
+import dynamic from 'next/dynamic'; 
+
+const NotificationDropdown = dynamic(() => import('../notifications/NotificationDropdown'), { ssr: false });
 
 const useMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState({});

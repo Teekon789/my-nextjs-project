@@ -28,41 +28,24 @@ const MobileFriendlyPDFViewer = dynamic(() => import('../components/PDF/MobileFr
 });
 
 const Approval = () => {
-  const router = useRouter();
-  // State สำหรับเก็บข้อมูลโพสต์
-  const [posts, setPosts] = useState([]);
-  // State สำหรับเก็บข้อมูลผู้ใช้ปัจจุบัน
-  const [currentUser, setCurrentUser] = useState({ username: "-", role: "-" });
-  // State สำหรับการค้นหา
-  const [searchQuery, setSearchQuery] = useState("");
-  // State สำหรับการกรองสถานะ
-  const [statusFilter, setStatusFilter] = useState("");
-  // State สำหรับโพสต์ที่แสดงในหน้าปัจจุบัน
-  const [currentPosts, setCurrentPosts] = useState([]);
-  // State สำหรับโพสต์ที่ผ่านการกรองแล้ว
-  const [filteredPosts, setFilteredPosts] = useState([]);
-  // State สำหรับควบคุมการแสดง Popup
-  const [showPopup, setShowPopup] = useState(false);
-  // State สำหรับควบคุมการแสดงเอกสาร PDF
-  const [showDocument, setShowDocument] = useState(false);
-  // State สำหรับควบคุมการแสดง Popup ลบ
-  const [showDeletePopup, setShowDeletePopup] = useState(false);
-  // จำนวนโพสต์ต่อหน้า
-  const [postsPerPage] = useState(10);
-  // หน้าปัจจุบัน
-  const [currentPage, setCurrentPage] = useState(1);
-  // State สำหรับสถานะการโหลด
-  const [isLoading, setIsLoading] = useState(true);
-  // ตรวจสอบว่าเป็น client-side หรือไม่
-  const [isClient, setIsClient] = useState(false);
-  // โพสต์ที่ถูกเลือก
-  const [selectedPost, setSelectedPost] = useState(null);
-  // View ปัจจุบัน (ตารางหรือแดชบอร์ด)
-  const [currentView, setCurrentView] = useState('posts-table');
-  // ควบคุมการแสดง Dialog การปฏิเสธ
-  const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  // โพสต์ที่จะปฏิเสธ
-  const [postToReject, setPostToReject] = useState(null);
+  const router = useRouter(); // เรียกใช้ Hook ของการนำทาง
+  const [posts, setPosts] = useState([]); // สร้าง state สำหรับเก็บข้อมูลโพสต์
+  const [currentUser, setCurrentUser] = useState({ username: "-", role: "-" }); // สร้าง state สำหรับเก็บข้อมูลผู้ใช้ปัจจุบัน
+  const [searchQuery, setSearchQuery] = useState(""); // สร้าง state สำหรับเก็บคำค้นหา
+  const [statusFilter, setStatusFilter] = useState(""); // สร้าง state สำหรับเก็บสถานะการกรอง
+  const [currentPosts, setCurrentPosts] = useState([]); //  สร้าง state สำหรับเก็บโพสต์ที่จะแสดงในหน้าปัจจุบัน
+  const [filteredPosts, setFilteredPosts] = useState([]); // สร้าง state สำหรับเก็บโพสต์ที่ผ่านการกรอง
+  const [showPopup, setShowPopup] = useState(false); // สร้าง state สำหรับเก็บสถานะการแสดง Popup
+  const [showDocument, setShowDocument] = useState(false); // สร้าง state สำหรับเก็บสถานะการแสดงเอกสาร PDF
+  const [showDeletePopup, setShowDeletePopup] = useState(false); // สร้าง state สำหรับเก็บสถานะการแสดง Popup การลบโพสต์
+  const [postsPerPage] = useState(10); // กำหนดจำนวนโพสต์ต่อหน้า
+  const [currentPage, setCurrentPage] = useState(1);// สร้าง state สำหรับเก็บหน้าปัจจุบัน
+  const [isLoading, setIsLoading] = useState(true); // สร้าง state สำหรับเก็บสถานะการโหลดข้อมูล
+  const [isClient, setIsClient] = useState(false); // สร้าง state สำหรับเก็บสถานะการเป็น client-side
+  const [selectedPost, setSelectedPost] = useState(null); // สร้าง state สำหรับเก็บข้อมูลโพสต์ที่ถูกเลือก
+  const [currentView, setCurrentView] = useState('posts-table'); // สร้าง state สำหรับเก็บสถานะการแสดง View ปัจจุบัน
+  const [showRejectionDialog, setShowRejectionDialog] = useState(false); // สร้าง state สำหรับเก็บสถานะการแสดง Dialog การปฏิเสธ
+  const [postToReject, setPostToReject] = useState(null); // สร้าง state สำหรับเก็บข้อมูลโพสต์ที่จะปฏิเสธ
   
 
   // ฟังก์ชันสำหรับจัดการการนำทางจากการแจ้งเตือน
