@@ -15,7 +15,7 @@
 
 # next.js
 /.next/
-/out/
+ /out/
 
 # production
 /build
@@ -29,9 +29,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# env files (can opt-in for committing if needed)
-.env*.local
-.env
+# env files (สามารถ commit ได้ถ้าต้องการ)
+/.env*.local
+# .env <- ลบหรือคอมเมนต์บรรทัดนี้
 
 # vercel
 .vercel
